@@ -1,0 +1,211 @@
+<p-toast></p-toast>
+
+@if (logbookSelected()) {
+    <app-logbook-details-modal [showModal]="logbookSelected() ?? false"></app-logbook-details-modal>
+}
+
+<p-dialog header="Header" id="delete-logbook" [closable]="false" [(visible)]="showConfirmDelete" [draggable]="false" [modal]="true"
+    [style]="{ 'width': '23vw', 'border-radius': '32px'}">
+    <ng-template pTemplate="header">
+        <div style="display: grid; place-items: center;">
+            <i class="pi pi-exclamation-circle mt-4" style="color: #EB6506; font-size: 40px;"></i>
+            <h1 style="margin: 0; font-size: 22px;" class="text-center mt-3">
+                ¿Está seguro de continuar?
+            </h1>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+            <p-button label="Eliminar" (onClick)="deleteLogbook()"
+                styleClass="bg-btn-primary w-full">
+            </p-button>
+            <p-button label="Cancelar" (onClick)="showConfirmDelete = false"
+                styleClass="bg-btn-cancel w-full">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<div
+    class="bg-bluegray-50 mt-header border-round-2xl flex flex-column flex-no-wrap justify-content-center align-items-end">
+    
+    <div class="bg-white w-12 flex flex-column p-responsive py-5 border-round-md flex-wrap" style="overflow: auto">
+        <h1 class="font-verdana text-primary--custom pl-responsive">Total bitácoras</h1>
+        <div class="card w-full pd-table" id="table-logbooks">
+            <p-table  #dt_logbooks
+                [value]="dataLogbooks"
+                [paginator]="true"
+                [totalRecords]="totalRecords"
+                [rows]="5"
+                [rowsPerPageOptions]="[5, 10, 25, 50]"
+                [showCurrentPageReport]="false"
+                [tableStyle]="{ 'max-width': '100%' }"
+                [lazy]="true"
+                (onLazyLoad)="pageChange($event)"
+                rowStyleClass="custom-row-height"
+                dataKey="id"
+            >
+                <ng-template pTemplate="caption">
+                    
+                    <div class="w-full flex justify-content-between align-items-center">
+                        <div
+                            class="p-inputgroup flex h-3rem p-input-icon-left border-round-2xl w-search-table"
+                        >
+                            <i style="z-index: 2;" class="pi pi-search text-primary--custom"></i>
+                            <input 
+                                class="border-none shadow-none--custom border-round-left-2xl border-round-right-2xl" 
+                                type="text"
+                                pInputText 
+                                (input)="searchLogbook($event)"
+                            />         
+                            <p-columnFilter #imagePanel id="dateFilter" style="position: relative; z-index: 3; right: 3rem; margin-top: 7px;" type="date" field="date" display="menu">
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <div class="flex w-full flex-column gap-3">
+
+                                        <!-- <p-dropdown [style]="{ boxShadow: 'none' }" styleClass="border-round w-full" id="cuentaCliente"
+                                            [options]="optionFilterCategory" optionLabel="label" optionValue="value" >
+                                        </p-dropdown> -->
+
+                                        @if (user_session?.role == "admin" || user_session?.role == "admin_tlsg") {
+                                            <p-multiSelect 
+                                                [style]="{ boxShadow: 'none' }"
+                                                styleClass="border-round w-full"
+                                                id="optionSector"  
+                                                [options]="optionSector"
+                                                [(ngModel)]="selectedSector"
+                                                optionLabel="name"
+                                                optionValue="id_sector"
+                                                placeholder="Seleccione una opción"
+                                            ></p-multiSelect>
+                                        }
+
+                                        @if (!user_permissions_signal().includes('DATA_BY_GROUP_BUSINESS')) {
+                                            <p-multiSelect 
+                                                [style]="{ boxShadow: 'none' }"
+                                                styleClass="border-round w-full"
+                                                id="optionCategory"  
+                                                [options]="categories()"
+                                                [(ngModel)]="selectedCategories"
+                                                optionLabel="name_category"
+                                                optionValue="id_category"
+                                                placeholder="Seleccione categoría"
+                                            ></p-multiSelect>
+    
+                                            
+                                            <p-multiSelect 
+                                                [style]="{ boxShadow: 'none' }"
+                                                styleClass="border-round w-full"
+                                                id="optionGroupBusiness"  
+                                                [options]="optionGroupBusiness"
+                                                [(ngModel)]="selectedGroupBusiness"
+                                                optionLabel="name"
+                                                optionValue="id_group_business"
+                                                placeholder="Seleccione una opción"
+                                            ></p-multiSelect>
+                                        }
+
+
+
+
+
+                                        <p-multiSelect 
+                                            [style]="{ boxShadow: 'none' }"
+                                            styleClass="border-round w-full"
+                                            id="optionGroupBusiness"  
+                                            [options]="optionTime"
+                                            [(ngModel)]="selectedTime"
+                                            placeholder="Seleccione una opción"
+                                        ></p-multiSelect>
+
+                                        <p-calendar [(ngModel)]="dateRange" selectionMode="range" dateFormat="dd/mm/yy" [showIcon]="true"
+                                            [readonlyInput]="true" placeholder="Rango de fechas" [style]="{ boxShadow: 'none' }"
+                                            styleClass="border-round w-full">
+                                        </p-calendar>
+
+                                        <div class="flex gap-2">
+                                            <button (click)="applyFilter(imagePanel)" 
+                                            style="background: linear-gradient(0deg, #22a183 0%, #1f9f63 100%) !important; border: transparent;"
+                                            type="button" pbutton="" pripple="" class="p-element p-button-sm p-button p-component" ng-reflect-label="Apply">
+                                                <span style="font-size: 12px;" class="p-button-label b-apply">Aplicar</span>
+                                            </button>
+                                            <button (click)="clearFilter()" type="button" pbutton="" pripple="" 
+                                            style="background: white !important; border: 1px solid #038945; color: #129578;"
+                                            class="p-element p-button-outlined p-button-sm p-button p-component" ng-reflect-label="Clear">
+                                                <span style="font-size: 12px;" class="p-button-label">Limpiar</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <p-button label="" icon="pi pi-file-excel" class="w-reload" (onClick)="generateReportHistory()"
+                                styleClass="w-full bg-white text-primary--custom b-reload border-round-1xl h-full">
+                            </p-button>
+                            <p-button label="" icon="pi pi-sync" class="w-reload" (onClick)="reloadHistoryLogbook()"
+                                styleClass="w-full bg-white text-primary--custom b-reload border-round-1xl h-full">
+                            </p-button>
+                        </div>
+
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th scope="col">Opciones</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Guia / documento</th>
+                        <th scope="col">Categoría</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Conductor</th>
+                        <th scope="col">Placa</th>
+                        <th scope="col">Jornada</th>
+                        <!-- <th scope="col">Permanencia</th> -->
+                        <th scope="col">Estado</th>
+                    </tr>
+                </ng-template>                
+                <ng-template pTemplate="body" let-loogbook>
+                    <tr>                
+                        <td data-titulo="Opciones:">
+                            <p-splitButton id="option-table" appendTo="body" (click)="optionsLogbook(loogbook)" [model]="items">
+                                <ng-template pTemplate="dropdownicon">
+                                    <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                                </ng-template>
+                            </p-splitButton>
+                        </td>
+                        <td  data-titulo="Fecha:" [ngxTippy]="'Hora de registro: ' + (loogbook?.created_at | date:'HH:mm':'UTC')">{{ loogbook?.created_at | date:'dd/MM/yyyy':'UTC' }}</td>
+                        <td  data-titulo="Tipo:">{{ loogbook?.record_type == 'entry' ? 'Ingreso' : 'Salida'  }}</td>
+                        <td  data-titulo="Documento:" style="max-width: 20px;">{{ loogbook?.shipping_guide == '' || null ? 'N/A' : loogbook?.shipping_guide }}</td>
+                        <td  data-titulo="Categoría:">{{ loogbook?.name_category ?? 'N/A' }}</td>
+                        <td  data-titulo="Cantidad:">{{ loogbook?.quantity ?? 'N/A' }}</td>
+                        <td  data-titulo="Conductor:" style="max-width: 30px;">{{ loogbook?.name_driver }}</td>
+                        <td  data-titulo="Licencia:">{{ loogbook?.truck_license }}</td>
+                        <td  data-titulo="Jornada:">{{ loogbook?.workday }}</td>
+                        <!-- <td  data-titulo="Permanencia:" style="width: 20px;">{{ loogbook?.permanence_time ?? 'N/A' }}</td> -->
+                        <td  data-titulo="Estado:">
+                            <p-tag [value]="loogbook?.status" [severity]="getSeverity(loogbook?.status)"></p-tag>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="11" class="text-center" style="font-size: 18px; font-weight: 700;">No hay datos disponibles</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<div class="overlay" *ngIf="isLoading">
+    <p-progressSpinner
+      class="center-spinner"
+      [style]="{ width: '50px', height: '50px' }"
+      strokeWidth="8"
+      fill="#007bff"
+      animationDuration="2s"
+    ></p-progressSpinner>
+</div>
+

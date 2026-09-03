@@ -1,0 +1,183 @@
+<p-dialog header="Header" [closable]="false" [(visible)]="showModal" [draggable]="false" [modal]="true"
+    [style]="{ 'width': '30vw', 'border-radius': '32px'}">
+    <ng-template pTemplate="header">
+        <div style="display: grid; place-items: center;">
+            <h1 style="margin: 0; font-size: 22px;" class="text-center mt-5">
+                Detalle despacho
+            </h1>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+
+        @if (dispatchSelected() != null) {
+            <!-- <div class="flex justify-content-between card-info gap-2">
+                <div class="flex flex-column">
+                    <div class="flex align-items-center mt-4">
+                        <i style="font-size: 0.8rem;" class="pi pi-calendar mr-2"></i>
+
+                        <label htmlFor="shipping_guide">
+                            {{ dispatchSelected()?.created_at | date:'dd/MM/yyyy':'UTC'}}
+                        </label>
+
+                        <i class="pi pi-clock mr-2 ml-2" style="font-size: 0.8rem;"></i>
+
+                        <label htmlFor="shipping_guide">
+                            {{ dispatchSelected()?.created_at | date:'HH:mm':'UTC'}}
+                        </label>
+                    </div>
+                </div>
+
+                <div class="i-log">
+                    <i class="pi pi-file-check" style="color: #0056b3; font-size: 30px;"></i>
+                </div>
+            </div> -->
+
+            <h4>INFORMACIÓN DE CARGA</h4>
+            <div class="div-responsive mt-2 gap-2">
+
+                <div class="flex flex-column w-full card-info">
+                    <i class="pi pi-truck mb-2" style="color: #0056b3;"></i>
+                    <label class="font-bold cab-label" htmlFor="shipping_guide">PLACA VEHÍCULO: </label>
+                    <label class="det-label" htmlFor="shipping_guide">{{dispatchSelected()?.truck_license}}</label>
+                </div>
+
+                <div class="flex flex-column w-full card-info">
+                    <i class="pi pi-shopping-bag mb-2" style="color: #0056b3;"></i>
+                    <label class="font-bold cab-label" htmlFor="shipping_guide">PESO: </label>
+                    <label class="det-label" htmlFor="shipping_guide">{{dispatchSelected()?.weight ?? 'N/A'}}</label>
+                </div>
+
+                <div class="flex flex-column w-full card-info">
+                    <i class="pi pi-compass mb-2" style="color: #0056b3;"></i>
+                    <label class="font-bold cab-label" htmlFor="shipping_guide">DESTINO: </label>
+                    <label class="det-label" htmlFor="shipping_guide">
+                        {{dispatchSelected()?.name_destiny || 'N/A'}}
+                    </label>
+                </div>
+
+                <div class="flex flex-column w-full card-info">
+                    <i class="pi pi-calendar mb-2" style="color: #0056b3;"></i>
+                    <label class="font-bold cab-label" htmlFor="shipping_guide">FECHA: </label>
+                    <label class="det-label" htmlFor="shipping_guide">
+                        {{dispatchSelected()?.created_at | date:'dd/MM/yyyy':'UTC'}}
+                    </label>
+                </div>
+            </div>
+            
+            <h4>SKUS TOTALES</h4>
+            <div class="flex justify-content-center align-items-center mt-4 mb-2">
+                <p-table [value]="getPendingSkus()" [tableStyle]="{'width': '100%'}" class="w-table">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th scope="col" style="border-top-left-radius: 20px" class="text-center header-table-modal">N. Sku</th>
+                            <th scope="col" style="border-top-right-radius: 20px" class="text-center header-table-modal">Tipo</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-sku let-rowIndex="rowIndex">
+                        <tr>
+                            <td class="td-padding text-center">Sku {{ rowIndex + 1}}</td>
+                            <td class="td-padding text-center">{{ sku?.type_sku }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            @if (dispatchSelected()?.reception && dispatchSelected()?.reception!.reception_detail.length != 0) {
+                <h4>DISCREPANCIAS</h4>
+                <div class="flex justify-content-center align-items-center mt-4 mb-2">
+                    <p-table [value]="dispatchSelected()?.reception?.reception_detail ?? []" [tableStyle]="{'width': '100%'}" class="w-table">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th scope="col" style="border-top-left-radius: 20px" class="text-center header-table-modal">N. Sku</th>
+                                <th scope="col" style="border-top-right-radius: 20px" class="text-center header-table-modal">Observación</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-sku let-rowIndex="rowIndex">
+                            <tr>
+                                <td class="td-padding text-center">Sku {{ rowIndex + 1 }}</td>
+                                <td class="td-padding text-center">{{ sku?.observations }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            }
+
+            <h4>PERSONAL RESPONSABLE</h4>
+            <div class="flex flex-column card-info mt-2 gap-2">
+
+                <div class="flex gap-2 w-full">
+                    <div class="det-avatar">
+                        <i class="pi pi-user-edit" style="color: #0056b3;"></i>
+                    </div>
+                    <div class="flex flex-column">
+                        <label class="font-bold cab-label" htmlFor="shipping_guide">CREADO POR: </label>
+                        <label class="det-label" htmlFor="shipping_guide">{{dispatchSelected()?.created_by}}</label>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 w-full">
+                    <div class="det-avatar">
+                        <i class="pi pi-car" style="color: #0056b3;"></i>
+                    </div>
+                    <div class="flex flex-column">
+                        <label class="font-bold cab-label" htmlFor="shipping_guide">CONDUCTOR: </label>
+                        <label class="det-label" htmlFor="shipping_guide">{{dispatchSelected()?.driver}}</label>
+                    </div>
+                </div>
+
+            </div>
+
+            <h4>OBSERVACIONES</h4>
+            <div class="flex flex-column card-info mt-3 gap-2">
+                <label class="det-label" htmlFor="shipping_guide">{{ dispatchSelected()!.observations || "N/A" }}</label>
+            </div>
+
+
+            @if (dispatchSelected()!.images.length > 0) {
+                <h4>IMÁGENES</h4>
+
+                <div class="flex gap-2 w-full mb-2">
+                    @if (despachoImages().length > 0) {
+                        <p-button
+                            label="Despacho"
+                            icon="pi pi-external-link"
+                            iconPos="left"
+                            (click)="showImagesModal(despachoImages())"
+                            styleClass="w-full button-image border-round-1xl h-full">
+                        </p-button>
+                    }
+
+                    @if (updateImages().length > 0) {
+                        <p-button
+                            label="Salida"
+                            icon="pi pi-external-link"
+                            iconPos="left"
+                            (click)="showImagesModal(updateImages())"
+                            styleClass="w-full button-image border-round-1xl h-full">
+                        </p-button>
+                    }
+            
+                    @if (recepcionImages().length > 0) {
+                        <p-button
+                            label="Recepción"
+                            icon="pi pi-external-link"
+                            iconPos="left"
+                            (click)="showImagesModal(recepcionImages())"
+                            styleClass="w-full button-image border-round-1xl h-full">
+                        </p-button>
+                    }
+                </div>
+            }
+        }
+
+
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+            <p-button label="Cerrar" (onClick)="closeModal()" styleClass="bg-btn-cancel w-full">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>

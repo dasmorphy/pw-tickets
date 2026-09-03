@@ -1,0 +1,90 @@
+:host::ng-deep
+    .card-notifications
+        padding: 1.5rem
+        border-radius: 0.5rem
+        background-color: var(--surface-card)
+
+        @media screen and (max-width: 600px)
+            padding: 1rem
+
+    .title-notifications
+        margin: 0
+        font-size: 22px
+        font-family: "Montserrat", sans-serif
+
+    .w-search
+        width: 20rem
+
+        @media screen and (max-width: 600px)
+            width: 100%
+
+    .notification-row
+        padding: 1rem
+        margin-bottom: .75rem
+        border: 1px solid var(--surface-border)
+        border-radius: 0.5rem
+        cursor: pointer
+        transition: background-color .2s, border-color .2s
+
+        &:hover
+            background: var(--surface-hover)
+
+        &.is-unread
+            border-left: 4px solid #0056b3
+
+        &.is-highlight
+            border-color: #0056b3
+            background: var(--surface-hover)
+
+    .notification-icon
+        display: flex
+        align-items: center
+        justify-content: center
+        min-width: 2.5rem
+        height: 2.5rem
+        border-radius: 50%
+
+        i
+            font-size: 1.1rem
+
+        &.severity-danger
+            background: #fee2e2
+            color: #b91c1c
+
+        &.severity-success
+            background: #d1fae5
+            color: #047857
+
+        &.severity-warning
+            background: #fef3c7
+            color: #b45309
+
+        &.severity-info
+            background: #dbeafe
+            color: #0056b3
+
+    .notification-title
+        font-size: 15px
+        font-weight: 700
+        color: var(--text-color)
+
+    .notification-body
+        font-size: 13px
+        color: var(--text-color-secondary)
+        line-height: 1.4
+
+    .notification-date
+        font-size: 12px
+        color: var(--text-color-secondary)
+
+    .tag-type .p-tag
+        font-size: 11px
+
+    .unread-dot
+        min-width: .5rem
+        height: .5rem
+        border-radius: 50%
+        background: red
+
+    .p-paginator
+        background: transparent

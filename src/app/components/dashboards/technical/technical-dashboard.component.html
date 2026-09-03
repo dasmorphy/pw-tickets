@@ -1,0 +1,292 @@
+<p-dialog header="Header" id="modalProject" [closable]="false" [(visible)]="showModal" [draggable]="false" [modal]="true"
+    [style]="{ 'width': '30vw', 'border-radius': '32px'}">
+    <ng-template pTemplate="header">
+        <div style="display: grid; place-items: center;">
+            <h1 style="margin: 0; font-size: 22px;" class="text-center mt-5">
+                Detalle
+            </h1>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+        <div class="flex justify-content-between card-info gap-2">
+            <div class="flex flex-column">
+                <div class="flex flex-column">
+                    <label class="font-bold cab-label" htmlFor="code">CÓDIGO: </label>
+                    <label style="font-size: 23px;" class="font-bold mt-1" htmlFor="code">
+                        {{ selectedProject?.code || "N/A" }}
+                    </label>
+                </div>
+
+                <div class="flex align-items-center mt-4">
+                    <i style="font-size: 0.8rem;" class="pi pi-calendar mr-2"></i>
+
+                    <label htmlFor="created_at">
+                        {{ selectedProject?.created_at | date:'dd/MM/yyyy':'UTC' }}
+                    </label>
+
+                    <i class="pi pi-clock mr-2 ml-2" style="font-size: 0.8rem;"></i>
+
+                    <label htmlFor="created_at">
+                        {{ selectedProject?.created_at | date:'HH:mm':'UTC' }}
+                    </label>
+                </div>
+            </div>
+
+            <div class="i-log">
+                <i class="pi pi-folder-open" style="color: #0056b3; font-size: 30px;"></i>
+            </div>
+        </div>
+
+        <div class="div-responsive mt-2 gap-2">
+            <div class="flex flex-column w-full card-info">
+                <i class="pi pi-briefcase mb-3" style="color: #0056b3;"></i>
+                <label class="font-bold cab-label" htmlFor="name">PROYECTO: </label>
+                <label class="det-label" htmlFor="name">{{ selectedProject?.name ?? 'N/A' }}</label>
+            </div>
+
+            <div class="flex flex-column w-full card-info">
+                <i class="pi pi-building mb-3" style="color: #0056b3;"></i>
+                <label class="font-bold cab-label" htmlFor="client">CLIENTE: </label>
+                <label class="det-label" htmlFor="client">{{ selectedProject?.client ?? 'N/A' }}</label>
+            </div>
+
+            <div class="flex flex-column w-full card-info">
+                <i class="pi pi-map-marker mb-3" style="color: #0056b3;"></i>
+                <label class="font-bold cab-label" htmlFor="location">UBICACIÓN: </label>
+                <label class="det-label" htmlFor="location">{{ selectedProject?.location ?? 'N/A' }}</label>
+            </div>
+
+            <div class="flex flex-column w-full card-info">
+                <i class="pi pi-list mb-3" style="color: #0056b3;"></i>
+                <label class="font-bold cab-label" htmlFor="records">REGISTROS TÉCNICOS: </label>
+                <label class="det-label" htmlFor="records">{{ selectedProject?.record_technical?.length ?? 0 }}</label>
+            </div>
+
+            <div class="flex flex-column w-full card-info">
+                <i class="pi pi-file-edit mb-3" style="color: #0056b3;"></i>
+                <label class="font-bold cab-label" htmlFor="description">DESCRIPCIÓN: </label>
+                <label class="det-label" htmlFor="description">{{ selectedProject?.description || 'N/A' }}</label>
+            </div>
+        </div>
+
+        <div class="flex flex-column card-info mt-2 gap-3">
+
+            <div class="flex gap-2 w-full">
+                <div class="det-avatar">
+                    <i class="pi pi-user-edit" style="color: #0056b3;"></i>
+                </div>
+                <div class="flex flex-column">
+                    <label class="font-bold cab-label" htmlFor="created_by">CREADO POR: </label>
+                    <label class="det-label" htmlFor="created_by">{{ selectedProject?.created_by ?? 'N/A' }}</label>
+                </div>
+            </div>
+
+            <div class="flex gap-2 w-full">
+                <div class="det-avatar">
+                    <i class="pi pi-user" style="color: #0056b3;"></i>
+                </div>
+                <div class="flex flex-column">
+                    <label class="font-bold cab-label" htmlFor="updated_by">ÚLTIMA ACTUALIZACIÓN: </label>
+                    <label class="det-label" htmlFor="updated_by">
+                        {{ selectedProject?.updated_by ?? 'N/A' }} -
+                        {{ selectedProject?.updated_at ? (selectedProject?.updated_at | date:'dd/MM/yyyy HH:mm':'UTC') : 'N/A' }}
+                    </label>
+                </div>
+            </div>
+
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+            <p-button label="Cerrar" (onClick)="closeModalProject()" styleClass="bg-btn-cancel w-full">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+
+<p-dialog header="Header" id="aprobar" [closable]="false" [(visible)]="showUpdate" [draggable]="false" [modal]="true"
+    [style]="{ 'width': '23vw', 'border-radius': '32px'}">
+    <ng-template pTemplate="header">
+        <div style="display: grid; place-items: center;">
+            <i class="pi pi-exclamation-circle mt-4" style="color: #EB6506; font-size: 40px;"></i>
+            <h1 style="margin: 0; font-size: 22px;" class="text-center mt-3">
+                {{typeRequest}}
+            </h1>
+        </div>
+    </ng-template>
+
+    <div class="flex flex-column">
+        <span class="w-full flex-column flex">
+            <label htmlFor="observations" class="font-semibold">Comentarios</label>
+            <textarea
+                id="commentary"
+                pInputTextarea
+                placeholder="Opcional"
+                [(ngModel)]="commentaryUpdateStatus"
+                class="form-textarea mt-2"
+                rows="4"
+            ></textarea>
+        </span>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+            <p-button label="Actualizar" (onClick)="updateStatus(
+                typeRequest == 'Aprobar solicitud' ? 'Finalizado' : 'Rechazado'
+            )"
+                styleClass="bg-btn-primary w-full">
+            </p-button>
+            <p-button label="Cancelar" (onClick)="closeModalUpdate()"
+                styleClass="bg-btn-cancel w-full">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<div class="flex flex-column w-full px-5">
+    <div class="flex w-full justify-content-center gap-3 column-responsive">
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">Aprobado</span>
+                    <span class="font-bold text-3xl">{{getGraphCountStatus('Aprobado')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-arrow-up-right text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+        <p-card class="flex-1" [style]="{
+                'border-left': '5px solid #00a11b',
+                'border-radius': '12px'
+            }">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">Finalizado</span>
+                    <span class="font-bold text-3xl">{{getGraphCountStatus('Finalizado')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-check text-2xl font-bold" style="color: #00a11b;"></i>
+                </span>
+            </div>
+        </p-card>
+
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">En ejecución</span>
+                    <span class="font-bold text-3xl">{{getGraphCountStatus('En ejecución')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-bolt text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">Pendiente aprobación</span>
+                    <span class="font-bold text-3xl">{{getGraphCountStatus('Pendiente aprobación')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-stopwatch text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+        <p-card class="flex-1" [style]="{
+                'border-left': '5px solid #ef4444',
+                'border-radius': '12px'
+            }">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">Rechazado</span>
+                    <span class="font-bold text-3xl">{{getGraphCountStatus('Rechazado')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-times text-2xl font-bold" style="color: #ef4444;"></i>
+                </span>
+            </div>
+        </p-card>
+
+    </div>
+
+
+    <div class="flex w-full gap-3 mt-5 column-responsive">
+        <div class="flex card-info justify-content-center align-items-center w-full" style="height: 25rem;">
+            <div class="flex flex-column h-full">
+                <span class="text-center" style="font-weight: 600;">Auditorías</span>
+                @if (this.graphAuditing?.audited == 0 &&
+                this.graphAuditing?.not_audited == 0) {
+                    <div class="h-full w-full flex justify-content-center align-items-center">
+                        <span>Sin datos disponibles</span>
+                    </div>
+                }@else {
+                    <canvas class="dona mt-5" id="myDoughnutChart"></canvas>
+                }
+            </div>
+        </div>
+
+        <div class="flex flex-column gap-3 w-full">
+
+            <div class="flex card-info justify-content-center align-items-center h-full">
+                <div class="flex flex-column w-full h-full">
+                    <span style="font-weight: 600;">Pendientes de aprobación</span>
+
+                    @if (pending_tasks.length === 0) {
+                        <div class="h-full w-full flex justify-content-center align-items-center">
+                            <span>Sin datos disponibles</span>
+                        </div>
+                    } @else {
+                        <div class="flex flex-column gap-2 mt-2 overflow-y-auto" style="max-height: 18rem;">
+                            @for (item of pending_tasks; track item.id) {
+                                <div class="flex justify-content-between align-items-center w-full p-3 border-1 border-round cursor-pointer"
+                                    style="border-color: #e5e7eb;" (click)="openModalDetails(item)">
+                                    <div class="flex flex-column gap-1">
+                                        <span class="font-semibold text-base">{{ item.name ?? 'N/A'}}</span>
+                                        <div class="flex gap-2 flex-column">
+                                            <span class="text-secondary text-sm">Cliente: {{ item.client ?? 'N/A'}}</span>
+                                            <span class="text-secondary text-sm">Ubicación: {{ item.location ?? 'N/A'}}</span>
+                                            <span class="text-secondary text-sm">Solicitado por: {{ item.requested_by ?? 'N/A'}}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex align-items-center gap-2">
+                                        <button pButton type="button" icon="pi pi-check"
+                                            class="p-button-rounded p-button-text p-button-success"
+                                            pTooltip="Aprobar"
+                                            tooltipPosition="top"
+                                            (click)="$event.stopPropagation(); approveRequest(item)">
+                                        </button>
+                                        <button pButton type="button" icon="pi pi-times"
+                                            class="p-button-rounded p-button-text p-button-danger"
+                                            pTooltip="Rechazar"
+                                            tooltipPosition="top"
+                                            (click)="$event.stopPropagation(); rejectRequest(item)">
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

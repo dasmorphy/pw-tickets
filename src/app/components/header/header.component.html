@@ -1,0 +1,124 @@
+<div class="p-header flex justify-content-between h-6rem py-5-header border-box align-items-center gap-2">
+  <div>
+    <p-button icon="pi pi-bars" styleClass="p-button-text text-color-secondary bg-transparent border-transparent w-hamburger"
+      (onClick)="toggleMenu()"></p-button>
+  </div>
+  <span class="flex align-items-center w-full p-input-icon-right"
+    [class]="{ 
+      'justify-content-center': screenWidth < 600,
+      'font-span': screenWidth > 600,
+    }">
+
+      @if (screenWidth < 600) {
+        <img src="./assets/logo-xtrim-letras.svg" alt="logo-zentinel">
+      }@else {
+        Sistema de gestión de solicitudes
+      }
+
+      
+  </span>
+
+  <p-button [icon]="iconTheme"
+    (onClick)="changeThemeColor()"
+    styleClass="border-button border-none text-primary--custom bg-transparent p-button-raised" 
+    >
+  </p-button>
+
+  <p-button icon="pi pi-bell" [badge]="notificationService.badgeLabel()"
+    styleClass="border-button text-primary--custom p-button-text p-button-raised bg-transparent"
+    (onClick)="toggleNotifications($event, panelNotifications)">
+  </p-button>
+
+  <p-overlayPanel #panelNotifications styleClass="panel-notifications" [showCloseIcon]="false"
+    [style]="{ 'width': screenWidth < 600 ? '92vw' : '25rem' }">
+    <ng-template pTemplate="content">
+      <div class="notifications-header flex align-items-center justify-content-between gap-2">
+        <div class="flex align-items-center gap-2">
+          <span class="font-bold font-verdana">Notificaciones</span>
+
+          @if (notificationService.unreadCount() > 0) {
+            <p-tag [value]="notificationService.unreadCount() + ' nuevas'" severity="danger" [rounded]="true"></p-tag>
+          }
+        </div>
+
+        <div class="flex align-items-center">
+          <p-button icon="pi pi-refresh" [text]="true" [rounded]="true" pTooltip="Actualizar"
+            tooltipPosition="bottom" [loading]="notificationService.isLoading()"
+            styleClass="text-color-secondary" (onClick)="reloadNotifications()">
+          </p-button>
+
+          @if (notificationService.unreadCount() > 0) {
+            <p-button icon="pi pi-check-circle" [text]="true" [rounded]="true" pTooltip="Marcar todas como leídas"
+              tooltipPosition="bottom" styleClass="text-color-secondary"
+              [loading]="notificationService.isMarkingAllAsRead()" (onClick)="markAllAsRead()">
+            </p-button>
+          }
+        </div>
+      </div>
+
+      <div class="notifications-body">
+        @if (notificationService.isLoading() && notificationService.notifications().length === 0) {
+          <div class="flex justify-content-center py-5">
+            <p-progressSpinner styleClass="w-2rem h-2rem" strokeWidth="4"></p-progressSpinner>
+          </div>
+        } @else if (notificationService.notifications().length === 0) {
+          <div class="flex flex-column align-items-center justify-content-center py-5 gap-2 text-color-secondary">
+            <i class="pi pi-bell-slash" style="font-size: 1.8rem;"></i>
+            <span class="font-verdana" style="font-size: 13px;">No tienes notificaciones</span>
+          </div>
+        } @else {
+          @for (notification of notificationsPreview(); track notification.id_notification) {
+            <div class="notification-item flex gap-3 align-items-center" [class.is-unread]="!notification.is_read"
+              (click)="openNotification(notification, panelNotifications)">
+              <div class="notification-icon" [ngClass]="'severity-' + notificationService.getSeverityNotification(notification.notification_type)">
+                <i [class]="notificationService.getIconNotification(notification.notification_type)"></i>
+              </div>
+
+              <div class="flex flex-column flex-1 gap-1">
+                <div class="flex align-items-start justify-content-between gap-2">
+                  <span class="notification-title font-verdana">{{ notification.title }}</span>
+
+                  @if (!notification.is_read) {
+                    <span class="unread-dot"></span>
+                  }
+                </div>
+
+                <span class="notification-body font-verdana">{{ notification.body }}</span>
+
+                <span class="notification-date font-verdana">
+                  <i class="pi pi-clock mr-1" style="font-size: .7rem;"></i>
+                  {{ notificationService.timeAgo(notification.sent_at || notification.created_at) }}
+                </span>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="notifications-footer">
+        <p-button label="Ver todas las notificaciones" icon="pi pi-arrow-right" iconPos="right" [text]="true"
+          styleClass="w-full justify-content-center text-primary--custom text-sm"
+          (onClick)="goToAllNotifications(panelNotifications)">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-overlayPanel>
+
+  <p-avatar [label]="user_json?.attributes?.fullname ? user_json?.attributes?.fullname[0] : 'U'" size="large"
+    shape="circle">
+  </p-avatar>
+
+  <div class="div-avatar">
+    @if (user_json) {
+      <div class="div-name" style="min-width: 8rem;">
+        <span style="font-size: 13px;" class="font-bold font-verdana">{{ user_json?.attributes?.fullname }}</span>
+        <span style="font-size: 14px;" class="font-verdana text-color-secondary">
+          {{ user_json?.role?.replace('_',' ')?.replace('_',' ') }}
+        </span>
+        <span style="font-size: 14px;" class="font-verdana text-color-secondary">
+          {{ user_json?.user}}
+        </span>
+      </div>
+    }
+  </div>
+</div>

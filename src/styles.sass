@@ -1,0 +1,468 @@
+/* You can add global styles to this file, and also import other style files */
+
+// Importar PrimeFlex - necesario para las clases de utilidad
+// @import '~primeflex/primeflex.css'
+
+*
+    //margin: 0
+    //padding: 0
+    // overflow-x: hidden
+
+:root
+    --primary-color: #83378f
+body, html
+    ::-webkit-scrollbar
+        width: 10px!important
+
+    /* Track */
+    // ::-webkit-scrollbar-track
+    //     background: #f1f1f1!important
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb
+        border-radius: 2rem!important
+        background: #27a594!important
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover
+        background: #27a594!important
+
+// body
+//     background-color: #1d1b1d
+    // overflow-x: hidden
+
+// .p-datepicker
+//     @media screen and (min-width: 1100px)
+//         top: 605px!important
+//         left: 667.094px!important
+p, h1, h2, h3, h4, h5, h6, label, a, li, div, button
+    font-family: 'Montserrat', sans-serif!important
+
+.p-menuitem-text
+    font-family: 'Montserrat', sans-serif!important
+
+.pi
+    font-family: "primeicons"!important
+
+.mt-header
+    margin-top: 6rem
+
+    // @media screen and (max-width: 600px)
+    //     margin-top: 0
+
+.bg-transparent
+    background: transparent!important
+
+.p-dialog
+    box-shadow: none
+
+.bg-app
+    background-color: var(--bg-app)!important
+
+.b-body-index
+    background-color: var(--surface-200)!important
+
+.bg-bluegray-50
+    background-color: var(--bluegray-50)!important
+    // background-color: #f7f8f9!important
+
+.bg-button-style
+    background-color: var(--button-style)!important
+
+.bg-white
+    background-color: var(--surface-card)!important
+
+.text-primary--custom
+    color: var(--label-color-style)!important
+
+.overlay
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background: rgba(0, 0, 0, 0.5)
+    display: flex
+    justify-content: center
+    align-items: center
+    z-index: 1110
+
+p-button
+    box-shadow: none!important
+    border: 0
+
+.p-inputtext
+    &:focus
+        box-shadow: none
+        // background-color: transparent !important
+        box-shadow: none !important
+        outline: none !important
+
+
+#optionProspect
+    .p-dialog-header, .p-dialog-content, .p-dialog-footer
+        background-color: rgb(245, 245, 245)
+
+.center-spinner
+    z-index: 1000
+
+.p-inputtext
+    &:enabled
+        &:focus, &:hover
+            border-color: #83378f
+
+.p-progress-spinner-circle
+    fill: transparent!important
+    stroke: #106d5c!important
+
+.grecaptcha-badge
+    visibility: hidden
+
+.column-responsive
+    @media screen and (max-width: 600px)
+        flex-direction: column
+
+p-tieredmenusub
+    .p-submenu-list
+        @media screen and (max-width: 600px)
+            top: 41px
+            left: 0%
+h1
+    font-size: 27px
+    @media screen and (max-width: 600px)
+        margin-top: 1rem
+
+.h2-title
+    @media screen and (max-width: 600px)
+        margin-bottom: 0px!important
+        margin-top: 5px!important
+.py-5
+    padding-top: 2rem!important
+    padding-bottom: 2rem!important
+    @media screen and (max-width: 600px)
+        padding-top: .5rem!important
+        padding-bottom: 1.5rem!important
+
+.m-0-responsive
+    @media screen and (max-width: 600px)
+        margin-bottom: 0!important
+
+.bg-btn-primary
+    background-color: #008e7c
+    border: 0
+    color: white
+
+.bg-btn-cancel
+    background-color: #d02a1e
+    border: 0
+    color: white
+
+.card-form
+    padding: .5rem 6rem 1.5rem 6rem
+    // background-color: #F5F5F5
+    width: 611px
+    border-radius: 16px
+
+    @media screen and (max-width: 980px)
+        padding: .5rem 2rem 1rem 2rem
+        // max-width: 23rem
+
+    @media screen and (max-width: 380px)
+        padding: .5rem 2rem 1rem 2rem
+        // max-width: 19rem
+
+.p-paginator-pages .p-paginator-page
+    @media screen and (max-width: 600px)
+        font-size: 85%
+
+.p-paginator
+    .p-paginator-first, .p-paginator-last
+        @media screen and (max-width: 600px)
+            display: none
+    .p-paginator-prev, .p-paginator-next
+        @media screen and (max-width: 600px)
+            min-width: 1rem
+    .p-button-rounded
+        border-radius: 50%
+        height: 3rem
+
+    .p-button-raised
+        box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12)!important
+
+    .p-button
+        .p-button-text
+            background-color: transparent
+            border-color: transparent
+
+.p-button-lg, .p-button--custom
+    background: linear-gradient(0deg, #773282 0%, #AF3BB1 100%) !important
+    border: 0
+    padding: 0.5rem
+
+.p-button-lg-purple
+    border: 1px solid #773282
+    color: #773282
+    // width: 14rem
+    padding: 0.5rem
+    background: linear-gradient(0deg, #773282 0%, #AF3BB1 100%) !important
+
+.p-datepicker .p-timepicker
+    height: 5rem
+
+.p-button--custom-alt
+    background: #ffff
+    border: 1px solid #773282
+    color: var(--label-color-style)
+
+.p-button-lg, .p-button--custom--b
+    background: white !important
+    border: 1px solid #773282
+    color: #773282
+    width: 14rem
+    padding: 0.5rem
+
+.w-12rem-button
+    width: 12rem!important
+
+.p-button .p-button-lg .p-button--custom-prev
+    background: white !important
+    color: #83378f
+    border: 0
+
+.p-float-label label
+    margin-top: -0.5rem
+
+.p-float-label input.p-filled ~ label
+    top: -0.25rem
+
+.p-dropdown
+    padding: 0rem 0rem
+
+.p-toast
+    @media screen and (max-width: 600px)
+        width: 20rem!important
+
+.box-shadow-none
+    &:focus
+        box-shadow: none
+
+.font-verdana
+    font-family: Verdana, Geneva, Tahoma, sans-serif
+
+body
+    font-family: Arial !important
+    overflow-x: hidden
+    margin: 0
+
+.w-0
+    width: 0px !important
+
+// .w-calc
+//     width: calc(100vw - 2rem)
+
+.p-column-filter-overlay
+    // z-index: 3!important
+
+    .p-column-filter-operator
+        display: none!important
+
+    .p-column-filter-constraint
+        p-dropdown
+            .p-column-filter-matchmode-dropdown
+                display: none!important
+
+    .p-column-filter-add-rule
+        display: none
+
+    .p-column-filter-buttonbar
+        display: none
+
+    #sellers_filter
+        .p-multiselect-items-wrapper
+            max-width: 20rem
+
+.div-validate-data
+    position: absolute
+    z-index: 1
+    @media screen and (max-width: 600px)
+        position: relative
+        z-index: 0
+
+.validate-data
+    font-size: 13px
+    color: red
+
+@media screen and (min-width: 1024px)
+    .w-calc
+        width: 100%
+
+    .min-h-23rem
+        min-height: 100%
+
+.div-responsive
+    // width: 100%
+    // display: flex
+    margin-bottom: 0
+    margin-top: 0
+    display: grid
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)
+    // margin-top: 1.5rem
+    // margin-bottom: 2rem
+    gap: 1rem
+    // flex-direction: column
+
+    @media screen and (max-width: 750px)
+        display: flex
+        flex-direction: column
+
+.width-span
+    width: 30%
+
+    @media screen and (max-width: 930px)
+        margin-top: 2rem
+
+    @media screen and (max-width: 600px)
+        max-width: 85vw
+        width: 100%
+        margin-top: 2.3rem
+
+.p-responsive
+    padding-left: 2rem
+    padding-right: 2rem
+
+    @media screen and (max-width: 600px)
+        padding-left: 0
+        padding-right: 0
+
+.p-responsive-2
+    padding: 2rem
+
+    @media screen and (max-width: 600px)
+        padding: 0
+
+.p-responsive-5
+    padding-left: 5rem
+    padding-right: 5rem
+
+    @media screen and (max-width: 600px)
+        padding-left: 2rem
+        padding-right: 2rem
+
+.pt-b-2-responsive
+    padding-top: 2rem
+    padding-bottom: 2rem
+
+    @media screen and (max-width: 600px)
+        padding-top: 0
+        padding-bottom: 0
+
+.m-responsive
+    margin: 1rem
+
+    @media screen and (max-width: 600px)
+        margin: 0
+
+.combo-address
+    box-shadow: none!important
+
+.div-error-void
+    position: absolute
+    z-index: 1
+
+    @media screen and (max-width: 600px)
+        position: relative
+
+p-tieredmenusub
+    .pi
+        color: #83378f!important
+
+.p-dropdown-items-wrapper
+    font-size: 13px!important
+
+// .background-color
+//     background-color: #bef0fa
+
+.panel-notifications
+    .p-overlaypanel-content
+        padding: 0
+
+    .notifications-header
+        padding: .75rem 1rem
+        border-bottom: 1px solid var(--surface-border)
+
+        .p-button.p-button-icon-only
+            width: 2rem
+            height: 2rem
+
+    .notifications-body
+        max-height: 22rem
+        overflow-y: auto
+
+    .notification-item
+        padding: .75rem 1rem
+        border-bottom: 1px solid var(--surface-border)
+        cursor: pointer
+        transition: background-color .2s
+
+        &:hover
+            background: var(--surface-hover)
+
+        &.is-unread
+            background: var(--surface-100)
+
+            &:hover
+                background: var(--surface-hover)
+
+    .notification-icon
+        display: flex
+        align-items: center
+        justify-content: center
+        min-width: 2.25rem
+        height: 2.25rem
+        border-radius: 50%
+
+        i
+            font-size: 1rem
+
+        &.severity-danger
+            background: #fee2e2
+            color: #b91c1c
+
+        &.severity-success
+            background: #d1fae5
+            color: #047857
+
+        &.severity-warning
+            background: #fef3c7
+            color: #b45309
+
+        &.severity-info
+            background: #dbeafe
+            color: #0056b3
+
+    .notification-title
+        font-size: 13px
+        font-weight: 700
+        color: var(--text-color)
+        line-height: 1.2
+
+    .notification-body
+        font-size: 12px
+        color: var(--text-color-secondary)
+        line-height: 1.35
+
+    .notification-date
+        display: flex
+        align-items: center
+        font-size: 11px
+        color: var(--text-color-secondary)
+
+    .unread-dot
+        min-width: .5rem
+        height: .5rem
+        margin-top: .25rem
+        border-radius: 50%
+        background: red
+
+    .notifications-footer
+        padding: .25rem
+        border-top: 1px solid var(--surface-border)

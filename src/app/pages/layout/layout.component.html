@@ -1,0 +1,28 @@
+<div class="w-screen min-h-screen flex overflow-x-hidden">
+  <app-menu
+    style="overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;"
+    class="sm:w-0 z-5 fixed lg:flex lg:w-20rem h-full"
+    [class]="{ 'w-expand-toggle': toggle(), 'w-collapsed-toggle': !toggle() }"
+  />
+
+  <div
+    class="flex flex-column"
+    [class]="{ 'container-layout-active': toggle(), 'container-layout-disabled': !toggle(), 
+    'w-layout': toggle(), 'w-layout-disabled': !toggle() }"
+  >
+    <app-header [class]="{ 'w-layout': toggle(), 'w-layout-disabled': !toggle() }" 
+    class="border-bottom-1 surface-border mb-header fixed header-menu" />
+
+<!-- <span class="flex  align-items-center ml-5 font-span">
+  Portal de Contratos
+</span> -->
+
+    <div
+      class="surface-200 justify-content-center"
+    >
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,278 @@
+<p-toast></p-toast>
+
+<p-dialog header="Header" [closable]="false" [(visible)]="showConfirmSave" [draggable]="false" [modal]="true"
+    [style]="{ 'width': '23vw', 'border-radius': '32px'}">
+    <ng-template pTemplate="header">
+        <div style="display: grid; place-items: center;">
+            <i class="pi pi-exclamation-circle mt-4" style="color: #EB6506; font-size: 40px;"></i>
+            <h1 style="margin: 0; font-size: 22px;" class="text-center mt-3">
+                ¿Está seguro de continuar?
+            </h1>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+            <p-button label="Guardar" (onClick)="saveLogbook()"
+                styleClass="bg-btn-primary w-full">
+            </p-button>
+            <p-button label="Cancelar" (onClick)="showConfirmSave = false"
+                styleClass="bg-btn-cancel w-full">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="showBlacklistAlert" [closable]="true" [draggable]="false" [modal]="true"
+    styleClass="blacklist-alert-dialog" [style]="{ 'width': '30vw' }" [breakpoints]="{ '960px': '75vw', '640px': '95vw' }">
+
+    <ng-template pTemplate="header">
+        <div class="blacklist-alert-header w-full">
+            <div class="blacklist-alert-icon">
+                <i class="pi pi-exclamation-triangle"></i>
+            </div>
+            <h1 class="blacklist-alert-title">ALERTA DE SEGURIDAD</h1>
+            <p class="blacklist-alert-subtitle">Persona registrada en Lista Negra</p>
+        </div>
+    </ng-template>
+
+    <div class="blacklist-alert-card">
+        <div class="avatar-circle">
+            @if (showBlacklistAlert?.image_path) {
+                <img
+                    [src]="'http://st.telearseg.net' + showBlacklistAlert.image_path"
+                    alt="perfil"
+                    loading="lazy"
+                >
+            }@else {
+                <i class="pi pi-user"></i>
+            }
+        </div>
+
+        <div class="blacklist-alert-info">
+            <div class="blacklist-alert-row">
+                <div class="blacklist-alert-field">
+                    <span class="blacklist-alert-label">NOMBRE COMPLETO</span>
+                    <span class="blacklist-alert-value">{{showBlacklistAlert.full_names}}</span>
+                </div>
+                <div class="blacklist-alert-field">
+                    <span class="blacklist-alert-label">IDENTIFICACIÓN</span>
+                    <span class="blacklist-alert-value">{{showBlacklistAlert.dni}}</span>
+                </div>
+            </div>
+
+            <div class="blacklist-alert-field">
+                <span class="blacklist-alert-label">MOTIVO DE RESTRICCIÓN</span>
+                <div class="blacklist-alert-reason">
+                    {{showBlacklistAlert.reason_restriction}}
+                </div>
+            </div>
+
+            <div class="blacklist-alert-field">
+                <span class="blacklist-alert-label">FECHA DE REGISTRO</span>
+                <span class="blacklist-alert-value blacklist-alert-value--normal">{{showBlacklistAlert.created_at | date:'dd/MM/yyyy HH:mm':'UTC' }}</span>
+            </div>
+        </div>
+    </div>
+</p-dialog>
+
+<div class="bg-bluegray-50 border-round-2xl flex justify-content-center mt-header">
+    <div class="bg-white w-12 flex flex-column border-round-md flex-wrap">
+        <div class="flex justify-content-start w-full">
+            <div class="flex flex-column card-form w-full">
+
+                <h2>Formulario de Salida</h2>
+
+                <form [formGroup]="logbookForm">
+                    @if(user_json?.attributes['name_group_business'])  {
+                        <label for="location"><i style="color: red;" class="pi pi-map-marker"></i> {{user_json?.attributes['name_group_business']}}</label>
+                    }
+                    <div class="div-responsive mt-3">
+                        @if(!user_json?.attributes['name_group_business'])  {
+                            <span class="w-full">
+                                <label htmlFor="username">Localidad <span style="color: red;">*</span></label>
+                                <p-dropdown [style]="{ boxShadow: 'none' }" styleClass="border-round w-full mt-2"
+                                    id="group_business" [options]="optionGroupBusiness" formControlName="id_group_business" 
+                                    optionLabel="name" optionValue="id_group_business"
+                                ></p-dropdown>
+                                <div *ngIf="logbookForm.get('id_group_business')?.hasError('campoVacio')">
+                                    <span class="validate-data">Este campo es obligatorio</span>
+                                </div>
+                            </span>
+                        }
+
+                        <span class="w-full">
+                            <label htmlFor="dni_driver">Cédula <span style="color: red;">*</span></label>
+                            <input class="border-round w-full mt-2" pInputText id="dni_driver" maxlength="10"
+                                formControlName="dni_driver" (input)="validateDni()" />
+                            <div *ngIf="logbookForm.get('dni_driver')?.hasError('campoVacio')">
+                                <span class="validate-data">Este campo es obligatorio</span>
+                            </div>
+                            <div *ngIf="logbookForm.get('dni_driver')?.hasError('dniInvalid')">
+                                <span class="validate-data">Conductor en lista negra</span>
+                            </div>
+                        </span>
+
+                        <span class="w-full">
+                            <label htmlFor="username">Categoría <span style="color: red;">*</span></label>
+                            <p-dropdown [style]="{ boxShadow: 'none' }" styleClass="border-round w-full mt-2"
+                                id="cuentaCliente" [options]="categories()" optionLabel="name_category"
+                                optionValue="id_category" [emptyMessage]="messageEmpty" formControlName="id_category"
+                            ></p-dropdown>
+                            <div *ngIf="logbookForm.get('id_category')?.hasError('campoVacio')">
+                                <span class="validate-data">El campo categoria es obligatorio</span>
+                            </div>
+                        </span>
+
+                        @if (!hideEjectExpalsa() && !hidePersonal()) {
+                            <span class="w-full">
+                                <label class="text-account" htmlFor="ciudad">Unidad <span
+                                        style="color: red;">*</span></label>
+                                <p-dropdown [style]="{ boxShadow: 'none', maxWidth: '100%' }"
+                                    styleClass="border-round mt-2 w-full" id="id_unity" optionValue="id_unity"
+                                    formControlName="id_unity" [options]="unitiesWeight()" optionLabel="name"
+                                    [autoDisplayFirst]="false" [emptyMessage]="messageEmpty"></p-dropdown>
+                                <div *ngIf="logbookForm.get('id_unity')?.hasError('campoVacio')">
+                                    <span class="validate-data">Este campo es obligatorio</span>
+                                </div>
+                            </span>
+                        }
+
+                        @if (!hideGuide()) {
+                            <span class="w-full">
+                                <label htmlFor="shipping_guide">Guía / Documento <span style="color: red;">*</span></label>
+                                <input class="border-round w-full mt-2" pInputText id="shipping_guide"
+                                    formControlName="shipping_guide" [maxlength]="50" 
+                                />
+                                <div *ngIf="logbookForm.get('shipping_guide')?.hasError('campoVacio')">
+                                    <span class="validate-data">Este campo es obligatorio</span>
+                                </div>
+                            </span>
+                        }
+
+                        @if (hideQuantity() && !hideGuide() && !hidePersonal()) {
+                            <span class="w-full">
+                                <label htmlFor="quantity">Cantidad de bines <span style="color: red;">*</span></label>
+                                <p-inputNumber class="border-round w-full mt-2" formControlName="quantity" styleClass="w-full"></p-inputNumber>
+                                <div *ngIf="logbookForm.get('quantity')?.hasError('campoVacio')">
+                                    <span class="validate-data">Este campo es obligatorio</span>
+                                </div>
+                            </span>
+    
+                            <span class="w-full ">
+                                <label htmlFor="person_withdraws">Custodia que retira el producto <span
+                                        style="color: red;">*</span></label>
+                                <input class="border-round w-full mt-2" pInputText id="person_withdraws" maxlength="100"
+                                    formControlName="person_withdraws" />
+                                <div *ngIf="logbookForm.get('person_withdraws')?.hasError('campoVacio')">
+                                    <span class="validate-data">Este campo es obligatorio</span>
+                                </div>
+                            </span>
+                        }
+
+                        @if (!hideGuide()) {
+                            <span class="w-full">
+                                <label htmlFor="username">Peso (Libras)</label>
+                                <p-inputNumber class="border-round w-full mt-2" formControlName="weight" [useGrouping]="false" styleClass="w-full"></p-inputNumber>
+                                <div *ngIf="logbookForm.get('weight')?.hasError('campoVacio')">
+                                    <span class="validate-data">Este campo es obligatorio</span>
+                                </div>
+                            </span>
+                        }
+
+                        <span class="w-full">
+                            <label htmlFor="truck_license">Placa del camión <span style="color: red;">*</span></label>
+                            <input class="border-round w-full mt-2" pInputText type="text" id="truck_license"
+                                name="truck_license" formControlName="truck_license" maxlength="10"/>
+                            <div *ngIf="logbookForm.get('truck_license')?.hasError('campoVacio')">
+                                <span class="validate-data">Este campo es obligatorio</span>
+                            </div>
+                        </span>
+                        <span class="w-full">
+                            <label htmlFor="name_driver">Nombre del chofer <span style="color: red;">*</span></label>
+                            <input class="border-round w-full mt-2" pInputText id="name_driver" maxlength="100"
+                                formControlName="name_driver" />
+                            <div *ngIf="logbookForm.get('name_driver')?.hasError('campoVacio')">
+                                <span class="validate-data">Este campo es obligatorio</span>
+                            </div>
+                        </span>
+
+                        <span class="w-full ">
+                            <label htmlFor="destiny">Destino <span style="color: red;">*</span></label>
+                            <input class="border-round w-full mt-2" pInputText id="destiny" maxlength="100"
+                                formControlName="destiny" />
+                            <div *ngIf="logbookForm.get('destiny')?.hasError('campoVacio')">
+                                <span class="validate-data">Este campo es obligatorio</span>
+                            </div>
+                        </span>
+
+                        @if (!hideEjectExpalsa()) {
+                            <span class="w-full">
+                                <label htmlFor="authorized_by">Autorizado por <span style="color: red;">*</span></label>
+                                <p-dropdown [style]="{ boxShadow: 'none' }" styleClass="border-round w-full mt-2" formControlName="authorized_by"
+                                    id="authorized_by" [options]="authorized()" optionLabel="name" optionValue="name"
+                                    [emptyMessage]="messageEmpty"></p-dropdown>
+                                <div *ngIf="logbookForm.get('authorized_by')?.hasError('campoVacio')">
+                                    <span class="validate-data">El campo autorizado es obligatorio</span>
+                                </div>
+                            </span>
+                        }
+
+                        <span class="w-full ">
+                            <label htmlFor="observations">Observaciones</label>
+                            <input formControlName="observations" class="w-full mt-2" pInputText id="observations" />
+                            <div *ngIf="logbookForm.get('observations')?.hasError('campoVacio')">
+                                <span class="validate-data">Este campo es obligatorio</span>
+                            </div>
+                        </span>
+
+                        <span class="w-full">
+                            <label>Imágenes <span style="color: red;">*</span></label>
+
+                            <p-fileUpload
+                                #fileUpload
+                                name="images"
+                                mode="advanced"
+                                accept="image/*"
+                                [multiple]="true"
+                                [maxFileSize]="5000000"
+                                [showUploadButton]="false"
+                                [showCancelButton]="false"
+                                [auto]="true"
+                                (onSelect)="onSelectImages($event)"
+                                styleClass="w-full mt-2"
+                                chooseLabel="Subir imágenes"
+                                (onRemove)="onRemoveImages($event)"
+                            >
+                            </p-fileUpload>
+
+                            <small class="text-gray-500">
+                                Mínimo 5 imágenes / Máximo 10 imágenes
+                            </small>
+
+                            <div *ngIf="imagesError" class="validate-data">
+                                {{ imagesError }}
+                            </div>
+                        </span>
+
+                    </div>
+                </form>
+
+                <div class="flex justify-content-end">
+                    <p-button label="Guardar" class="mt-5" (onClick)="onSubmit()"
+                        styleClass="bg-btn-primary px-6 w-full">
+                    </p-button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<div class="overlay" *ngIf="isLoading">
+    <p-progressSpinner class="center-spinner" [style]="{ width: '50px', height: '50px' }" strokeWidth="8" fill="#007bff"
+        animationDuration="2s"></p-progressSpinner>
+</div>

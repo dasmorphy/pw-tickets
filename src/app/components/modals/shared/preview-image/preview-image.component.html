@@ -1,0 +1,55 @@
+<p-dialog [(visible)]="showImages" [modal]="true" [draggable]="false" [closable]="false" [resizable]="false"
+[style]="{'width': '90vw', 'max-width': '1000px'}" [baseZIndex]="10000" (keydown)="handleKeyboard($event)">
+    <ng-template pTemplate="header">
+        <div class="flex justify-content-between align-items-center w-full" style="gap: 1rem;">
+            <div class="flex align-items-center gap-2">
+                <i class="pi pi-image" style="font-size: 20px;"></i>
+                <span style="font-size: 16px; font-weight: 500;">Imágenes del despacho</span>
+            </div>
+            <span style="font-size: 14px; color: #999;">{{ selectedIndex + 1 }} de {{ showImages.length }}</span>
+            <div class="flex gap-2">
+                <button pButton type="button" icon="pi pi-download" class="p-button-rounded p-button-text" 
+                    (click)="downloadImage()" pTooltip="Descargar" tooltipPosition="bottom"></button>
+                <button pButton type="button" icon="pi pi-window-maximize" class="p-button-rounded p-button-text" 
+                    (click)="toggleFullscreen()" pTooltip="Pantalla completa" tooltipPosition="bottom"></button>
+                <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-text p-button-danger" 
+                    (click)="closeModal()" pTooltip="Cerrar" tooltipPosition="bottom"></button>
+            </div>
+        </div>
+    </ng-template>
+
+    <div class="gallery-container flex flex-column gap-4" *ngIf="showImages && showImages.length" style="align-items: center;">
+        
+        <div class="main-image-wrapper flex align-items-center justify-content-center" style="position: relative; width: 100%; height: 60vh;">
+            <button pButton type="button" icon="pi pi-chevron-left" class="p-button-rounded p-button-text" 
+                (click)="previousImage()" style="position: absolute; left: 0; z-index: 10;" pTooltip="Anterior" tooltipPosition="right"></button>
+            
+            <img [src]="'http://st.telearseg.net' + showImages[selectedIndex].image_path" 
+                alt="main image" 
+                style="max-height: 100%; max-width: 100%; object-fit: contain; border-radius: 8px;" />
+            
+            <button pButton type="button" icon="pi pi-chevron-right" class="p-button-rounded p-button-text" 
+                (click)="nextImage()" style="position: absolute; right: 0; z-index: 10;" pTooltip="Siguiente" tooltipPosition="left"></button>
+        </div>
+
+        <div class="thumbnails-wrapper flex gap-3 justify-content-center" style="overflow-x: auto; padding: 0 2rem; width: 100%;">
+            <div
+                class="thumb"
+                *ngFor="let img of showImages; let i = index"
+                [class.active]="i === selectedIndex"
+                (click)="selectImage(i)"
+                style="flex-shrink: 0; cursor: pointer; border-radius: 8px; overflow: hidden; border: 3px solid transparent; transition: all 0.3s ease;"
+                [style.border-color]="i === selectedIndex ? '#83378f' : 'transparent'"
+            >
+                <img [src]="'http://st.telearseg.net' + img.image_path" alt="thumbnail" 
+                    style="width: 80px; height: 80px; object-fit: cover;" />
+            </div>
+        </div>
+
+        <div style="text-align: center; font-size: 12px; color: #999;">
+            <i class="pi pi-keyboard" style="font-size: 12px; margin-right: 0.5rem;"></i>
+            Usa las flechas del teclado para navegar
+        </div>
+
+    </div>
+</p-dialog>

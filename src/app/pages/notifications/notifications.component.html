@@ -1,0 +1,102 @@
+<div class="card-notifications mt-header">
+    <div class="flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="flex flex-column">
+            <h1 class="title-notifications">Notificaciones</h1>
+            <span class="text-color-secondary font-verdana" style="font-size: 13px;">
+                {{ notificationService.notifications().length }} en total ·
+                {{ notificationService.unreadCount() }} sin leer
+            </span>
+        </div>
+
+        <div class="flex align-items-center gap-2">
+            <p-button label="Marcar todas como leídas" icon="pi pi-check-circle" [outlined]="true"
+                [disabled]="notificationService.unreadCount() === 0 || notificationService.isMarkingAllAsRead()"
+                [loading]="notificationService.isMarkingAllAsRead()" (onClick)="markAllAsRead()">
+            </p-button>
+
+            <p-button icon="pi pi-refresh" pTooltip="Actualizar" tooltipPosition="bottom" [outlined]="true"
+                [loading]="notificationService.isLoading()" (onClick)="reloadNotifications()">
+            </p-button>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap align-items-center justify-content-between gap-3 mt-4">
+        <p-selectButton [options]="filterOptions" [ngModel]="selectedFilter()" optionLabel="label" optionValue="value"
+            (onChange)="changeFilter($event.value)">
+        </p-selectButton>
+
+        <span class="p-input-icon-left w-search">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" class="w-full" placeholder="Buscar notificación"
+                [ngModel]="search()" (ngModelChange)="onSearch($event)" />
+        </span>
+    </div>
+
+    <div class="mt-4">
+        @if (notificationService.isLoading() && notificationService.notifications().length === 0) {
+            <div class="flex justify-content-center py-6">
+                <p-progressSpinner styleClass="w-3rem h-3rem" strokeWidth="4"></p-progressSpinner>
+            </div>
+        } @else if (filteredNotifications().length === 0) {
+            <div class="flex flex-column align-items-center justify-content-center py-6 gap-3 text-color-secondary">
+                <i class="pi pi-bell-slash" style="font-size: 2.5rem;"></i>
+                <span class="font-verdana">No hay notificaciones para mostrar</span>
+            </div>
+        } @else {
+            @for (notification of pagedNotifications(); track notification.id_notification) {
+                <div class="notification-row flex gap-3"
+                    [class.is-unread]="!notification.is_read"
+                    [class.is-highlight]="notification.id_notification === highlightId()"
+                    (click)="selectNotification(notification)">
+
+                    <div class="notification-icon"
+                        [ngClass]="'severity-' + notificationService.getSeverityNotification(notification.notification_type)">
+                        <i [class]="notificationService.getIconNotification(notification.notification_type)"></i>
+                    </div>
+
+                    <div class="flex flex-column flex-1 gap-2">
+                        <div class="flex flex-wrap align-items-center gap-2">
+                            <span class="notification-title font-verdana">{{ notification.title }}</span>
+
+                            @if (!notification.is_read) {
+                                <span class="unread-dot"></span>
+                            }
+                        </div>
+
+                        <span class="notification-body font-verdana">{{ notification.body }}</span>
+
+                        <div class="flex flex-wrap align-items-center gap-3 notification-date">
+                            <span class="flex align-items-center">
+                                <i class="pi pi-clock mr-1" style="font-size: .75rem;"></i>
+                                {{ notificationService.timeAgo(notification.sent_at || notification.created_at) }}
+                            </span>
+
+                            <span class="flex align-items-center">
+                                <i class="pi pi-calendar mr-1" style="font-size: .75rem;"></i>
+                                {{ notification.sent_at || notification.created_at | date:'dd/MM/yyyy HH:mm' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex align-items-start gap-1">
+                        @if (!notification.is_read) {
+                            <p-button icon="pi pi-check" [text]="true" [rounded]="true" pTooltip="Marcar como leída"
+                                tooltipPosition="left" styleClass="text-color-secondary"
+                                (onClick)="toggleRead(notification, $event)">
+                            </p-button>
+                        }
+
+                        <p-button icon="pi pi-trash" [text]="true" [rounded]="true" pTooltip="Eliminar"
+                            tooltipPosition="left" styleClass="text-color-secondary"
+                            (onClick)="deleteNotification(notification, $event)">
+                        </p-button>
+                    </div>
+                </div>
+            }
+
+            <p-paginator [first]="first()" [rows]="rows" [totalRecords]="filteredNotifications().length"
+                [rowsPerPageOptions]="[10, 20, 50]" (onPageChange)="onPageChange($event)" styleClass="mt-3">
+            </p-paginator>
+        }
+    </div>
+</div>

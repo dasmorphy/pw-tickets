@@ -1,0 +1,97 @@
+
+@if (modalDetailsGraphs) {
+  <app-logbook-details-graphs [filtersLogbook]="filters" (close)="modalDetailsGraphs = false"></app-logbook-details-graphs>
+}
+
+<div class="p-5 flex flex-column">
+  <div class="flex justify-content-between">
+    <h2 class="mt-0">Resumen</h2>
+
+
+    <p-overlayPanel #imagePanel [dismissable]="true" [style]="{ width: '320px' }">
+      <div class="flex w-full flex-column gap-3">
+        <p-dropdown [style]="{ boxShadow: 'none' }" styleClass="border-round w-full" id="cuentaCliente"
+          [options]="optionFilterCategory" optionLabel="label" optionValue="value" (onChange)="onFilterChange($event)">
+        </p-dropdown>
+
+        @if (user_session?.role == "admin" || user_session?.role == "admin_tlsg") {
+          <p-multiSelect 
+            [style]="{ boxShadow: 'none' }"
+            styleClass="border-round w-full"
+            id="optionSector"  
+            [options]="optionSector"
+            [(ngModel)]="selectedSector"
+            optionLabel="name"
+            optionValue="id_sector"
+            placeholder="Seleccione una opción"
+          ></p-multiSelect>
+        }
+        
+        @if (!user_permissions_signal().includes('DATA_BY_GROUP_BUSINESS')) {
+          <p-multiSelect 
+            [style]="{ boxShadow: 'none' }"
+            styleClass="border-round w-full"
+            id="optionGroupBusiness"  
+            [options]="optionGroupBusiness"
+            [(ngModel)]="selectedGroupBusiness"
+            optionLabel="name"
+            optionValue="id_group_business"
+            placeholder="Seleccione una opción"
+          ></p-multiSelect>
+        }
+
+        <p-multiSelect 
+          [style]="{ boxShadow: 'none' }"
+          styleClass="border-round w-full"
+          id="optionGroupBusiness"  
+          [options]="optionTime"
+          [(ngModel)]="selectedTime"
+          placeholder="Seleccione una opción"
+        ></p-multiSelect>
+
+        <p-calendar [(ngModel)]="dateRange" selectionMode="range" dateFormat="dd/mm/yy" [showIcon]="true"
+          [readonlyInput]="true" placeholder="Rango de fechas" [style]="{ boxShadow: 'none' }"
+          styleClass="border-round w-full">
+        </p-calendar>
+      </div>
+
+      <div class="flex justify-content-center gap-3 mt-4">
+        <p-button label="Aplicar" icon="pi pi-filter-fill" size="small" (onClick)="onFilterDate(imagePanel)">
+        </p-button>
+
+        <p-button label="Limpiar" icon="pi pi-filter-slash" size="small" (onClick)="imagePanel.hide()">
+        </p-button>
+
+      </div>
+
+    </p-overlayPanel>
+
+    <div class="flex gap-2">
+      <p-button label="" icon="pi pi-filter" class="w-full mt-2 border-none filter-button" [style]="{ boxShadow: 'none' }"
+        (click)="imagePanel.toggle($event)" styleClass="filter-button border-none">
+      </p-button>
+    </div>
+
+
+  </div>
+
+  <div class="w-full flex column-responsive justify-content-center">
+    <div class="flex w-full justify-content-center flex-column ">
+
+      <div class="flex column-responsive">
+        <div class="h-dona w-full flex justify-content-center">
+          <canvas class="dona" id="myDoughnutChart"></canvas>
+        </div>
+  
+        <div class="flex w-full h-full align-items-center">
+          <canvas class="categoryChart" id="categoryChart"></canvas>
+        </div>
+      </div>
+
+      <div class="flex w-full align-items-center justify-content-center" style="height: 500px">
+        <app-polar-chart [filters]="filters" [dataPolar]="dataCategoryQuantity"></app-polar-chart>
+      </div>
+
+    </div>
+  </div>
+</div>

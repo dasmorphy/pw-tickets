@@ -1,0 +1,160 @@
+<p-dialog header="Header" [closable]="false" [(visible)]="showModal" [draggable]="false" [modal]="true"
+    [style]="{ 'width': '30vw', 'border-radius': '32px'}">
+    <ng-template pTemplate="header">
+        <div style="display: grid; place-items: center;">
+            <h1 style="margin: 0; font-size: 22px;" class="text-center mt-5">
+                Detalle Visita
+            </h1>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+
+        @if (entrySelected() != null) {
+            <div class="flex justify-content-between card-info gap-2">
+                <div class="flex flex-column">
+                    <div class="flex flex-column">
+                        <label class="font-bold cab-label" htmlFor="shipping_guide">IDENTIFICACIÓN: </label>
+                        <label style="font-size: 23px;" class="font-bold mt-1" htmlFor="shipping_guide">
+                            {{ entrySelected()?.dni || "N/A" }}
+                        </label>
+                    </div>
+                
+                    <div class="flex align-items-center mt-4">
+                        <i style="font-size: 0.8rem;" class="pi pi-calendar mr-2"></i>
+                
+                        <label htmlFor="shipping_guide">
+                            {{ entrySelected()?.created_at | date:'dd/MM/yyyy':'UTC'}}
+                        </label>
+                
+                        <i class="pi pi-clock mr-2 ml-2" style="font-size: 0.8rem;"></i>
+                
+                        <label htmlFor="shipping_guide">
+                            {{ entrySelected()?.created_at | date:'HH:mm':'UTC'}}
+                        </label>
+                    </div>
+                </div>
+
+                <div class="i-log">
+                    <i class="pi pi-file-check" style="color: #0056b3; font-size: 30px;"></i>
+                </div>
+            </div>
+
+            <h4>INFORMACIÓN DE VISITA</h4>
+            <div class="div-responsive mt-2 gap-2">
+                <div class="flex flex-column w-full card-info">
+                    <i class="pi pi-user mb-3" style="color: #0056b3;"></i>
+                    <label class="font-bold cab-label" htmlFor="shipping_guide">NOMBRES COMPLETOS: </label>
+                    <label class="det-label" htmlFor="shipping_guide">{{entrySelected()?.names_visit ?? 'N/A'}}</label>
+                </div>
+
+                <div class="flex flex-column w-full card-info">
+                    <i class="pi pi-align-center mb-3" style="color: #0056b3;"></i>
+                    <label class="font-bold cab-label" htmlFor="shipping_guide">RAZÓN: </label>
+                    <label class="det-label" htmlFor="shipping_guide">{{entrySelected()?.reason_visit ?? 'N/A'}}</label>
+                </div>
+
+                <div class="flex flex-column w-full card-info">
+                    <i class="pi pi-objects-column mb-3" style="color: #0056b3;"></i>
+                    <label class="font-bold cab-label" htmlFor="shipping_guide">ÁREA: </label>
+                    <label class="det-label" htmlFor="shipping_guide">{{entrySelected()?.area_name ?? 'N/A'}}</label>
+                </div>
+            </div>
+
+            <div class="flex justify-content-center align-items-center mt-4 mb-2">
+                <p-table [value]="entrySelected()?.materials ?? []" [tableStyle]="{'width': '100%'}" class="w-table">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th scope="col" style="border-top-left-radius: 20px" class="text-center header-table-modal">Material</th>
+                            <th scope="col" style="border-top-right-radius: 20px" class="text-center header-table-modal">Cantidad</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-material let-rowIndex="rowIndex">
+                        <tr>
+                            <td class="td-padding text-center">{{ material?.name ?? material?.other_material }}</td>
+                            <td class="td-padding text-center">{{ material?.quantity }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
+            <h4>PERSONAL RESPONSABLE</h4>
+            <div class="flex flex-column card-info mt-2 gap-2">
+
+                <div class="flex gap-2 w-full">
+                    <div class="det-avatar">
+                        <i class="pi pi-user-edit" style="color: #0056b3;"></i>
+                    </div>
+                    <div class="flex flex-column">
+                        <label class="font-bold cab-label" htmlFor="shipping_guide">CREADO POR: </label>
+                        <label class="det-label" htmlFor="shipping_guide">{{entrySelected()?.created_by}}</label>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 w-full">
+                    <div class="det-avatar">
+                        <i class="pi pi-shield" style="color: #0056b3;"></i>
+                    </div>
+                    <div class="flex flex-column">
+                        <label class="font-bold cab-label" htmlFor="shipping_guide">PERSONAL A CARGO: </label>
+                        <label class="det-label" htmlFor="shipping_guide">{{entrySelected()?.staff_charge_name ?? entrySelected()?.other_staff}}</label>
+                    </div>
+                </div>
+
+            </div>
+
+            <h4>OBSERVACIONES ENTRADA</h4>
+            <div class="flex flex-column card-info mt-3 gap-2">
+                <label class="det-label" htmlFor="shipping_guide">{{ entrySelected()!.observations_entry || "N/A" }}</label>
+            </div>
+
+            <!-- @if (entrySelected()!.observations_out) { -->
+                <h4>OBSERVACIONES SALIDA</h4>
+                <div class="flex flex-column card-info mt-3 gap-2">
+                    <label class="det-label" htmlFor="shipping_guide">{{ entrySelected()!.observations_out || "N/A" }}</label>
+                </div>
+            <!-- } -->
+
+
+
+
+
+            @if (entrySelected()!.images.length > 0) {
+                @if (entryImages().length > 0) {
+                    <h4 class="mt-4">IMÁGENES ENTRADA</h4>
+                    <div class="div-responsive mt-3">
+                        <div class="flex justify-content-center" *ngFor="let image of entryImages()">
+                        <img
+                            style="object-fit: contain;"
+                            [src]="'http://st.telearseg.net' + image.image_path"
+                            height="190"
+                            width="180">
+                        </div>
+                    </div>
+                }
+
+                @if (outImages().length > 0) {
+                    <h4 class="mt-4">IMÁGENES SALIDA</h4>
+                    <div class="div-responsive mt-3">
+                        <div class="flex justify-content-center" *ngFor="let image of outImages()">
+                        <img
+                            style="object-fit: contain;"
+                            [src]="'http://st.telearseg.net' + image.image_path"
+                            height="190"
+                            width="180">
+                        </div>
+                    </div>
+                }
+            }
+        }
+
+
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+            <p-button label="Cerrar" (onClick)="closeModal()" styleClass="bg-btn-cancel w-full">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>

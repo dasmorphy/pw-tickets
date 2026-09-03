@@ -1,0 +1,275 @@
+<p-dialog header="Header" [closable]="false" [(visible)]="showModal" [draggable]="false" [modal]="true"
+    [style]="{ 'width': '30vw', 'border-radius': '32px'}">
+    <ng-template pTemplate="header">
+        <div style="display: grid; place-items: center;">
+            <h1 style="margin: 0; font-size: 22px;" class="text-center mt-5">
+                Detalle
+            </h1>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+        <div class="flex justify-content-between card-info gap-2">
+            <div class="flex flex-column">
+                <div class="flex flex-column">
+                    <label class="font-bold cab-label" htmlFor="shipping_guide">IDENTIFICACIÓN: </label>
+                    <label style="font-size: 23px;" class="font-bold mt-1" htmlFor="shipping_guide">
+                        {{ selectedOrder?.dni_driver || "N/A" }}
+                    </label>
+                </div>
+            
+                <div class="flex align-items-center mt-4">
+                    <i style="font-size: 0.8rem;" class="pi pi-calendar mr-2"></i>
+            
+                    <label htmlFor="shipping_guide">
+                        {{ selectedOrder?.created_at | date:'dd/MM/yyyy':'UTC'}}
+                    </label>
+            
+                    <i class="pi pi-clock mr-2 ml-2" style="font-size: 0.8rem;"></i>
+            
+                    <label htmlFor="shipping_guide">
+                        {{ selectedOrder?.created_at | date:'HH:mm':'UTC'}}
+                    </label>
+                </div>
+            </div>
+
+            <div class="i-log">
+                <i class="pi pi-file-check" style="color: #0056b3; font-size: 30px;"></i>
+            </div>
+        </div>
+
+        <div class="div-responsive mt-2 gap-2">
+            <div class="flex flex-column w-full card-info">
+                <i class="pi pi-user mb-3" style="color: #0056b3;"></i>
+                <label class="font-bold cab-label" htmlFor="shipping_guide">NOMBRES COMPLETOS: </label>
+                <label class="det-label" htmlFor="shipping_guide">{{selectedOrder?.driver ?? 'N/A'}}</label>
+            </div>
+
+            <div class="flex flex-column w-full card-info">
+                <i class="pi pi-hammer mb-3" style="color: #0056b3;"></i>
+                <label class="font-bold cab-label" htmlFor="shipping_guide">CANTIDAD: </label>
+                <label class="det-label" htmlFor="shipping_guide">{{selectedOrder?.quantity ?? 'N/A'}}</label>
+            </div>
+
+            <div class="flex flex-column w-full card-info">
+                <i class="pi pi-truck mb-3" style="color: #0056b3;"></i>
+                <label class="font-bold cab-label" htmlFor="shipping_guide">PLACA: </label>
+                <label class="det-label" htmlFor="shipping_guide">{{selectedOrder?.truck_license ?? 'N/A'}}</label>
+            </div>
+
+            <div class="flex flex-column w-full card-info">
+                <i class="pi pi-compass mb-3" style="color: #0056b3;"></i>
+                <label class="font-bold cab-label" htmlFor="shipping_guide">DESTINO: </label>
+                <label class="det-label" htmlFor="shipping_guide">{{selectedOrder?.destiny_name ?? 'N/A'}}</label>
+            </div>
+        </div>
+
+        <div class="flex flex-column card-info mt-2 gap-2">
+
+            <div class="flex gap-2 w-full">
+                <div class="det-avatar">
+                    <i class="pi pi-user-edit" style="color: #0056b3;"></i>
+                </div>
+                <div class="flex flex-column">
+                    <label class="font-bold cab-label" htmlFor="shipping_guide">CREADO POR: </label>
+                    <label class="det-label" htmlFor="shipping_guide">{{selectedOrder?.created_by}}</label>
+                </div>
+            </div>
+
+            <div class="flex gap-2 w-full">
+                <div class="det-avatar">
+                    <i class="pi pi-shield" style="color: #0056b3;"></i>
+                </div>
+                <div class="flex flex-column">
+                    <label class="font-bold cab-label" htmlFor="shipping_guide">GUARDIA: </label>
+                    <label class="det-label" htmlFor="shipping_guide">{{selectedOrder?.name_user ?? 'N/A'}}</label>
+                </div>
+            </div>
+
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+            <p-button label="Cerrar" (onClick)="showModal = false" styleClass="bg-btn-cancel w-full">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<div class="flex flex-column w-full px-5">
+    <div class="flex w-full justify-content-center gap-3 column-responsive">
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-lg">Programados</span>
+                    <span class="font-bold text-3xl">{{getGraphStatus('Programado')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-truck text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-lg">Balanceado</span>
+                    <span class="font-bold text-3xl">{{graphTypes?.balanceado?.quantity}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-list text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-lg">Combustible</span>
+                    <span class="font-bold text-3xl">{{graphTypes?.combustible?.quantity}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-list text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-lg">Completado</span>
+                    <span class="font-bold text-3xl">{{getGraphStatus('Completado')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-check-circle text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+        <p-card class="flex-1"
+            [style]="{
+                'border-left': '5px solid #ef4444',
+                'border-radius': '12px'
+            }"
+        >
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-lg">Incompleto</span>
+                    <span class="font-bold text-3xl">{{getGraphStatus('Incompleto')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-exclamation-triangle text-2xl font-bold" style="color: #ef4444;"></i>
+                </span>
+            </div>
+        </p-card>
+
+    </div>
+
+
+    <div class="flex w-full gap-3 mt-5 column-responsive">
+        <div class="flex card-info justify-content-center align-items-center w-full">
+            <div class="flex flex-column h-full w-full">
+                <span class="text-center" style="font-weight: 600;">Programaciones por camaronera</span>
+                <canvas id="tendencyChart"></canvas>
+            </div>
+        </div>
+
+        <div class="flex card-info justify-content-center align-items-center w-full">
+            <div class="flex flex-column h-full">
+                <span class="text-center" style="font-weight: 600;">Tipos de despacho</span>
+                @if (this.graphTypes?.balanceado?.count == 0 &&
+                this.graphTypes?.combustible?.count == 0) {
+                    <div class="h-full w-full flex justify-content-center align-items-center">
+                        <span>Sin datos disponibles</span>
+                    </div>
+                }@else {
+                    <canvas class="dona mt-5" id="myDoughnutChart"></canvas>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="flex w-full mt-5">
+        <p-table  #dt_dispatchs
+            [value]="dataPurchaseOrder"
+            [paginator]="true"
+            [rows]="5"
+            [globalFilterFields]="['truck_license','driver', 'destiny_name']"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [showCurrentPageReport]="false"
+            [tableStyle]="{ 'max-width': '100%' }"
+            rowStyleClass="custom-row-height"
+            dataKey="id"
+            class="w-full"
+        >
+            <ng-template pTemplate="caption">
+
+                <div class="w-full flex align-items-center gap-2">
+                    <div
+                        class="p-inputgroup flex p-input-icon-left border-round-2xl w-search-table w-30rem"
+                    >
+                        <i style="z-index: 2;" class="pi pi-search text-primary--custom"></i>
+                        <input
+                            style="border: 1px solid #e3e3e3; height: 2.5rem;"
+                            class="shadow-none--custom border-round-left-2xl border-round-right-2xl"
+                            type="text"
+                            pInputText
+                            (input)="dt_dispatchs.filterGlobal($any($event.target).value, 'contains')"
+                        />
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th scope="col">Opciones</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Placa</th>
+                    <th scope="col">Conductor</th>
+                    <th scope="col">Destino</th>
+                    <th scope="col">Tipo carga</th>
+                    <th scope="col">Estado</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-purchaseOrder>
+                <tr>
+                    <td data-titulo="Opciones:">
+                        <p-splitButton id="option-table" appendTo="body" (click)="optionsDispatch(purchaseOrder)" [model]="items">
+                            <ng-template pTemplate="dropdownicon">
+                                <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                            </ng-template>
+                        </p-splitButton>
+                    </td>
+                    <td  data-titulo="Fecha:" tooltipPosition="top" [pTooltip]="'Hora de registro: ' + (purchaseOrder?.created_at | date:'HH:mm':'UTC')">{{ purchaseOrder?.created_at | date:'dd/MM/yyyy':'UTC' }}</td>
+                    <td  data-titulo="Placa:">{{ purchaseOrder?.truck_license ?? 'N/A' }}</td>
+                    <td  data-titulo="Conductor:">{{ purchaseOrder?.driver ?? 'N/A' }}</td>
+                    <td  data-titulo="Destino:">{{ purchaseOrder?.destiny_name ?? 'N/A' }}</td>
+                    <td  data-titulo="Tipo carga:">{{ purchaseOrder?.purchase_order?.type_order ?? 'N/A' }}</td>
+                    <td  data-titulo="Estado:">
+                        <p-tag [value]="purchaseOrder?.purchase_order?.status_name" 
+                            [severity]="utilsService.getSeverityPurchaseOrder(
+                                purchaseOrder?.purchase_order?.status_name
+                            )">
+                        </p-tag>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="text-center" style="font-size: 18px; font-weight: 700;">No hay datos disponibles</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

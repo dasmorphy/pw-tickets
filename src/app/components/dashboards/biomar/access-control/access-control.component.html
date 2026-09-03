@@ -1,0 +1,223 @@
+@if (entrySelected()) {
+    <app-entry-details-modal [showModal]="entrySelected() ?? false"></app-entry-details-modal>
+}
+
+@if (openModalImages()) {
+    <app-preview-image [showImages]="openModalImages()"></app-preview-image>
+}
+
+<div class="flex flex-column w-full px-5">
+    <div class="flex w-full justify-content-center gap-3 column-responsive">
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">Total</span>
+                    <span class="font-bold text-3xl">{{getGraphEntryStatus('Total')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-users text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+
+        <p-card class="flex-1" 
+            [style]="{
+                'border-left': '5px solid #ef4444',
+                'border-radius': '12px'
+            }"
+        >
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">Pendiente de salida</span>
+                    <span class="font-bold text-3xl">{{getGraphEntryStatus('Pendiente Salida')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-stopwatch text-2xl font-bold" style="color: #ef4444;"></i>
+                </span>
+            </div>
+        </p-card>
+
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">Proveedores</span>
+                    <span class="font-bold text-3xl">{{getGraphCountTypeAccess('Proveedor')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-list-check text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">Visitantes</span>
+                    <span class="font-bold text-3xl">{{getGraphCountTypeAccess('Visitante')}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#00000' }">
+                    <i class="pi pi-id-card text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+    </div>
+
+
+    <div class="flex w-full gap-3 mt-5 column-responsive">
+        <div class="flex card-info justify-content-center align-items-center w-full" style="height: 25rem;">
+            <div class="flex flex-column h-full">
+                <span class="text-center" style="font-weight: 600;">Proveedores vs Visitantes</span>
+                @if (this.graphCountTypeAccess?.[0]?.percentage == 0 && 
+                this.graphCountTypeAccess?.[1]?.percentage == 0) {
+                    <div class="h-full w-full flex justify-content-center align-items-center">
+                        <span>Sin datos disponibles</span>
+                    </div>
+                }@else {
+                    <canvas class="dona mt-5" id="myDoughnutChart"></canvas>
+                }
+            </div>
+        </div>
+
+        <div class="flex flex-column gap-3 w-full" style="height: 25rem;">
+
+            <div class="flex card-info justify-content-center align-items-center h-full">
+                <div class="flex flex-column w-full h-full">
+                    <span style="font-weight: 600;">Flujo de salidas</span>
+
+                    <div class="flex flex-column w-full h-full justify-content-center">
+                        <div class="flex flex-column">
+                            <span class="mt-3" style="font-weight: 600;">Completadas</span>
+                            <p-progressBar class="mt-2" id="completed-bar"
+                                [value]="valueProgressBar('finalized')">
+                            </p-progressBar>
+                        </div>
+
+                        <div class="flex flex-column">
+                            <span class="mt-3" style="font-weight: 600;">Pendientes</span>
+                            <p-progressBar class="mt-2" id="pend-bar"
+                                [value]="valueProgressBar('pending')">
+                            </p-progressBar>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="flex card-info justify-content-center align-items-center h-full">
+                <div class="flex flex-column w-full h-full">
+                    <span class="mb-3" style="font-weight: 600;">Activos ingresados</span>
+
+                    <div class="flex h-full flex-column gap-2">
+                        <div class="flex flex-column w-full" *ngFor="let material of graphTopMaterials;">
+                            <div class="flex justify-content-between">
+                                <span>{{material.material_name}}</span>
+                                <span>{{material.count}}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex w-full mt-5">
+        <p-table  #dt_dispatchs
+            [value]="dataBiomar"
+            [paginator]="true"
+            [rows]="5"
+            [globalFilterFields]="['dni','area_name', 'staff_charge_name']"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [showCurrentPageReport]="false"
+            [tableStyle]="{ 'max-width': '100%' }"
+            rowStyleClass="custom-row-height"
+            dataKey="id"
+            class="w-full"
+        >
+            <ng-template pTemplate="caption">
+                
+                <div class="w-full flex align-items-center gap-2">
+                    <div
+                        class="p-inputgroup flex p-input-icon-left border-round-2xl w-search-table w-30rem"
+                    >
+                        <i style="z-index: 2;" class="pi pi-search text-primary--custom"></i>
+                        <input 
+                            style="border: 1px solid #e3e3e3; height: 2.5rem;"
+                            class="shadow-none--custom border-round-left-2xl border-round-right-2xl" 
+                            type="text"
+                            pInputText 
+                            (input)="dt_dispatchs.filterGlobal($any($event.target).value, 'contains')" 
+                        />         
+                    </div>
+
+                    <div class="flex gap-2">
+                        <i class="flex justify-content-center align-items-center pi pi-filter cursor-pointer" (click)="op.toggle($event)"></i>      
+                        <p-overlayPanel #op [dismissable]="true" [style]="{ width: '320px' }">
+                            <div class="flex w-full flex-column gap-3">
+                                <p-calendar [(ngModel)]="dateRange" selectionMode="range" dateFormat
+                                    ="dd/mm/yy" [showIcon]="true" [readonlyInput]="true" placeholder="Rango de fechas" [style]="{ boxShadow: 'none' }"
+                                    styleClass="border-round w-full">
+                                </p-calendar>
+                            </div>
+
+                            <div class="flex justify-content-center gap-3 mt-4">
+                                <p-button label="Aplicar" icon="pi pi-filter-fill" size="small" (onClick)="onFilterDate(op)">
+                                </p-button>
+                        
+                                <p-button label="Limpiar" icon="pi pi-filter-slash" size="small" (onClick)="clearFilter(op)" class="p-button-secondary">
+                                </p-button>
+                        
+                            </div>
+                        </p-overlayPanel>
+                    </div>
+
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th scope="col">Opciones</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Identificación</th>
+                    <th scope="col">Área</th>
+                    <th scope="col">Personal a cargo</th>
+                    <!-- <th scope="col">Permanencia</th> -->
+                    <th scope="col">Estado</th>
+                </tr>
+            </ng-template>                
+            <ng-template pTemplate="body" let-dispatch>
+                <tr>                
+                    <td data-titulo="Opciones:">
+                        <p-splitButton id="option-table" appendTo="body" (click)="optionsDispatch(dispatch)" [model]="items">
+                            <ng-template pTemplate="dropdownicon">
+                                <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                            </ng-template>
+                        </p-splitButton>
+                    </td>
+                    <td  data-titulo="Fecha:" [ngxTippy]="'Hora de registro: ' + (dispatch?.created_at | date:'HH:mm':'UTC')">{{ dispatch?.created_at | date:'dd/MM/yyyy':'UTC' }}</td>
+                    <td  data-titulo="Identificación:">{{ dispatch?.dni ?? 'N/A' }}</td>
+                    <td  data-titulo="Área:">{{ dispatch?.area_name ?? 'N/A' }}</td>
+                    <td  data-titulo="Personal a cargo:">{{ dispatch?.staff_charge_name ?? 'N/A' }}</td>
+                    <!-- <td  data-titulo="Permanencia:" style="width: 20px;">{{ loogbook?.permanence_time ?? 'N/A' }}</td> -->
+                    <td  data-titulo="Estado:">
+                        <p-tag [value]="dispatch?.status" [severity]="utilsService.getSeverityDispatch(dispatch?.status)"></p-tag>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="text-center" style="font-size: 18px; font-weight: 700;">No hay datos disponibles</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

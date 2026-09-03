@@ -1,0 +1,151 @@
+:host::ng-deep
+    
+    h3
+        margin: 0
+
+    p
+        margin: 0
+        color: #595959
+
+    .font-verdana
+        font-family: Verdana, Geneva, Tahoma, sans-serif
+
+    .text-white-alpha-70
+        color: rgba(255, 255, 255, 0.7)
+
+.p-inputtext
+    &:enabled
+        &:focus, &:hover
+            box-shadow: none!important
+            background-color: transparent!important
+    
+.bg-login
+    background: #1d1b1d
+
+    .w-login
+        width: 600px
+
+        @media screen and (max-width: 600px)
+            width: 400px
+
+    
+
+
+
+
+
+
+
+.bg-gradient
+    background: rgb(85,30,119)
+    background: linear-gradient(4deg, rgba(85,30,119,1) 43%, rgba(108,44,124,1) 85%)
+    border-radius: 20px
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3)
+
+.b-login-header
+    border-radius: 20px
+    border: 2px solid rgba(255, 255, 255, 0.2)
+    background: #262829
+    background: linear-gradient(328deg, rgb(38, 40, 41) 14%, rgb(26, 22, 22) 82%, rgb(60 136 110) 123%, rgb(56, 56, 56) 100%, rgb(87, 199, 133) 100%, rgb(87, 199, 133) 100%)
+    backdrop-filter: blur(10px)
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3)
+
+    // background: linear-gradient(333deg,rgba(38, 40, 41, 1) 54%, rgba(26, 22, 22, 1) 81%, rgba(33, 33, 33, 1) 89%, rgba(87, 199, 133, 1) 100%, rgba(87, 199, 133, 1) 100%)
+
+
+
+.bg-card-login
+    background-color: #f6eefc
+    border-radius: 0 0 20px 20px
+    border: none
+
+.p-input-icon-left
+    position: relative
+    display: flex
+    align-items: center
+    
+    > i
+        position: absolute
+        left: 1rem
+        color: rgba(255, 255, 255, 0.6)
+        pointer-events: none
+    
+    input
+        padding-left: 2.8rem !important
+        background-color: rgba(255, 255, 255, 0.1) !important
+        border: 1px solid rgba(255, 255, 255, 0.2) !important
+        color: white !important
+        border-radius: 8px
+        padding-top: 0.75rem !important
+        padding-bottom: 0.75rem !important
+        font-size: 0.95rem
+        transition: all 0.3s ease
+        width: 100%
+
+        // &::placeholder
+        //     color: rgba(255, 255, 255, 0.5) !important
+
+        // &:focus
+        //     background-color: rgba(255, 255, 255, 0.15) !important
+        //     border-color: rgba(255, 255, 255, 0.4) !important
+        //     box-shadow: 0 0 0 2px rgba(131, 55, 143, 0.2) !important
+
+.p-button-continue
+    background: linear-gradient(135deg, #25a589 0%, #48b19f 100%) !important
+    border: none !important
+    padding: 0.75rem 1.5rem !important
+    border-radius: 8px !important
+    color: white !important
+    font-weight: 600 !important
+    font-size: 1rem !important
+    transition: all 0.3s ease
+    text-align: center
+    height: 3.5rem
+    width: 100%
+
+    &:hover:not(:disabled)
+        box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3) !important
+        transform: translateY(-2px)
+
+    &:disabled
+        opacity: 0.6
+    
+    button
+        background-color: transparent
+        border: none
+
+.sign-up-text
+    text-decoration: none
+    color: #107b64
+
+.p-button.p-button-lg
+    font-size: .9rem!important
+
+.b-color-purple
+    border-color: #83378f
+
+.text-primary--custom
+    color: #00d9ff
+    transition: color 0.3s ease
+
+    &:hover
+        color: #0099ff
+
+.icon-left
+    position: absolute 
+    left: 2rem
+
+    @media screen and (max-width: 600px)
+        left: 0
+
+#dfa-container
+    padding: 1rem
+
+    .p-button 
+        background: linear-gradient(180deg, #ffd941 100%, #a28202 100%) !important
+
+.previous-button
+    position: absolute
+    left: 0
+    top: 5px
+    color: #83378f

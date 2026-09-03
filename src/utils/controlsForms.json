@@ -1,0 +1,33 @@
+
+{
+    "id_category": "categoria",
+    "id_unity": "unidad",
+    "shipping_guide": "oc/guía de remisión",
+    "quantity": "cantidad",
+    "description": "descripción",
+    "provider": "proveedor",
+    "destiny_intern": "destino interno",
+    "authorized_by": "autorizado",
+    "workday": "jornada",
+    "order_number":"número de orden",
+    "driver":"conductor",
+    "destiny":"destino",
+    "truck_license": "placa",
+    "vehicle_type": "tipo de vehículo",
+    "sku": "sku",
+    "type_sku": "tipo de sku",
+    "area_visit": "área",
+    "destiny_product": "cliente",
+    "names_visit": "visitante",
+    "dni": "identificación",
+    "person_charge": "personal a cargo",
+    "reason_visit": "razón de visita",
+    "material_entry": "materiales",
+    "received_quantity": "cantidad recibida",
+
+
+    "full_names": "nombres completos",
+    "observations": "observaciones",
+    "reason_restriction": "restricción"
+
+}

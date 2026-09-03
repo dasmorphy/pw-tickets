@@ -1,0 +1,161 @@
+<p-toast></p-toast>
+
+<main class="detail-page">
+  <div class="detail-shell">
+    <nav class="breadcrumb" aria-label="Navegación">
+      <a routerLink="/solicitudes">Solicitudes</a>
+      <i class="pi pi-chevron-right"></i>
+      <span>Ticket {{ ticket }}</span>
+    </nav>
+
+    <section class="ticket-summary">
+      <div class="ticket-identity">
+        <div class="ticket-icon"><i class="pi pi-file"></i></div>
+        <div>
+          <div class="title-line">
+            <h1>{{ ticket }}</h1>
+            <span class="status-badge"><i></i> En proceso</span>
+          </div>
+          <div class="ticket-meta">
+            <span><i class="pi pi-briefcase"></i> TechSolutions S.A.</span>
+            <span>Creado el 29/05/2024 10:32</span>
+            <span>por <a href="javascript:void(0)">Laura Gómez (GLPI)</a></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-indicators">
+        <div><label>Área actual</label><span class="area-badge"><i></i> Técnica</span></div>
+        <div><label>Prioridad</label><span class="priority-badge"><i></i> Alta</span></div>
+        <div><label>SLA</label><span class="sla-badge">Dentro del plazo</span></div>
+      </div>
+
+      <div class="summary-actions">
+        <p-button label="Ver en GLPI" icon="pi pi-external-link" [outlined]="true" styleClass="glpi-button"></p-button>
+        <p-button label="Más acciones" icon="pi pi-ellipsis-v" iconPos="right" styleClass="more-button"></p-button>
+      </div>
+    </section>
+
+    <div class="content-grid">
+      <section class="info-card glpi-card">
+        <header><i class="pi pi-file-export"></i><h2>Información GLPI</h2></header>
+        <dl>
+          <div><dt>Ticket</dt><dd><a href="javascript:void(0)">#INC-2024-1258</a></dd></div>
+          <div><dt>Cliente</dt><dd><a href="javascript:void(0)">TechSolutions S.A.</a></dd></div>
+          <div><dt>Solicitud</dt><dd>No funciona acceso VPN</dd></div>
+          <div><dt>Descripción breve</dt><dd>El usuario reporta que no puede conectarse a la VPN desde la red externa. El error aparece al intentar autenticarse con sus credenciales corporativas.</dd></div>
+          <div><dt>Prioridad</dt><dd><span class="priority-badge"><i></i> Alta</span></dd></div>
+          <div><dt>Fecha de creación</dt><dd>29/05/2024 10:32</dd></div>
+          <div><dt>Responsable GLPI</dt><dd class="responsible"><span>LG</span> Laura Gómez</dd></div>
+          <div><dt>Categoría</dt><dd>Redes &gt; VPN</dd></div>
+          <div><dt>Estado GLPI</dt><dd><span class="status-badge"><i></i> En proceso</span></dd></div>
+        </dl>
+        <footer>
+          <a href="javascript:void(0)"><i class="pi pi-comment"></i> Ver comentarios (3)</a>
+          <a href="javascript:void(0)"><i class="pi pi-paperclip"></i> Ver adjuntos (2)</a>
+        </footer>
+      </section>
+
+      <section class="info-card commercial-card">
+        <header><span class="commercial-icon"><i class="pi pi-chart-line"></i></span><h2>Gestión Comercial</h2></header>
+
+        <form #commercialForm="ngForm" (ngSubmit)="save()" class="commercial-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="origin">Origen</label>
+              <p-dropdown inputId="origin" name="origin" [options]="origins" [(ngModel)]="commercial.origin"
+                placeholder="Seleccione un origen" styleClass="w-full" appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+              <label for="solutionType">Tipo de solución</label>
+              <p-dropdown inputId="solutionType" name="solutionType" [options]="solutionTypes" [(ngModel)]="commercial.solutionType"
+                placeholder="Seleccione una solución" styleClass="w-full" appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+              <label for="quotedValue">Valor cotizado</label>
+              <p-inputNumber inputId="quotedValue" name="quotedValue" [(ngModel)]="commercial.quotedValue"
+                mode="currency" currency="USD" locale="en-US" [minFractionDigits]="2" [maxFractionDigits]="2"
+                styleClass="w-full"></p-inputNumber>
+            </div>
+
+            <div class="field">
+              <label for="commercialStatus">Estado</label>
+              <p-dropdown inputId="commercialStatus" name="commercialStatus" [options]="statuses" [(ngModel)]="commercial.status"
+                placeholder="Seleccione un estado" styleClass="w-full" appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+              <label for="closeProbability">Probabilidad de cierre</label>
+              <p-inputNumber inputId="closeProbability" name="closeProbability" [(ngModel)]="commercial.closeProbability"
+                suffix=" %" [min]="0" [max]="100" [minFractionDigits]="0" [maxFractionDigits]="0"
+                styleClass="w-full"></p-inputNumber>
+            </div>
+
+            <div class="field">
+              <label for="estimatedCloseDate">Fecha estimada de cierre</label>
+              <p-calendar inputId="estimatedCloseDate" name="estimatedCloseDate" [(ngModel)]="commercial.estimatedCloseDate"
+                dateFormat="dd/mm/yy" [showIcon]="true" [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+            </div>
+
+            <div class="field">
+              <label for="nextFollowUp">Próximo seguimiento</label>
+              <p-calendar inputId="nextFollowUp" name="nextFollowUp" [(ngModel)]="commercial.nextFollowUp"
+                dateFormat="dd/mm/yy" [showIcon]="true" [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+            </div>
+
+            <div class="field">
+              <label for="nextAction">Próxima acción</label>
+              <p-dropdown inputId="nextAction" name="nextAction" [options]="nextActions" [(ngModel)]="commercial.nextAction"
+                placeholder="Seleccione una acción" styleClass="w-full" appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+              <label for="actionOwner">Responsable próxima acción</label>
+              <p-dropdown inputId="actionOwner" name="actionOwner" [options]="actionOwners" [(ngModel)]="commercial.nextActionOwner"
+                placeholder="Seleccione un responsable" styleClass="w-full" appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+              <label for="expectedStartDate">Fecha prevista de inicio</label>
+              <p-calendar inputId="expectedStartDate" name="expectedStartDate" [(ngModel)]="commercial.expectedStartDate"
+                dateFormat="dd/mm/yy" [showIcon]="true" [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+            </div>
+          </div>
+
+          <div class="checks-grid">
+            <label class="check-field" for="technicalSupport">
+              <p-checkbox inputId="technicalSupport" name="technicalSupport" [(ngModel)]="commercial.requiresTechnicalSupport" [binary]="true"></p-checkbox>
+              <span><strong>Requiere apoyo técnico</strong><small>{{ commercial.requiresTechnicalSupport ? 'Sí' : 'No' }}</small></span>
+            </label>
+            <label class="check-field" for="requiresMaterials">
+              <p-checkbox inputId="requiresMaterials" name="requiresMaterials" [(ngModel)]="commercial.requiresMaterials" [binary]="true"></p-checkbox>
+              <span><strong>Requiere compra / materiales</strong><small>{{ commercial.requiresMaterials ? 'Sí' : 'No' }}</small></span>
+            </label>
+            <label class="check-field" for="contractReceived">
+              <p-checkbox inputId="contractReceived" name="contractReceived" [(ngModel)]="commercial.contractReceived" [binary]="true"></p-checkbox>
+              <span><strong>OC / contrato recibido</strong><small>{{ commercial.contractReceived ? 'Sí' : 'No' }}</small></span>
+            </label>
+          </div>
+
+          <div class="field full-field">
+            <label for="observations">Observaciones</label>
+            <textarea pInputTextarea id="observations" name="observations" [(ngModel)]="commercial.observations" rows="3" [autoResize]="true"></textarea>
+          </div>
+
+          <div class="field full-field loss-field" *ngIf="commercial.status === 'Rechazada'">
+            <label for="lossReason">Motivo de pérdida</label>
+            <textarea pInputTextarea id="lossReason" name="lossReason" [(ngModel)]="commercial.lossReason" rows="3"
+              placeholder="Describe el motivo por el cual se rechazó la oportunidad" [autoResize]="true"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button" routerLink="/solicitudes"></p-button>
+            <p-button type="submit" label="Guardar gestión comercial" icon="pi pi-save" styleClass="save-button"></p-button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+</main>

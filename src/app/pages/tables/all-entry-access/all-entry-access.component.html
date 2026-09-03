@@ -1,0 +1,211 @@
+<p-toast></p-toast>
+
+@if (entrySelected()) {
+    <app-entry-details-modal [showModal]="entrySelected() ?? false"></app-entry-details-modal>
+}
+
+
+<p-dialog header="Header" [closable]="false" [(visible)]="showUpdate" [draggable]="false" [modal]="true"
+    [style]="{ 'width': '30vw', 'border-radius': '32px'}">
+    <ng-template pTemplate="header">
+        <div style="display: grid; place-items: center;">
+            <h1 style="margin: 0; font-size: 22px;" class="text-center mt-5">
+                Crear salida
+            </h1>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+
+        <h4>Materiales de salida</h4>
+        <div>
+            <div *ngFor="let material of selectedEntry?.materials; let i = index">
+                <div class="card-product flex gap-3 align-items-center mb-3 flex-column">
+                    <span class="w-full flex flex-column">
+                        <div class="flex justify-content-between align-items-center">
+                            <div class="flex gap-2 w-full justify-content-between align-items-center px-5">
+                                <label>{{material.name ?? material.other_material}}</label>
+
+                                <p-inputSwitch 
+                                    [ngModel]="checkedMaterials.has(i)"
+                                    (ngModelChange)="onToggle(material, $event)"
+                                    [ngModelOptions]="{ standalone: true }">
+                                </p-inputSwitch>
+                            </div>
+                        </div>
+                    </span>
+
+
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <label>Observaciones </label>
+        <div class="flex flex-column card-info mt-1 gap-2">
+            <input class="border-round w-full mt-2 mb-3" pInputText [(ngModel)]="observationOut"
+            id="descripcion" />
+        </div>
+
+
+
+        <span class="w-full">
+            <label>Imágenes <span style="color: red;">*</span></label>
+
+            <p-fileUpload #fileUpload name="images" mode="advanced" accept="image/*" [multiple]="true"
+                [maxFileSize]="5000000" [showUploadButton]="false" [showCancelButton]="false"
+                [auto]="true" (onSelect)="onSelectImages($event)" (onRemove)="onRemoveImages($event)"
+                styleClass="w-full mt-2" chooseLabel="Subir imágenes">
+            </p-fileUpload>
+
+            <small class="text-gray-500">
+                Mínimo 2 imágenes / Máximo 10 imágenes
+            </small>
+
+            <div *ngIf="imagesError" class="validate-data">
+                {{ imagesError }}
+            </div>
+        </span>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+            <p-button label="Cerrar" (onClick)="closeModal()" styleClass="bg-btn-cancel w-full">
+            </p-button>
+
+            <p-button label="Guardar" (onClick)="onSaveOut()"
+                styleClass="bg-btn-primary">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<div
+    class="bg-bluegray-50 mt-header border-round-2xl flex flex-column flex-no-wrap justify-content-center align-items-end">
+    
+    <div class="bg-white w-12 flex flex-column p-responsive py-5 border-round-md flex-wrap" style="overflow: auto">
+        <h1 class="font-verdana text-primary--custom pl-responsive">Total entradas</h1>
+        <div class="card w-full pd-table" id="table-logbooks">
+            <p-table  #dt_dispatchs
+                [value]="dataEntries"
+                [paginator]="true"
+                [rows]="5"
+                [globalFilterFields]="['dni','names_visit','area_name', 'staff_charge_name']"
+                [rowsPerPageOptions]="[5, 10, 25, 50]"
+                [showCurrentPageReport]="false"
+                [tableStyle]="{ 'max-width': '100%' }"
+                rowStyleClass="custom-row-height"
+                dataKey="id"
+            >
+                <ng-template pTemplate="caption">
+                    
+                    <div class="w-full flex justify-content-between align-items-center">
+                        <div
+                            class="p-inputgroup flex h-3rem p-input-icon-left border-round-2xl w-search-table"
+                        >
+                            <i style="z-index: 2;" class="pi pi-search text-primary--custom"></i>
+                            <input 
+                                class="border-none shadow-none--custom border-round-left-2xl border-round-right-2xl" 
+                                type="text"
+                                pInputText 
+                                (input)="dt_dispatchs.filterGlobal($any($event.target).value, 'contains')" 
+                            />         
+                            <p-columnFilter #imagePanel id="dateFilter" style="position: relative; z-index: 3; right: 3rem; margin-top: 7px;" type="date" field="date" display="menu">
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <div class="flex w-full flex-column gap-3">
+                                        <p-multiSelect 
+                                            [style]="{ boxShadow: 'none' }"
+                                            styleClass="border-round w-full"
+                                            id="optionGroupDestiny"  
+                                            [options]="areasVisit()"
+                                            [(ngModel)]="selectedAreasVisit"
+                                            optionLabel="name"
+                                            optionValue="id_area"
+                                            placeholder="Seleccione una opción"
+                                        ></p-multiSelect>
+
+                                        <p-calendar [(ngModel)]="dateRange" selectionMode="range" dateFormat="dd/mm/yy" [showIcon]="true"
+                                            [readonlyInput]="true" placeholder="Rango de fechas" [style]="{ boxShadow: 'none' }"
+                                            styleClass="border-round w-full">
+                                        </p-calendar>
+
+                                        <div class="flex gap-2">
+                                            <button (click)="applyFilter(imagePanel)" 
+                                            style="background: linear-gradient(0deg, #22a183 0%, #1f9f63 100%) !important; border: transparent;"
+                                            type="button" pbutton="" pripple="" class="p-element p-button-sm p-button p-component" ng-reflect-label="Apply">
+                                                <span style="font-size: 12px;" class="p-button-label b-apply">Aplicar</span>
+                                            </button>
+                                            <button (click)="clearFilter()" type="button" pbutton="" pripple="" 
+                                            style="background: white !important; border: 1px solid #038945; color: #129578;"
+                                            class="p-element p-button-outlined p-button-sm p-button p-component" ng-reflect-label="Clear">
+                                                <span style="font-size: 12px;" class="p-button-label">Limpiar</span>
+                                            </button>
+                                        </div>
+                                
+                                    </div>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <p-button label="" icon="pi pi-sync" class="w-reload" (onClick)="reloadDataDispatch()"
+                                styleClass="w-full bg-white text-primary--custom b-reload border-round-1xl h-full">
+                            </p-button>
+                        </div>
+
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th scope="col">Opciones</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Identificación</th>
+                        <th scope="col">Nombres</th>
+                        <th scope="col">Área</th>
+                        <th scope="col">Responsable</th>
+                        <!-- <th scope="col">Permanencia</th> -->
+                        <th scope="col">Estado</th>
+                    </tr>
+                </ng-template>                
+                <ng-template pTemplate="body" let-dispatch>
+                    <tr>                
+                        <td data-titulo="Opciones:">
+                            <p-splitButton id="option-table" appendTo="body" (click)="optionsDispatch(dispatch)" [model]="items">
+                                <ng-template pTemplate="dropdownicon">
+                                    <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                                </ng-template>
+                            </p-splitButton>
+                        </td>
+                        <td  data-titulo="Fecha:" [ngxTippy]="'Hora de registro: ' + (dispatch?.created_at | date:'HH:mm':'UTC')">{{ dispatch?.created_at | date:'dd/MM/yyyy':'UTC' }}</td>
+                        <td  data-titulo="Identificación:">{{ dispatch?.dni }}</td>
+                        <td  data-titulo="Nombres:">{{ dispatch?.names_visit ?? 'N/A' }}</td>
+                        <td  data-titulo="Área:">{{ dispatch?.area_name ?? 'N/A' }}</td>
+                        <td  data-titulo="Responsable:">{{ dispatch?.staff_charge_name ?? 'N/A' }}</td>
+                        <!-- <td  data-titulo="Permanencia:" style="width: 20px;">{{ loogbook?.permanence_time ?? 'N/A' }}</td> -->
+                        <td  data-titulo="Estado:">
+                            <p-tag [value]="dispatch?.status" [severity]="utilsService.getSeverityEntryControl(dispatch?.status)"></p-tag>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center" style="font-size: 18px; font-weight: 700;">No hay datos disponibles</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<div class="overlay" *ngIf="isLoading">
+    <p-progressSpinner
+      class="center-spinner"
+      [style]="{ width: '50px', height: '50px' }"
+      strokeWidth="8"
+      fill="#007bff"
+      animationDuration="2s"
+    ></p-progressSpinner>
+</div>
+

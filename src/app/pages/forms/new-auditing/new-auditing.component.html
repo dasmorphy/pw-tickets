@@ -1,0 +1,373 @@
+<p-toast></p-toast>
+
+<main class="auditing-page">
+    <div class="auditing-shell">
+        <header class="page-header">
+            <!-- <button type="button" class="back-button" aria-label="Volver a fiscalizaciones" (click)="cancel()">
+                <i class="pi pi-arrow-left"></i>
+            </button> -->
+            <div>
+                <span class="page-eyebrow">CONTROL TÉCNICO</span>
+                <h1>Registro de fiscalización</h1>
+            </div>
+        </header>
+
+        <nav class="audit-stepper" aria-label="Progreso de la fiscalización">
+            <button
+                *ngFor="let step of steps; let stepIndex = index"
+                type="button"
+                class="step-button"
+                [class.is-active]="currentStep === stepIndex"
+                [class.is-complete]="isStepComplete(stepIndex)"
+                [class.is-available]="isStepAvailable(stepIndex)"
+                [disabled]="!isStepAvailable(stepIndex)"
+                [attr.aria-current]="currentStep === stepIndex ? 'step' : null"
+                (click)="openStep(stepIndex)"
+            >
+                <span class="step-label">{{ step.label }}</span>
+                <span class="step-marker">
+                    <i *ngIf="isStepComplete(stepIndex)" class="pi pi-check"></i>
+                    <span *ngIf="!isStepComplete(stepIndex)">{{ stepIndex + 1 }}</span>
+                </span>
+            </button>
+        </nav>
+
+        <div *ngIf="isCatalogLoading" class="catalog-loading">
+            <p-progressSpinner [style]="{ width: '36px', height: '36px' }" strokeWidth="5"></p-progressSpinner>
+            <span>Preparando el formulario…</span>
+        </div>
+
+        <div *ngIf="!isCatalogLoading" class="audit-form">
+            <section *ngIf="currentStep === 0" class="general-card" [formGroup]="generalForm">
+                <div class="card-heading">
+                    <span class="heading-icon"><i class="pi pi-briefcase"></i></span>
+                    <div>
+                        <span class="section-kicker">DATOS GENERALES</span>
+                        <h2>Proyecto a fiscalizar</h2>
+                    </div>
+                </div>
+
+                <div class="general-fields">
+                    <div class="field-group field-group--wide">
+                        <label for="audit-project">Proyecto y ubicación <span aria-hidden="true">*</span></label>
+                        <p-dropdown
+                            inputId="audit-project"
+                            formControlName="project_key"
+                            [options]="projectOptions"
+                            optionLabel="displayName"
+                            optionValue="key"
+                            placeholder="Selecciona un proyecto"
+                            emptyMessage="No hay proyectos disponibles"
+                            [filter]="true"
+                            filterBy="displayName"
+                            [showClear]="true"
+                            appendTo="body"
+                            styleClass="w-full"
+                            (onChange)="onProjectChange($event.value)"
+                        ></p-dropdown>
+                        <small class="field-error" *ngIf="generalForm.controls.project_key.invalid && generalForm.controls.project_key.touched">
+                            Selecciona el proyecto que vas a fiscalizar.
+                        </small>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="audit-responsible">Responsable técnico <span aria-hidden="true">*</span></label>
+                        <input
+                            id="audit-responsible"
+                            type="text"
+                            formControlName="responsible"
+                            maxlength="150"
+                            placeholder="Nombre del responsable"
+                        />
+                        <small class="field-error" *ngIf="generalForm.controls.responsible.invalid && generalForm.controls.responsible.touched">
+                            Ingresa el responsable técnico.
+                        </small>
+                    </div>
+                </div>
+
+                <div *ngIf="selectedProject" class="project-context">
+                    <div class="project-main">
+                        <span class="context-label">PROYECTO</span>
+                        <strong>{{ selectedProject.code || selectedProject.name }}</strong>
+                        <span>{{ selectedProject.name }}</span>
+                    </div>
+                    <div>
+                        <i class="pi pi-building"></i>
+                        <span class="context-label">CLIENTE</span>
+                        <strong>{{ selectedProject.client }}</strong>
+                    </div>
+                    <div>
+                        <i class="pi pi-map-marker"></i>
+                        <span class="context-label">UBICACIÓN</span>
+                        <strong>{{ selectedProject.location }}</strong>
+                    </div>
+                </div>
+            </section>
+
+            <ng-container *ngFor="let section of currentSections">
+                <section class="audit-section">
+                    <div class="section-heading">
+                        <div>
+                            <span class="section-accent" aria-hidden="true"></span>
+                            <h2>{{ section.name }}</h2>
+                        </div>
+                        <span>{{ section.items.length }} {{ section.items.length === 1 ? 'ítem' : 'ítems' }}</span>
+                    </div>
+
+                    <div class="items-list">
+                        <article *ngFor="let item of section.items; let itemIndex = index" class="audit-item">
+                            <div class="item-number">{{ itemIndex + 1 }}</div>
+                            <div class="item-content">
+                                <h3>{{ item.name }}</h3>
+
+                                <div class="response-options" [formGroup]="responsesForm">
+                                    <label *ngFor="let option of responseOptions" class="response-option">
+                                        <input
+                                            type="radio"
+                                            [value]="option.value"
+                                            [formControlName]="controlName(item.id_item)"
+                                        />
+                                        <span class="radio-mark"></span>
+                                        <span>{{ option.label }}</span>
+                                    </label>
+                                </div>
+
+                                <small class="field-error" *ngIf="responseControl(item.id_item)?.invalid && responseControl(item.id_item)?.touched">
+                                    Selecciona Sí, No o N/A.
+                                </small>
+
+                                <div class="observation-field" [formGroup]="observationsForm">
+                                    <label [for]="'observation-' + item.id_item">Observaciones <span>(opcional)</span></label>
+                                    <textarea
+                                        [id]="'observation-' + item.id_item"
+                                        rows="3"
+                                        maxlength="1000"
+                                        [formControlName]="controlName(item.id_item)"
+                                        placeholder="Escribe algún comentario…"
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </ng-container>
+
+            <section *ngIf="currentStep === 3" class="findings-section">
+                <div class="findings-header">
+                    <div>
+                        <span class="section-kicker">CALIDAD</span>
+                        <h2>Hallazgos</h2>
+                        <p>Son opcionales. Agrega uno únicamente si encontraste una novedad.</p>
+                    </div>
+                    <button type="button" class="secondary-action" (click)="addFinding()">
+                        <i class="pi pi-plus"></i>
+                        Agregar hallazgo
+                    </button>
+                </div>
+
+                <div *ngIf="!findingControls.length" class="empty-findings">
+                    <i class="pi pi-check-circle"></i>
+                    <div>
+                        <strong>Sin hallazgos registrados</strong>
+                        <span>Puedes continuar a firmas sin agregar ninguno.</span>
+                    </div>
+                </div>
+
+                <article
+                    *ngFor="let findingGroup of findingControls; let findingIndex = index"
+                    class="finding-card"
+                    [formGroup]="findingGroup"
+                >
+                    <div class="finding-title">
+                        <span>Hallazgo {{ findingIndex + 1 }}</span>
+                        <button type="button" aria-label="Eliminar hallazgo" (click)="removeFinding(findingIndex)">
+                            <i class="pi pi-trash"></i>
+                        </button>
+                    </div>
+
+                    <div class="finding-grid">
+                        <div class="field-group field-group--full">
+                            <label [for]="'finding-description-' + findingIndex">Descripción <span aria-hidden="true">*</span></label>
+                            <textarea
+                                [id]="'finding-description-' + findingIndex"
+                                rows="4"
+                                maxlength="1000"
+                                formControlName="description"
+                                placeholder="Describe el hallazgo…"
+                            ></textarea>
+                            <small class="field-error" *ngIf="findingGroup.get('description')?.invalid && findingGroup.get('description')?.touched">
+                                La descripción es obligatoria.
+                            </small>
+                        </div>
+
+                        <div class="field-group">
+                            <label [for]="'finding-criticality-' + findingIndex">Criticidad <span aria-hidden="true">*</span></label>
+                            <select [id]="'finding-criticality-' + findingIndex" formControlName="criticality">
+                                <option value="" disabled>Selecciona la criticidad</option>
+                                <option *ngFor="let criticality of criticalityOptions" [value]="criticality">{{ criticality }}</option>
+                            </select>
+                            <small class="field-error" *ngIf="findingGroup.get('criticality')?.invalid && findingGroup.get('criticality')?.touched">
+                                Selecciona la criticidad.
+                            </small>
+                        </div>
+
+                        <div class="field-group">
+                            <label [for]="'finding-responsible-' + findingIndex">Responsable <span aria-hidden="true">*</span></label>
+                            <input
+                                [id]="'finding-responsible-' + findingIndex"
+                                type="text"
+                                maxlength="150"
+                                formControlName="responsible"
+                                placeholder="Nombre del responsable"
+                            />
+                            <small class="field-error" *ngIf="findingGroup.get('responsible')?.invalid && findingGroup.get('responsible')?.touched">
+                                El responsable es obligatorio.
+                            </small>
+                        </div>
+
+                        <div class="field-group field-group--full">
+                            <label [for]="'finding-commitment-' + findingIndex">Compromiso <span aria-hidden="true">*</span></label>
+                            <input
+                                [id]="'finding-commitment-' + findingIndex"
+                                type="text"
+                                maxlength="500"
+                                formControlName="commitment"
+                                placeholder="Acción y fecha comprometida"
+                            />
+                            <small class="field-error" *ngIf="findingGroup.get('commitment')?.invalid && findingGroup.get('commitment')?.touched">
+                                El compromiso es obligatorio.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="evidence-block">
+                        <div>
+                            <span class="evidence-title">Evidencia fotográfica <small>(opcional)</small></span>
+                            <span>Hasta 10 imágenes por hallazgo.</span>
+                        </div>
+                        <label class="upload-action" [for]="'finding-images-' + findingIndex">
+                            <i class="pi pi-camera"></i>
+                            Adjuntar imágenes
+                        </label>
+                        <input
+                            class="visually-hidden"
+                            [id]="'finding-images-' + findingIndex"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            (change)="onFindingImagesSelected($event, findingIndex)"
+                        />
+                    </div>
+
+                    <div *ngIf="findingImagePreviews[findingIndex].length" class="evidence-grid">
+                        <figure *ngFor="let preview of findingImagePreviews[findingIndex]; let imageIndex = index">
+                            <img [src]="preview" [alt]="'Evidencia ' + (imageIndex + 1) + ' del hallazgo'" />
+                            <button type="button" aria-label="Eliminar imagen" (click)="removeFindingImage(findingIndex, imageIndex)">
+                                <i class="pi pi-times"></i>
+                            </button>
+                        </figure>
+                    </div>
+                </article>
+            </section>
+
+            <section *ngIf="currentStep === 4" class="signatures-section">
+                <div class="signatures-intro">
+                    <span class="heading-icon"><i class="pi pi-pencil"></i></span>
+                    <div>
+                        <span class="section-kicker">CIERRE DE FISCALIZACIÓN</span>
+                        <h2>Firmas</h2>
+                        <p>Dibuja cada firma o carga una imagen. Las tres son obligatorias.</p>
+                    </div>
+                </div>
+
+                <div *ngIf="selectedProject" class="signature-context">
+                    <span><i class="pi pi-briefcase"></i>{{ selectedProject.name }}</span>
+                    <span><i class="pi pi-map-marker"></i>{{ selectedProject.location }}</span>
+                    <span><i class="pi pi-user"></i>{{ generalForm.controls.responsible.value }}</span>
+                </div>
+
+                <div class="signature-grid">
+                    <article *ngFor="let signature of signatureRoles" class="signature-card">
+                        <div class="signature-card-header">
+                            <div>
+                                <span>{{ signature.label }}</span>
+                                <small>Firma obligatoria</small>
+                            </div>
+                            <span *ngIf="hasSignature(signature.key)" class="ready-badge">
+                                <i class="pi pi-check"></i> Lista
+                            </span>
+                        </div>
+
+                        <div class="signature-mode-switch" role="group" [attr.aria-label]="'Método de firma para ' + signature.label">
+                            <button
+                                type="button"
+                                [class.is-selected]="signatureModes[signature.key] === 'draw'"
+                                (click)="setSignatureMode(signature.key, 'draw')"
+                            >
+                                <i class="pi pi-pencil"></i> Dibujar
+                            </button>
+                            <button
+                                type="button"
+                                [class.is-selected]="signatureModes[signature.key] === 'upload'"
+                                (click)="setSignatureMode(signature.key, 'upload')"
+                            >
+                                <i class="pi pi-upload"></i> Subir imagen
+                            </button>
+                        </div>
+
+                        <div *ngIf="signatureModes[signature.key] === 'draw'" class="signature-pad">
+                            <canvas
+                                #signatureCanvas
+                                [attr.data-role]="signature.key"
+                                (pointerdown)="beginSignature($event, signature.key, signatureCanvas)"
+                                (pointermove)="drawSignature($event, signature.key, signatureCanvas)"
+                                (pointerup)="endSignature($event, signature.key, signatureCanvas)"
+                                (pointercancel)="endSignature($event, signature.key, signatureCanvas)"
+                            ></canvas>
+                            <span><i class="pi pi-pencil"></i> Firma dentro del recuadro</span>
+                        </div>
+
+                        <div *ngIf="signatureModes[signature.key] === 'upload'" class="signature-upload">
+                            <img *ngIf="signaturePreviews[signature.key]" [src]="signaturePreviews[signature.key]!" [alt]="'Firma de ' + signature.label" />
+                            <label [for]="'signature-file-' + signature.key">
+                                <i class="pi pi-image"></i>
+                                {{ signaturePreviews[signature.key] ? 'Cambiar imagen' : 'Seleccionar imagen' }}
+                            </label>
+                            <input
+                                class="visually-hidden"
+                                [id]="'signature-file-' + signature.key"
+                                type="file"
+                                accept="image/*"
+                                (change)="onSignatureUpload($event, signature.key)"
+                            />
+                        </div>
+
+                        <button *ngIf="hasSignature(signature.key)" type="button" class="clear-signature" (click)="clearSignature(signature.key)">
+                            <i class="pi pi-trash"></i> Limpiar firma
+                        </button>
+                    </article>
+                </div>
+            </section>
+
+            <footer class="form-actions">
+                <button type="button" class="back-action" [disabled]="isSubmitting" (click)="previousStep()">
+                    <i class="pi pi-arrow-left"></i>
+                    {{ currentStep === 0 ? 'Cancelar' : 'Atrás' }}
+                </button>
+                <button type="button" class="primary-action" [disabled]="isSubmitting" (click)="nextOrSubmit()">
+                    <span>{{ primaryActionLabel }}</span>
+                    <i *ngIf="currentStep < steps.length - 1" class="pi pi-arrow-right"></i>
+                    <i *ngIf="currentStep === steps.length - 1" class="pi pi-check"></i>
+                </button>
+            </footer>
+        </div>
+    </div>
+</main>
+
+<div *ngIf="isSubmitting" class="overlay">
+    <p-progressSpinner
+        class="center-spinner"
+        [style]="{ width: '52px', height: '52px' }"
+        strokeWidth="6"
+    ></p-progressSpinner>
+</div>

@@ -1,0 +1,142 @@
+<div class="flex justify-content-between card-info gap-2">
+    <div class="flex flex-column">
+        <div class="flex flex-column">
+            <label class="font-bold cab-label" htmlFor="shipping_guide">GUÍA: </label>
+            <label style="font-size: 23px;" class="font-bold mt-1" htmlFor="shipping_guide">
+                {{ logbookData?.shipping_guide || "N/A" }}
+            </label>
+        </div>
+    
+        <div class="flex align-items-center mt-4">
+            <i style="font-size: 0.8rem;" class="pi pi-calendar mr-2"></i>
+    
+            <label htmlFor="shipping_guide">
+                {{ logbookData?.created_at | date:'dd/MM/yyyy':'UTC'}}
+            </label>
+    
+            <i class="pi pi-clock mr-2 ml-2" style="font-size: 0.8rem;"></i>
+    
+            <label htmlFor="shipping_guide">
+                {{ logbookData?.created_at | date:'HH:mm':'UTC'}}
+            </label>
+        </div>
+    </div>
+
+    <div class="i-log">
+        <i class="pi pi-file-check" style="color: #0056b3; font-size: 30px;"></i>
+    </div>
+</div>
+
+<h4>INFORMACIÓN DE CARGA</h4>
+<div class="div-responsive mt-2 gap-2">
+    <div class="flex flex-column w-full card-info">
+        <i class="pi pi-map-marker mb-3" style="color: #0056b3;"></i>
+        <label class="font-bold cab-label" htmlFor="shipping_guide">LOCALIDAD: </label>
+        <label class="det-label" htmlFor="shipping_guide">{{logbookData?.group_name}}</label>
+    </div>
+
+    <div class="flex flex-column w-full card-info">
+        <i class="pi pi-map mb-3" style="color: #0056b3;"></i>
+        <label class="font-bold cab-label" htmlFor="shipping_guide">COORDENADAS: </label>
+        <label class="det-label" htmlFor="shipping_guide">{{logbookData?.lat}},{{logbookData?.long}}</label>
+    </div>
+
+    <div class="flex flex-column w-full card-info">
+        <i class="pi pi-objects-column mb-3" style="color: #0056b3;"></i>
+        <label class="font-bold cab-label" htmlFor="shipping_guide">CATEGORÍA: </label>
+        <label class="det-label" htmlFor="shipping_guide">{{logbookData?.name_category}}</label>
+    </div>
+
+    <div class="flex flex-column w-full card-info">
+        <i class="pi pi-truck mb-3" style="color: #0056b3;"></i>
+        <label class="font-bold cab-label" htmlFor="shipping_guide">PLACA VEHÍCULO: </label>
+        <label class="det-label" htmlFor="shipping_guide">{{logbookData?.truck_license}}</label>
+    </div>
+
+    <div class="flex flex-column w-full card-info">
+        <i class="pi pi-hammer mb-3" style="color: #0056b3;"></i>
+        <label class="font-bold cab-label" htmlFor="shipping_guide">CANTIDAD: </label>
+        <label class="det-label" htmlFor="shipping_guide">{{logbookData?.quantity ?? 'N/A'}}</label>
+    </div>
+
+    <div class="flex flex-column w-full card-info">
+        <i class="pi pi-shopping-bag mb-3" style="color: #0056b3;"></i>
+        <label class="font-bold cab-label" htmlFor="shipping_guide">PESO: </label>
+        <label class="det-label" htmlFor="shipping_guide">{{logbookData?.weight ?? 'N/A'}}</label>
+    </div>
+
+    <div class="flex flex-column w-full card-info">
+        <i class="pi pi-compass mb-3" style="color: #0056b3;"></i>
+        <label class="font-bold cab-label" htmlFor="shipping_guide">DESTINO: </label>
+        <label class="det-label" htmlFor="shipping_guide">
+            {{logbookData?.destiny || 'N/A'}}
+        </label>
+    </div>
+</div>
+
+<h4>PERSONAL RESPONSABLE</h4>
+<div class="flex flex-column card-info mt-2 gap-2">
+
+    <div class="flex gap-2 w-full">
+        <div class="det-avatar">
+            <i class="pi pi-user-edit" style="color: #0056b3;"></i>
+        </div>
+        <div class="flex flex-column">
+            <label class="font-bold cab-label" htmlFor="shipping_guide">CREADO POR: </label>
+            <label class="det-label" htmlFor="shipping_guide">{{logbookData?.created_by}}</label>
+        </div>
+    </div>
+
+    <div class="flex gap-2 w-full">
+        <div class="det-avatar">
+            <i class="pi pi-user" style="color: #0056b3;"></i>
+        </div>
+        <div class="flex flex-column">
+            <label class="font-bold cab-label" htmlFor="shipping_guide">GUARDIA: </label>
+            <label class="det-label" htmlFor="shipping_guide">{{logbookData?.name_user}}</label>
+        </div>
+    </div>
+
+    <div class="flex gap-2 w-full">
+        <div class="det-avatar">
+            <i class="pi pi-car" style="color: #0056b3;"></i>
+        </div>
+        <div class="flex flex-column">
+            <label class="font-bold cab-label" htmlFor="shipping_guide">CONDUCTOR: </label>
+            <label class="det-label" htmlFor="shipping_guide">{{logbookData?.name_driver}}</label>
+        </div>
+    </div>
+
+    <div class="flex gap-2 w-full">
+        <div class="det-avatar">
+            <i class="pi pi-id-card" style="color: #0056b3;"></i>
+        </div>
+        <div class="flex flex-column">
+            <label class="font-bold cab-label" htmlFor="shipping_guide">CUSTODIA: </label>
+            <label class="det-label" htmlFor="shipping_guide">{{logbookData?.person_withdraws || 'N/A'}}</label>
+        </div>
+    </div>
+
+</div>
+
+<h4>OBSERVACIONES</h4>
+<div class="flex flex-column card-info mt-3 gap-2">
+    <label class="det-label" htmlFor="shipping_guide">{{ logbookData?.observations || 'N/A' }}</label>
+</div>
+
+
+@if (logbookData?.images?.length > 0) {
+    <h4 class="mt-4">IMÁGENES</h4>
+    <div class="div-responsive mt-3">
+        <div class="flex justify-content-center" *ngFor="let image of logbookData?.images">
+            <!-- <img style="object-fit: contain;" [src]="'http://st.telearseg.net' + image" alt="imagenes salida"
+                loading="lazy" height="190" width="180"> -->
+
+            <p-image
+                [src]="'https://st.telearseg.net' + image"
+                alt="registros" width="140" height="190" loading="lazy"
+                [preview]="true" appendTo="body" imageClass="finding-image">
+            </p-image>
+        </div>
+    </div>
+}

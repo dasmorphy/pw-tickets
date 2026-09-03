@@ -1,0 +1,64 @@
+<p-dialog header="Header" [closable]="false" [(visible)]="showGenerateReport" [draggable]="false" [modal]="true"
+  [style]="{ 'width': '23vw', 'border-radius': '32px'}">
+  <ng-template pTemplate="header">
+    <div style="display: grid; place-items: center;">
+      <i class="pi pi-exclamation-circle mt-4" style="color: #EB6506; font-size: 40px;"></i>
+      <h1 style="margin: 0; font-size: 22px;" class="text-center mt-3">
+        Generar Reporte
+      </h1>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <div class="flex flex-column mt-3">
+      <label class="font-bold" htmlFor="username">Tipo de reporte</label>
+      <p-dropdown [style]="{ boxShadow: 'none' }" styleClass="border-round w-full mt-2"
+        id="cuentaCliente" [options]="optionsReport" (onChange)="changeOptionReport($event)"
+        appendTo="body"
+      >
+      </p-dropdown>
+    </div>
+
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+      <p-button label="Generar"  styleClass="bg-btn-primary w-full" (onClick)="generateReport()">
+      </p-button>
+      <p-button label="Cancelar" (onClick)="showGenerateReport = false" styleClass="bg-btn-cancel w-full">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+
+<div style="padding-top: 0rem!important; background-color: rgb(19, 16, 16);"
+  class="surface-border w-full flex-column flex min-h-screen text-2xl border-box sidenav bg-color" [class]="{'p-5': toggle()}">
+  <div class="d-close-menu" style="position: relative; left: 90%;">
+    <p-button id="button-close-menu" icon="pi pi-times" (onClick)="toggleMenu()"
+      styleClass="p-button-text p-button-toggle mr-2 text-color-secondary border-transparent bg-transparent"></p-button>
+  </div>
+
+  <div class="w-full flex flex-column align-items-center py-2">
+    <div class="w-full flex justify-content-center svg-logo align-items-baseline">
+      <div class="svg-logo-toggle" (click)="expandedSidenav()">
+        <img width="50px" src="./assets/z-logo.png" alt="logo">
+      </div>
+      <!-- <span id="xtrim-span" class="font-verdana text-primary--custom ml-1">xtrim</span> -->
+    </div>
+    <div class="w-full flex flex-column align-items-center">
+      <p-panelMenu [model]="items()" [multiple]="false"></p-panelMenu>
+    </div>
+  </div>
+</div>
+
+
+<div class="overlay" *ngIf="isLoading">
+    <p-progressSpinner
+    class="center-spinner"
+    [style]="{ width: '50px', height: '50px' }"
+    strokeWidth="8"
+    fill="#007bff"
+    animationDuration="2s"
+  ></p-progressSpinner>
+</div>

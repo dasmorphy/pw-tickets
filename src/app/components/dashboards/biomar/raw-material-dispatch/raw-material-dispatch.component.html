@@ -1,0 +1,185 @@
+
+@if (dispatchSelected()) {
+    <app-dispatch-details-modal [showModal]="dispatchSelected() ?? false"></app-dispatch-details-modal>
+}
+
+@if (openModalImages()) {
+    <app-preview-image [showImages]="openModalImages()"></app-preview-image>
+}
+
+<div class="flex flex-column w-full px-5">
+    <!-- Cards superiores con métricas clave -->
+    <div class="flex w-full justify-content-center gap-3 column-responsive mb-3">
+        <!-- Total Despachos -->
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">Total Despachos</span>
+                    <span class="font-bold text-3xl">{{getTotalDispatch()}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#000000' }">
+                    <i class="pi pi-box text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+        <!-- Ocupación de Bodegas -->
+        <p-card class="flex-1">
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">Recepción skus</span>
+                    <span class="font-bold text-3xl">{{graphSkusStore?.sku_count}} SKU</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#000000' }">
+                    <i class="pi pi-warehouse text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+
+        <!-- Novedades en Recepción -->
+        <p-card class="flex-1"
+            [style]="{
+                'border-left': '5px solid #ef4444',
+                'border-radius': '12px'
+            }"
+        >
+            <div class="flex justify-content-between gap-5">
+                <div class="flex flex-column gap-1">
+                    <span class="text-secondary text-xl">Novedades en Recepción</span>
+                    <span class="font-bold text-3xl" [style]="{ color: '#ef4444' }">{{graphDiscrepancy}}</span>
+                </div>
+                <span
+                    class="w-2rem h-2rem border-circle inline-flex justify-content-center align-items-center text-center"
+                    [style]="{ color: '#ef4444' }">
+                    <i class="pi pi-exclamation-triangle text-2xl font-bold"></i>
+                </span>
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="flex w-full gap-3 mt-3 column-responsive">
+        <!-- Estado por Bodega -->
+        <div class="flex card-info flex-column w-full" style="min-height: 25rem;">
+            <span class="font-bold mb-3">Estado por Bodega</span>
+            
+            <div class="flex flex-column w-full gap-3">
+                <div *ngFor="let warehouse of graphDestiny" class="flex flex-column gap-2">
+                    <div class="flex justify-content-between align-items-center">
+                        <span class="font-semibold">{{warehouse.name_destiny}}</span>
+                        <span class="text-secondary">{{warehouse.count}}</span>
+                    </div>
+                </div>
+
+                @if (graphDestiny?.length < 4) {
+                    <span class="text-center mt-5 font-medium" style="color: #6c7673;">Sin más registros por el momento</span>
+                }
+            </div>
+        </div>
+
+        <!-- Gráfico de Novedades -->
+        <div class="flex card-info justify-content-center align-items-center w-full" style="min-height: 25rem;">
+            <div class="flex flex-column w-full h-full">
+                <span class="font-bold mb-3">Gráfico de Novedades</span>
+                <span class="text-secondary text-sm mb-3">Recepciones Correctas vs Novedades (Últimos 7 días)</span>
+                <canvas class="mt-2" id="newsBarChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex w-full mt-5">
+        <p-table  #dt_dispatchs
+            [value]="dataDispatchs"
+            [paginator]="true"
+            [rows]="5"
+            [globalFilterFields]="['driver','name_destiny','order_number', 'truck_license']"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [showCurrentPageReport]="false"
+            [tableStyle]="{ 'max-width': '100%' }"
+            rowStyleClass="custom-row-height"
+            dataKey="id"
+            class="w-full"
+        >
+            <ng-template pTemplate="caption">
+                
+                <div class="w-full flex align-items-center gap-2">
+                    <div
+                        class="p-inputgroup flex p-input-icon-left border-round-2xl w-search-table w-30rem"
+                    >
+                        <i style="z-index: 2;" class="pi pi-search text-primary--custom"></i>
+                        <input 
+                            style="border: 1px solid #e3e3e3; height: 2.5rem;"
+                            class="shadow-none--custom border-round-left-2xl border-round-right-2xl w-full" 
+                            type="text"
+                            pInputText 
+                            (input)="dt_dispatchs.filterGlobal($any($event.target).value, 'contains')" 
+                        />         
+                    </div>
+
+                    <div class="flex gap-2">
+                        <i class="flex justify-content-center align-items-center pi pi-filter cursor-pointer" (click)="op.toggle($event)"></i>      
+                        <p-overlayPanel #op [dismissable]="true" [style]="{ width: '320px' }">
+                            <div class="flex w-full flex-column gap-3">
+                                <p-calendar [(ngModel)]="dateRange" selectionMode="range" dateFormat
+                                    ="dd/mm/yy" [showIcon]="true" [readonlyInput]="true" placeholder="Rango de fechas" [style]="{ boxShadow: 'none' }"
+                                    styleClass="border-round w-full">
+                                </p-calendar>
+                            </div>
+
+                            <div class="flex justify-content-center gap-3 mt-4">
+                                <p-button label="Aplicar" icon="pi pi-filter-fill" size="small" (onClick)="onFilterDate(op)">
+                                </p-button>
+                        
+                                <p-button label="Limpiar" icon="pi pi-filter-slash" size="small" (onClick)="clearFilter(op)" class="p-button-secondary">
+                                </p-button>
+                        
+                            </div>
+                        </p-overlayPanel>
+                    </div>
+
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th scope="col">Opciones</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Orden</th>
+                    <th scope="col">Conductor</th>
+                    <th scope="col">Placa</th>
+                    <th scope="col">Destino</th>
+                    <!-- <th scope="col">Permanencia</th> -->
+                    <th scope="col">Estado</th>
+                </tr>
+            </ng-template>                
+            <ng-template pTemplate="body" let-dispatch>
+                <tr>                
+                    <td data-titulo="Opciones:">
+                        <p-splitButton id="option-table" appendTo="body" (click)="optionsDispatch(dispatch)" [model]="items">
+                            <ng-template pTemplate="dropdownicon">
+                                <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                            </ng-template>
+                        </p-splitButton>
+                    </td>
+                    <td  data-titulo="Fecha:" [pTooltip]="'Hora de registro: ' + (dispatch?.created_at | date:'HH:mm':'UTC')">{{ dispatch?.created_at | date:'dd/MM/yyyy':'UTC' }}</td>
+                    <td  data-titulo="Orden:">{{ dispatch?.order_number ?? 'N/A' }}</td>
+                    <td  data-titulo="Conductor:">{{ dispatch?.driver ?? 'N/A' }}</td>
+                    <td  data-titulo="Placa:">{{ dispatch?.truck_license ?? 'N/A' }}</td>
+                    <td  data-titulo="Destino:">{{ dispatch?.name_destiny ?? 'N/A' }}</td>
+                    <!-- <td  data-titulo="Permanencia:" style="width: 20px;">{{ loogbook?.permanence_time ?? 'N/A' }}</td> -->
+                    <td  data-titulo="Estado:">
+                        <p-tag [value]="dispatch?.status" [severity]="utilsService.getSeverityDispatch(dispatch?.status)"></p-tag>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="text-center" style="font-size: 18px; font-weight: 700;">No hay datos disponibles</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

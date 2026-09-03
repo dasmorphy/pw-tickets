@@ -1,0 +1,44 @@
+<p-dialog header="Header" [closable]="false" [(visible)]="showModal" [draggable]="false" [modal]="true"
+    [style]="{ 'width': '30vw', 'border-radius': '32px'}">
+    <ng-template pTemplate="header">
+        <div style="display: grid; place-items: center;">
+            <h1 style="margin: 0; font-size: 22px;" class="text-center mt-5">
+                Detalle bitácora
+            </h1>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+
+        @if (logbookSelected()?.out) {
+            <p-tabView>
+                <p-tabPanel header="Ingreso">
+                    <app-logbook-detail-entry [logbookData]="logbookSelected()"></app-logbook-detail-entry>
+                </p-tabPanel>
+    
+                <p-tabPanel header="Salida">
+                    <app-logbook-detail-out [logbookData]="logbookSelected()?.out"></app-logbook-detail-out>
+                </p-tabPanel>
+            </p-tabView>
+        }
+        @else {
+            @if (logbookSelected()?.record_type == 'entry') {
+                <app-logbook-detail-entry [logbookData]="logbookSelected()"></app-logbook-detail-entry>
+            }
+    
+            
+            @if (logbookSelected()?.record_type == 'out') {
+                <app-logbook-detail-out [logbookData]="logbookSelected()"></app-logbook-detail-out>
+            }
+        }
+
+
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+            <p-button label="Cerrar" (onClick)="closeModal()" styleClass="bg-btn-cancel w-full">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>

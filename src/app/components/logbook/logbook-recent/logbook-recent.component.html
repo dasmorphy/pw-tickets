@@ -1,0 +1,67 @@
+@if (logbookSelected()) {
+  <app-logbook-details-modal [showModal]="logbookSelected() ?? false"></app-logbook-details-modal>
+}
+
+
+<div class="flex justify-content-between align-items-center mb-4 w-history column-responsive gap-3">
+    <h2 class="my-0 w-full">Bitácoras recientes</h2>
+
+    <div class="flex gap-2 align-items-center w-full">
+        <!-- h-3rem clase con valores rem -->
+        <div class="p-inputgroup flex p-input-icon-left border-round-2xl">
+            <i style="z-index: 2;" class="pi pi-search text-primary--custom"></i>
+            <input class="border-none shadow-none--custom border-round-left-2xl border-round-right-2xl" type="text"
+                pInputText (input)="onSearch($event)" />
+        </div>
+        <p-button label="" icon="pi pi-sync" class="w-reload" (onClick)="reloadHistoryLogbook()"
+            styleClass="w-full bg-white text-primary--custom b-reload border-round-1xl h-full">
+        </p-button>
+    </div>
+</div>
+
+<div class="w-full flex column-responsive">
+    <div class="recent-card flex flex-column w-full gap-3" style="overflow: scroll;">
+        <ng-container *ngIf="dataHistory?.length > 0; else emptyState">
+            <div class="item w-full p-3 border-round-2xl" (click)="viewLogbookDetails(log)" *ngFor="let log of dataHistory">
+                <div class="icon">
+                    <i class="pi pi-file-edit"></i>
+                </div>
+
+                <div class="content w-full">
+                    <div class="title">{{ log.name_category }}</div>
+                    <div class="subtitle">
+                        Bitácora de {{ log.type }} en {{ log.group }}
+                    </div>
+                    <div class="date">
+                        {{ log?.truck_license }}
+                    </div>
+                    <div class="date">
+                        {{ log?.date | date:'dd/MM/yyyy':'UTC' }}
+                    </div>
+                </div>
+
+                <div class="chevron">›</div>
+            </div>
+        </ng-container>
+
+        <ng-template #emptyState>
+            <div
+                class="w-full flex flex-column justify-content-center align-items-center text-center p-4 text-gray-500 h-full">
+                <i class="pi pi-info-circle text-2xl mb-2"></i>
+                <p class="mt-2">No hay registros en la bitácora</p>
+            </div>
+        </ng-template>
+
+    </div>
+
+</div>
+
+<div class="overlay" *ngIf="isLoading">
+  <p-progressSpinner
+    class="center-spinner"
+    [style]="{ width: '50px', height: '50px' }"
+    strokeWidth="8"
+    fill="#007bff"
+    animationDuration="2s"
+  ></p-progressSpinner>
+</div>

@@ -1,0 +1,190 @@
+:host::ng-deep
+
+    .font-span
+        font-family: "Montserrat", sans-serif
+        font-size: 16px
+        font-weight: 700
+        color: #262626
+
+    .w-expand-toggle
+        width: 16rem!important
+        transition: 0.8s
+
+        .svg-logo
+            margin-bottom: 2rem
+        
+        p-panelMenu 
+            .pi-fw
+                margin-right: 2rem
+
+            .pi
+                margin-right: 2rem
+            .p-panelmenu
+                width: 300px
+                max-height: 100%
+                overflow: auto
+                display: grid
+
+                // @media screen and (max-height: 940px) and (max-width: 600px)
+                //     height: 33rem
+                //     overflow: scroll
+
+                // @media screen and (max-height: 745px) and (max-width: 600px)
+                //     height: 26rem
+                //     overflow: scroll
+
+                // @media screen and (max-height: 670px) and (max-width: 600px)
+                //     height: 22rem
+                //     overflow: scroll
+
+                @media screen and (max-width: 600px)
+                    overflow: scroll
+            .p-panelmenu-panel
+                width: 78%!important
+                margin-left: 2rem
+
+    .w-collapsed-toggle
+        width: 7rem!important
+        transition: 0.3s
+
+        .d-close-menu
+            display: flex
+
+            @media screen and (min-width: 600px)
+                display: none
+
+        #button-dasboard, #xtrim-span, #title-sidenav
+            display: none
+
+        .svg-logo
+            margin-top: 1.6rem
+            margin-bottom: 2rem
+
+        .svg-logo-toggle
+            cursor: pointer
+
+            img
+                width: 45px
+
+        #logo-xtrim
+            position: absolute
+            left: 1.8rem !important
+        
+        
+        p-panelMenu .p-panelmenu
+            position: relative!important
+            // left: 7.3rem!important
+            margin-top: 1rem
+            .p-icon-wrapper
+                order: 2
+                position: absolute
+                right: 7px
+                display: none
+            .p-panelmenu-panel 
+                .p-toggleable-content
+                    display: none
+
+            .p-panelmenu-header .p-panelmenu-header-content
+                border: 0
+                background: var(--panel-menu-style)
+                color: #ffff
+                
+                .p-panelmenu-header-action
+                    pointer-events: none
+                    justify-content: center
+
+                
+                .p-menuitem-text
+                    display: none
+
+        @media screen and (max-width: 600px)
+            width: 0px!important
+
+            #logo-xtrim
+                position: relative
+                left: 0 !important
+
+    p-dialog 
+        .p-dialog
+            @media screen and (max-width: 1100px)
+                width: 40vw!important
+
+            @media screen and (max-width: 750px)
+                width: 55vw!important
+
+            @media screen and (max-width: 560px)
+                width: 90vw!important
+        .p-dialog .p-dialog-content 
+            padding: 0 1.5rem 1rem 1.5rem
+
+        .p-dialog .p-dialog-header
+            border-top-left-radius: 2rem
+            border-top-right-radius: 2rem
+            display: flex
+            justify-content: center
+
+        .p-dialog .p-dialog-footer
+            border-bottom-left-radius: 2rem
+            border-bottom-right-radius: 2rem
+
+    .p-radiobutton .p-radiobutton-box.p-highlight
+        border-color: #8208be
+        background: #8208be
+
+    .p-radiobutton .p-radiobutton-box.p-highlight:not(.p-disabled):hover
+        border-color: #8208be
+        background: #8208be
+        color: #8208be
+
+    .p-button--custom-al
+        background: white !important
+        border: 1px solid red!important
+        color: red
+
+    .header-menu
+        z-index: 4
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3)
+        backdrop-filter: blur(8px)
+
+.w-layout
+    position: relative
+    left: 16rem
+    width: calc(100% - 16rem)
+    // padding-right: 1rem
+
+    @media screen and (max-width: 1024px)
+        left: 0
+        width: 100%
+
+
+.w-layout-disabled
+    position: relative
+    left: 7rem
+    width: calc(100% - 7rem)
+
+    @media screen and (max-width: 600px)
+        width: 100%
+        left: 0
+
+
+.container-layout-active
+    // max-height: 67rem
+    @media screen and (min-height: 1200px)        
+        max-height: 100%
+
+.container-layout-disabled
+    // max-height: 67rem
+
+    @media screen and (min-height: 1200px)        
+        max-height: 100%
+
+    @media screen and (max-width: 600px)
+        max-height: 100%
+
+.mb-header
+    margin-bottom: 1.5rem
+
+    @media screen and (max-width: 600px)
+        margin-bottom: 0
+
+

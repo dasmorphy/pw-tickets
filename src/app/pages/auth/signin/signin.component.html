@@ -1,0 +1,64 @@
+<p-toast></p-toast>
+
+<div class="flex justify-content-center align-items-center min-h-screen bg-login">
+  <div class="w-login p-4">
+    <!-- Card Container -->
+    <div class="b-login-header p-6 md:p-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-white mb-2">Bienvenido</h1>
+        <p class="text-white-alpha-70 font-verdana">Ingresa a tu cuenta</p>
+      </div>
+
+      <!-- Form -->
+      <form class="w-full" (ngSubmit)="onSubmit()">
+        <!-- Email Field -->
+        <div class="mb-4">
+          <div class="p-input-icon-left w-full">
+            <i class="pi pi-envelope"></i>
+            <input 
+              id="email"
+              pInputText
+              name="email"
+              [(ngModel)]="email"
+              placeholder="Email"
+              class="w-full"
+              required
+            />
+            
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="mb-6">
+          <div class="p-input-icon-left w-full">
+            <i class="pi pi-lock"></i>
+            <p-password [toggleMask]="true" class="w-full" #passUser placeholder="Ingresa tu contraseña" styleClass="password-input w-full" (input)="onInputPassword($event)"
+              [feedback]="false">
+            </p-password>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <p-button 
+          type="submit"
+          label="Iniciar sesión"
+          class="w-full  mb-6 flex justify-content-center align-items-center"
+          styleClass="p-button-continue"
+          [loading]="isLoading"
+          [disabled]="isLoading">
+        </p-button>
+      </form>
+      <div class="p-4 text-center">
+        <p class="text-gray-600 font-verdana mb-0">
+          ¿No tienes cuenta?
+          <a routerLink="#" class="sign-up-text font-bold">
+            Crear cuenta
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Register Link -->
+  </div>
+</div>

@@ -1,0 +1,101 @@
+<p-toast></p-toast>
+
+<p-dialog header="Header" [closable]="false" [(visible)]="showModal" [draggable]="false" [modal]="true"
+    [style]="{ 'width': '60vw', 'border-radius': '32px'}">
+    <ng-template pTemplate="header">
+        <div style="display: grid; place-items: center;">
+            <h1 style="margin: 0; font-size: 22px;" class="text-center mt-5">
+                Bitacoras
+            </h1>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+        <div class="bg-white w-12 flex flex-column p-responsive py-5 border-round-md flex-wrap" style="overflow: auto">
+        
+            <div class="card w-full pd-table" id="table-logbooks">
+                <p-table  #dt_logbooks
+                    [value]="dataLogbooks"
+                    [paginator]="true"
+                    [rows]="5"
+                    [loading]="isLoading"
+                    [globalFilterFields]="['workdday','truck_license','name_driver', 'shipping_guide']"
+                    [rowsPerPageOptions]="[5, 10, 25, 50]"
+                    [showCurrentPageReport]="false"
+                    [tableStyle]="{ 'max-width': '100%' }"
+                    rowStyleClass="custom-row-height"
+                    dataKey="id"
+                >
+                    <ng-template pTemplate="caption">
+                        
+                        <div class="w-full flex justify-content-between align-items-center">
+                            <div
+                                class="p-inputgroup flex h-3rem p-input-icon-left border-round-2xl w-search-table"
+                            >
+                                <i style="z-index: 2;" class="pi pi-search text-primary--custom"></i>
+                                <input 
+                                    class="border-none shadow-none--custom border-round-left-2xl border-round-right-2xl" 
+                                    type="text"
+                                    pInputText 
+                                    (input)="dt_logbooks.filterGlobal($any($event.target).value, 'contains')" 
+                                />
+                            </div>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th scope="col">Opciones</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Guia / documento</th>
+                            <th scope="col">Categoría</th>
+                            <th scope="col">Nombre conductor</th>
+                            <th scope="col">Placa</th>
+                            <th scope="col">Jornada</th>
+                        </tr>
+                    </ng-template>                
+                    <ng-template pTemplate="body" let-loogbook>
+                        <tr>                
+                            <td data-titulo="Opciones:" class="flex h-options">
+                                <p-splitButton id="option-table" appendTo="body" (click)="optionsLogbook(loogbook)" [model]="items">
+                                    <ng-template pTemplate="dropdownicon">
+                                        <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                                    </ng-template>
+                                </p-splitButton>
+                            </td>
+                            <td  data-titulo="Fecha:" [ngxTippy]="'Hora de registro: ' + (loogbook?.created_at | date:'HH:mm':'UTC')">{{ loogbook?.created_at | date:'dd/MM/yyyy':'UTC' }}</td>
+                            <td  data-titulo="Contrato:">{{ loogbook?.shipping_guide ?? 'N/A' }}</td>
+                            <td  data-titulo="Contrato:">{{ loogbook?.name_category ?? 'N/A' }}</td>
+                            <td  data-titulo="Cuenta:">{{ loogbook?.name_driver }}</td>
+                            <td  data-titulo="Identificación:">{{ loogbook?.truck_license }}</td>
+                            <td  data-titulo="Ciudad:">{{ loogbook?.workdday }}</td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="8" class="text-center" style="font-size: 18px; color: #83378f; font-weight: 700;">No hay datos disponibles</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-center gap-3 mt-5" style="font-size: 15px;">
+            <p-button label="Cerrar" (onClick)="closeModal()" styleClass="bg-btn-cancel w-full">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+    
+
+<div class="overlay" *ngIf="isLoading">
+    <p-progressSpinner
+      class="center-spinner"
+      [style]="{ width: '50px', height: '50px' }"
+      strokeWidth="8"
+      fill="#007bff"
+      animationDuration="2s"
+    ></p-progressSpinner>
+</div>
+

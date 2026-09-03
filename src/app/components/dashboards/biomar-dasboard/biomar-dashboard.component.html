@@ -1,0 +1,137 @@
+@if (entrySelected()) {
+    <app-entry-details-modal [showModal]="entrySelected() ?? false"></app-entry-details-modal>
+}
+
+@if (dispatchSelected()) {
+    <app-dispatch-details-modal [showModal]="dispatchSelected() ?? false"></app-dispatch-details-modal>
+}
+
+@if (openModalImages()) {
+    <app-preview-image [showImages]="openModalImages()"></app-preview-image>
+}
+
+
+<div class="flex flex-column w-full px-5">
+    <div class="flex w-full justify-content-center gap-3 indicators" >
+        <div class="flex card-info justify-content-between align-items-center" *ngFor="let status of graphs()?.dispatch_by_status" style="width: 19rem; height: 10rem;"
+            [ngStyle]="{
+                'background-color': getStatusStyles(status.status_name).background,
+                'color': getStatusStyles(status.status_name).color
+            }"
+        >
+            @if (status.status_name === 'En tránsito') {
+                <div class="flex bg-white border-circle justify-content-center align-items-center" style="height: 5rem; width: 5rem;">
+                    <i class="pi pi-truck" style="font-size: 45px; color: rgb(72 64 3);"></i>
+                </div>
+            }
+            @if (status.status_name === 'Ingresado en bodega') {
+                <div class="flex bg-white border-circle justify-content-center align-items-center" style="height: 5rem; width: 5rem;">
+                    <i class="pi pi-shop" style="font-size: 45px; color: rgb(15 82 7);"></i>
+                </div>
+            }
+            @if (status.status_name === 'Listo para despacho') {
+                <div class="flex bg-white border-circle justify-content-center align-items-center" style="height: 5rem; width: 5rem;">
+                    <i class="pi pi-megaphone" style="font-size: 45px; color: rgb(6 92 141);"></i>
+                </div>
+            }
+            <div class="flex flex-column" style="max-width: 90px;">
+                <span style="font-weight: 600;">{{status.status_name}}</span>
+                <span style="color: black; font-weight: 600; font-size: 28px;">{{status.count}}</span>
+            </div>
+        </div>
+        <div class="flex card-info justify-content-between align-items-center" style="width: 19rem; height: 10rem; background-color: #ffc164;">
+            <div class="flex bg-white border-circle justify-content-center align-items-center" style="height: 5rem; width: 5rem;">
+                <i class="pi pi-exclamation-triangle" style="font-size: 45px; color: #6e4e02;"></i>
+            </div>
+            <div class="flex flex-column">
+                <span style="color: #6e4e02; font-weight: 600;">Discrepancias</span>
+                <span style="font-weight: 600; font-size: 28px;">{{graphs()?.discrepancy}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex w-full mt-5">
+        <p-table  #dt_dispatchs
+            [value]="dataBiomar"
+            [paginator]="true"
+            [rows]="5"
+            [globalFilterFields]="['workday','truck_license','name_driver', 'shipping_guide', 'observations']"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [showCurrentPageReport]="false"
+            [tableStyle]="{ 'max-width': '100%' }"
+            rowStyleClass="custom-row-height"
+            dataKey="id"
+            class="w-full"
+        >
+            <ng-template pTemplate="caption">
+                
+                <div class="w-full flex justify-content-between align-items-center">
+                    <div
+                        class="p-inputgroup flex p-input-icon-left border-round-2xl w-search-table w-30rem"
+                    >
+                        <i style="z-index: 2;" class="pi pi-search text-primary--custom"></i>
+                        <input 
+                            style="border: 1px solid #e3e3e3; height: 2.5rem;"
+                            class="shadow-none--custom border-round-left-2xl border-round-right-2xl" 
+                            type="text"
+                            pInputText 
+                            (input)="dt_dispatchs.filterGlobal($any($event.target).value, 'contains')" 
+                        />         
+                        <!-- <p-columnFilter #imagePanel id="dateFilter" style="position: relative; z-index: 3; right: 3rem; margin-top: 4px;" type="date" field="date" display="menu">
+                            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                <div class="flex w-full flex-column gap-3">
+
+                            
+                                </div>
+                            </ng-template>
+                        </p-columnFilter> -->
+                    </div>
+
+                    <div class="flex gap-2">
+                        <!-- <p-button label="" icon="pi pi-sync" class="w-reload" (onClick)="reloadDataDispatch()"
+                            styleClass="w-full bg-white text-primary--custom b-reload border-round-1xl h-full">
+                        </p-button> -->
+                    </div>
+
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th scope="col">Opciones</th>
+                    <th scope="col">Canal</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Conductor</th>
+                    <th scope="col">Identificación</th>
+                    <th scope="col">Placa</th>
+                    <!-- <th scope="col">Permanencia</th> -->
+                    <th scope="col">Estado</th>
+                </tr>
+            </ng-template>                
+            <ng-template pTemplate="body" let-dispatch>
+                <tr>                
+                    <td data-titulo="Opciones:">
+                        <p-splitButton id="option-table" appendTo="body" (click)="optionsDispatch(dispatch)" [model]="items">
+                            <ng-template pTemplate="dropdownicon">
+                                <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                            </ng-template>
+                        </p-splitButton>
+                    </td>
+                    <td  data-titulo="Canal:">{{ dispatch?.id_access_control ? 'Ingreso' : 'Despacho' }}</td>
+                    <td  data-titulo="Fecha:" [ngxTippy]="'Hora de registro: ' + (dispatch?.created_at | date:'HH:mm':'UTC')">{{ dispatch?.created_at | date:'dd/MM/yyyy':'UTC' }}</td>
+                    <td  data-titulo="Identificación:">{{ dispatch?.dni ?? 'N/A' }}</td>
+                    <td  data-titulo="Conductor:">{{ dispatch?.driver ?? 'N/A' }}</td>
+                    <td  data-titulo="Placa:">{{ dispatch?.truck_license ?? 'N/A' }}</td>
+                    <!-- <td  data-titulo="Permanencia:" style="width: 20px;">{{ loogbook?.permanence_time ?? 'N/A' }}</td> -->
+                    <td  data-titulo="Estado:">
+                        <p-tag [value]="dispatch?.status" [severity]="getSeverity(dispatch?.status)"></p-tag>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="text-center" style="font-size: 18px; font-weight: 700;">No hay datos disponibles</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

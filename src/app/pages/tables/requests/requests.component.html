@@ -1,0 +1,105 @@
+<main class="requests-page" (click)="activeMenu = null">
+  <section class="requests-panel" aria-labelledby="requests-title">
+    <header class="panel-heading">
+      <div>
+        <span class="eyebrow">Gestión operativa</span>
+        <h1 id="requests-title">Solicitudes</h1>
+        <p>Consulta y gestiona las solicitudes registradas.</p>
+      </div>
+      <span class="request-count"><strong>{{ filteredRequests.length }}</strong> solicitudes</span>
+    </header>
+
+    <div class="filters" aria-label="Filtros de solicitudes">
+      <div class="filter-field date-filter">
+        <label>Fecha</label>
+        <p-calendar [(ngModel)]="dateRange" selectionMode="range" dateFormat="dd/mm/yy"
+          [showIcon]="true" [readonlyInput]="true" placeholder="Seleccionar rango"
+          styleClass="request-calendar" inputId="date-filter" appendTo="body">
+        </p-calendar>
+      </div>
+
+      <div class="filter-field">
+        <label for="area-filter">Área</label>
+        <p-dropdown inputId="area-filter" [options]="areas" [(ngModel)]="selectedArea"
+          placeholder="Todas" [showClear]="true" styleClass="request-dropdown">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-field">
+        <label for="status-filter">Estado</label>
+        <p-dropdown inputId="status-filter" [options]="statuses" [(ngModel)]="selectedStatus"
+          placeholder="Todos" [showClear]="true" styleClass="request-dropdown">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-field">
+        <label for="client-filter">Cliente</label>
+        <p-dropdown inputId="client-filter" [options]="clients" [(ngModel)]="selectedClient"
+          placeholder="Todos" [showClear]="true" [filter]="true" filterPlaceholder="Buscar cliente"
+          styleClass="request-dropdown">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-actions">
+        <p-button label="Limpiar filtros" icon="pi pi-refresh" [outlined]="true"
+          styleClass="clear-button" (onClick)="clearFilters()"></p-button>
+        <p-button label="Filtrar" icon="pi pi-filter" styleClass="filter-button"
+          (onClick)="applyFilters()"></p-button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <p-table #requestsTable [value]="filteredRequests" [paginator]="true" [rows]="8"
+        [rowsPerPageOptions]="[5, 8, 10]" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} resultados"
+        sortField="date" [sortOrder]="-1" [scrollable]="true" scrollDirection="horizontal"
+        styleClass="requests-table" dataKey="ticket">
+        <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="ticket">Ticket GLPI<p-sortIcon field="ticket"></p-sortIcon></th>
+              <th pSortableColumn="request">Solcitud <p-sortIcon field="request"></p-sortIcon></th>
+              <th pSortableColumn="date">Fecha <p-sortIcon field="date"></p-sortIcon></th>
+              <th pSortableColumn="client">Cliente <p-sortIcon field="client"></p-sortIcon></th>
+              <th pSortableColumn="subject">Solicitud <p-sortIcon field="subject"></p-sortIcon></th>
+              <th pSortableColumn="area">Área actual <p-sortIcon field="area"></p-sortIcon></th>
+              <th pSortableColumn="status">Estado GLPI <p-sortIcon field="status"></p-sortIcon></th>
+              <th pSortableColumn="status">Estado Interno <p-sortIcon field="status"></p-sortIcon></th>
+              <th pSortableColumn="priority">Prioridad <p-sortIcon field="priority"></p-sortIcon></th>
+              <th class="actions-heading"><span class="sr-only">Acciones</span></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-request>
+            <tr>
+              <td><a [routerLink]="['/solicitudes', request.ticket.substring(1)]" class="ticket-link">{{ request.ticket }}</a></td>
+              <td><a [routerLink]="['/solicitudes', request.ticket.substring(1)]" class="ticket-link">{{ request.ticket }}</a></td>
+              <td><span class="date">{{ formatDate(request.date) }}</span><span class="time">{{ request.time }}</span></td>
+              <td>
+                <div class="client-cell">
+                  <span class="client-avatar">{{ request.initials }}</span>
+                  <span>{{ request.client }}</span>
+                </div>
+              </td>
+              <td class="subject-cell">{{ request.subject }}</td>
+              <td><span class="badge area" [ngClass]="request.area.toLowerCase()"><i></i>{{ request.area }}</span></td>
+              <td><span class="badge status" [ngClass]="request.status.toLowerCase().replace(' ', '-')"><i class="pi" [ngClass]="request.status === 'Pendiente' ? 'pi-clock' : request.status === 'Resuelto' || request.status === 'Aprobado' ? 'pi-check-circle' : 'pi-spin pi-spinner'"></i>{{ request.status }}</span></td>
+              <td><span class="badge status" [ngClass]="request.status.toLowerCase().replace(' ', '-')"><i class="pi" [ngClass]="request.status === 'Pendiente' ? 'pi-clock' : request.status === 'Resuelto' || request.status === 'Aprobado' ? 'pi-check-circle' : 'pi-spin pi-spinner'"></i>{{ request.status }}</span></td>
+              <td><span class="badge priority" [ngClass]="request.priority.toLowerCase()"><i></i>{{ request.priority }}</span></td>
+              <td class="row-actions">
+                <button type="button" aria-label="Opciones" (click)="$event.stopPropagation(); toggleMenu(request.ticket)"><i class="pi pi-ellipsis-v"></i></button>
+                <div class="action-menu" *ngIf="activeMenu === request.ticket">
+                  <button type="button"><i class="pi pi-eye"></i> Ver detalle</button>
+                  <button type="button"><i class="pi pi-bolt"></i> Registro</button>
+                  <button type="button"><i class="pi pi-pencil"></i> Editar</button>
+                </div>
+              </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="8" class="empty-state"><i class="pi pi-inbox"></i><strong>No hay solicitudes</strong><span>Prueba con otros filtros.</span></td>
+            </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </section>
+</main>
