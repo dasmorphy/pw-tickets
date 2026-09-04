@@ -24,15 +24,15 @@
     >
   </p-button>
 
-  <p-button icon="pi pi-bell" [badge]="notificationService.badgeLabel()"
+  <!-- <p-button icon="pi pi-bell" [badge]="notificationService.badgeLabel()"
     styleClass="border-button text-primary--custom p-button-text p-button-raised bg-transparent"
     (onClick)="toggleNotifications($event, panelNotifications)">
-  </p-button>
+  </p-button> -->
 
   <p-overlayPanel #panelNotifications styleClass="panel-notifications" [showCloseIcon]="false"
     [style]="{ 'width': screenWidth < 600 ? '92vw' : '25rem' }">
     <ng-template pTemplate="content">
-      <div class="notifications-header flex align-items-center justify-content-between gap-2">
+      <!-- <div class="notifications-header flex align-items-center justify-content-between gap-2">
         <div class="flex align-items-center gap-2">
           <span class="font-bold font-verdana">Notificaciones</span>
 
@@ -54,9 +54,9 @@
             </p-button>
           }
         </div>
-      </div>
+      </div> -->
 
-      <div class="notifications-body">
+      <!-- <div class="notifications-body">
         @if (notificationService.isLoading() && notificationService.notifications().length === 0) {
           <div class="flex justify-content-center py-5">
             <p-progressSpinner styleClass="w-2rem h-2rem" strokeWidth="4"></p-progressSpinner>
@@ -93,7 +93,7 @@
             </div>
           }
         }
-      </div>
+      </div> -->
 
       <div class="notifications-footer">
         <p-button label="Ver todas las notificaciones" icon="pi pi-arrow-right" iconPos="right" [text]="true"

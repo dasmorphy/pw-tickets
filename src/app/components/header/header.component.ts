@@ -10,7 +10,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuService } from 'src/app/services/menu.service';
 import { UserService } from 'src/app/services/user.service';
-import { NotificationService } from 'src/app/services/notification.service';
+// import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationItem } from 'src/app/models/notification';
 
 /** Cantidad de notificaciones que se muestran en el panel de la campana */
@@ -36,14 +36,14 @@ export class HeaderComponent implements OnInit{
   private readonly menuService = inject(MenuService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
-  public readonly notificationService = inject(NotificationService);
+  // public readonly notificationService = inject(NotificationService);
 
   user_json:any;
   theme_selection: boolean = false;
   iconTheme: string = 'pi pi-sun'
   screenWidth: any = window.innerWidth;
 
-  notificationsPreview = computed(() => this.notificationService.notifications().slice(0, PREVIEW_SIZE));
+  // notificationsPreview = computed(() => this.notificationService.notifications().slice(0, PREVIEW_SIZE));
 
   constructor(@Inject(DOCUMENT) private document: Document){}
 
@@ -56,7 +56,7 @@ export class HeaderComponent implements OnInit{
       this.iconTheme = theme === 'dark' ? 'pi pi-moon' : 'pi pi-sun';
       this.changeThemeLara(theme);
       // Usa la caché local; solo consulta al backend si no hay datos vigentes
-      this.notificationService.loadNotifications();
+      // this.notificationService.loadNotifications();
     }
 
   }
@@ -85,27 +85,27 @@ export class HeaderComponent implements OnInit{
     this.menuService.changeToggle();
   }
 
-  toggleNotifications(event: any, panel: any) {
-    panel.toggle(event);
-    // No vuelve a consultar si la caché local sigue vigente
-    this.notificationService.loadNotifications();
-  }
+  // toggleNotifications(event: any, panel: any) {
+  //   panel.toggle(event);
+  //   // No vuelve a consultar si la caché local sigue vigente
+  //   this.notificationService.loadNotifications();
+  // }
 
-  reloadNotifications() {
-    this.notificationService.loadNotifications(true);
-  }
+  // reloadNotifications() {
+  //   this.notificationService.loadNotifications(true);
+  // }
 
-  markAllAsRead() {
-    this.notificationService.markAllAsRead();
-  }
+  // markAllAsRead() {
+  //   this.notificationService.markAllAsRead();
+  // }
 
-  openNotification(notification: NotificationItem, panel: any) {
-    this.notificationService.markAsRead(notification);
-    panel.hide();
-    this.router.navigate(['/notificaciones'], {
-      queryParams: { id: notification.id_notification }
-    });
-  }
+  // openNotification(notification: NotificationItem, panel: any) {
+  //   this.notificationService.markAsRead(notification);
+  //   panel.hide();
+  //   this.router.navigate(['/notificaciones'], {
+  //     queryParams: { id: notification.id_notification }
+  //   });
+  // }
 
   goToAllNotifications(panel: any) {
     panel.hide();

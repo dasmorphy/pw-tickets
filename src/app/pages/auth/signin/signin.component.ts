@@ -11,7 +11,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DividerModule } from 'primeng/divider';
 import { UtilsService } from 'src/app/services/utils.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { NotificationService } from 'src/app/services/notification.service';
+// import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-signin',
@@ -36,7 +36,7 @@ export class SigninComponent implements OnInit {
   private utilsService = inject(UtilsService);
   private authService = inject(AuthService);
   private readonly router = inject(Router)
-  private readonly notificationService = inject(NotificationService)
+  // private readonly notificationService = inject(NotificationService)
 
   email: string = '';
   password: string = '';
@@ -67,12 +67,12 @@ export class SigninComponent implements OnInit {
       }
       
       this.isLoading = true;
-      const fcm_token = await this.notificationService.getFcmToken();
+      // const fcm_token = await this.notificationService.getFcmToken();
   
       const data = {
         user: this.email,
         password: this.password,
-        fcm_token: fcm_token,
+        // fcm_token: fcm_token,
         platform: 'web',
         project_id: 1,
       }
@@ -82,7 +82,7 @@ export class SigninComponent implements OnInit {
           this.isLoading = false;
           localStorage.setItem('sb_token', data?.access_token)
           this.router.navigate(['/dashboard']);
-          this.notificationService.loadNotifications(true)
+          // this.notificationService.loadNotifications(true)
           // this.notificationService.requestPermissionAndListen()
         },
         error: (error: any) => {

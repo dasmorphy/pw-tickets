@@ -7,7 +7,7 @@ import { RouterOutlet } from "@angular/router";
 import { HeaderComponent } from "src/app/components/header/header.component";
 import { MenuService } from 'src/app/services/menu.service';
 import { MenuComponent } from "src/app/components/menu/menu.component";
-import { NotificationService } from 'src/app/services/notification.service';
+// import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-layout',
@@ -26,14 +26,14 @@ import { NotificationService } from 'src/app/services/notification.service';
 })
 export class LayoutComponent {
 
-  private readonly notificationService = inject(NotificationService)
+  // private readonly notificationService = inject(NotificationService)
   
   toggle = computed(() => this.menuService.toggle());
 
   constructor(private menuService: MenuService) {}
 
   ngOnInit(){
-    this.notificationService.listenNotificationPermission();
+    // this.notificationService.listenNotificationPermission();
   }
 
 }

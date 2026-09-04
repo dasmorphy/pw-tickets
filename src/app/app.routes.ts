@@ -12,7 +12,7 @@ import { AllEntryAccessComponent } from './pages/tables/all-entry-access/all-ent
 import { PurchaseOrderComponent } from './pages/tables/purchase-order/purchase-order.component';
 import { ProjectTechnicalComponent } from './pages/tables/project-technical/project-technical.component';
 import { AuditingTechnicalComponent } from './pages/tables/auditing-technical/auditing-technical.component';
-import { NotificationsComponent } from './pages/notifications/notifications.component';
+// import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { NewAuditingComponent } from './pages/forms/new-auditing/new-auditing.component';
 import { RequestsComponent } from './pages/tables/requests/requests.component';
 import { RequestDetailComponent } from './pages/tables/request-detail/request-detail.component';
