@@ -20,7 +20,6 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { forkJoin, catchError, of, Subscription } from 'rxjs';
 import { EntryDetailsModalComponent } from '../../modals/entry-details-modal/entry-details-modal.component';
 import { DispatchDetailsModalComponent } from '../../modals/dispatch-details-modal/dispatch-details-modal.component';
-import { EventSourceService } from 'src/app/services/event-source.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { ImageGalleryComponent } from "../../modals/shared/preview-image/preview-image.component";
 
@@ -55,7 +54,6 @@ export class BiomarDashboardComponent {
     private readonly logbookService = inject(LogbookService);
     private readonly dispatchService = inject(DispatchService);
     private readonly userService = inject(UserService);
-    private readonly eventSourceService = inject(EventSourceService);
     private readonly utilsService = inject(UtilsService);
 
     private sseSub?: Subscription;
@@ -86,33 +84,6 @@ export class BiomarDashboardComponent {
         this.user_session = this.userService.getDataSession();
         this.dispatchService.getGraphs()
         this.fetchAllData();
-        this.sseSub = this.eventSourceService.connectEntries(0).subscribe({
-            next: (data: any) => {
-                console.log('SSE Entry Access:', data);
-                this.audio.play().catch(err => {
-                    console.warn('No se pudo reproducir el sonido:', err);
-                });
-                this.utilsService.onSuccess(`Se ha recibido un nuevo ingreso del área ${data?.entry?.area_name ?? 'N/A'}`)
-                this.dataBiomar.unshift(data?.entry);
-            },
-            error: (err: any) => {
-                console.error('Error SSE:', err);
-            }
-        });
-
-        this.sseSubDispatch = this.eventSourceService.connectDispatch(0).subscribe({
-            next: (data: any) => {
-                console.log('SSE Dispatch:', data);
-                this.audio.play().catch(err => {
-                    console.warn('No se pudo reproducir el sonido:', err);
-                });
-                this.utilsService.onSuccess(`Se ha recibido un nuevo despacho`)
-                this.dataBiomar.unshift(data?.dispatch);
-            },
-            error: (err: any) => {
-                console.error('Error SSE:', err);
-            }
-        });
     }
 
     ngOnDestroy() {

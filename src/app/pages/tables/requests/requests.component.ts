@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { Table, TableModule } from 'primeng/table';
 import { RouterModule } from '@angular/router';
+import { GlpiService } from 'src/app/services/glpi.service';
+import { UtilsService } from 'src/app/services/utils.service';
 
 type RequestArea = 'Técnica' | 'Comercial' | 'Proyectos' | 'Contabilidad';
 type RequestStatus = 'En proceso' | 'Pendiente' | 'Resuelto' | 'Aprobado';
@@ -32,6 +34,9 @@ interface ServiceRequest {
 export class RequestsComponent {
   @ViewChild('requestsTable') requestsTable?: Table;
 
+  private readonly glpiService = inject(GlpiService)
+  private readonly utilsService = inject(UtilsService);
+
   readonly areas: RequestArea[] = ['Técnica', 'Comercial', 'Proyectos', 'Contabilidad'];
   readonly statuses: RequestStatus[] = ['En proceso', 'Pendiente', 'Resuelto', 'Aprobado'];
   readonly clients = ['TechSolutions S.A.', 'Comercializadora del Sur', 'Industrias Andinas', 'Constructora Bello', 'Distribuidora Norte', 'Servicios Generales S.A.', 'Retail Plus', 'Alimentos del Valle'];
@@ -41,52 +46,58 @@ export class RequestsComponent {
   selectedStatus: RequestStatus | null = null;
   selectedClient: string | null = null;
   appliedFilters = { dateFrom: '2024-05-01', dateTo: '2024-05-31', area: '', status: '', client: '' };
-  activeMenu: string | null = null;
+  activeMenu: number | null = null;
 
-  readonly requests: ServiceRequest[] = [
-    { ticket: '#INC-2024-1258', client: 'TechSolutions S.A.', initials: 'TS', subject: 'No funciona acceso VPN', area: 'Técnica', status: 'En proceso', date: '2024-05-29', time: '10:32', priority: 'Alta' },
-    { ticket: '#REQ-2024-1257', client: 'Comercializadora del Sur', initials: 'CS', subject: 'Cotización de licencias', area: 'Comercial', status: 'Pendiente', date: '2024-05-29', time: '09:15', priority: 'Media' },
-    { ticket: '#PRO-2024-1256', client: 'Industrias Andinas', initials: 'IA', subject: 'Implementación módulo Inventarios', area: 'Proyectos', status: 'En proceso', date: '2024-05-28', time: '16:45', priority: 'Alta' },
-    { ticket: '#CON-2024-1255', client: 'Constructora Bello', initials: 'CB', subject: 'Revisión factura F-001-1458', area: 'Contabilidad', status: 'Pendiente', date: '2024-05-28', time: '14:20', priority: 'Media' },
-    { ticket: '#INC-2024-1254', client: 'Distribuidora Norte', initials: 'DN', subject: 'Error al generar reporte', area: 'Técnica', status: 'Resuelto', date: '2024-05-27', time: '11:05', priority: 'Baja' },
-    { ticket: '#REQ-2024-1253', client: 'Servicios Generales S.A.', initials: 'SG', subject: 'Consulta por plan anual', area: 'Comercial', status: 'Aprobado', date: '2024-05-27', time: '09:40', priority: 'Baja' },
-    { ticket: '#PRO-2024-1252', client: 'Retail Plus', initials: 'RP', subject: 'Migración de datos históricos', area: 'Proyectos', status: 'En proceso', date: '2024-05-24', time: '15:30', priority: 'Alta' },
-    { ticket: '#CON-2024-1251', client: 'Alimentos del Valle', initials: 'AV', subject: 'Registro de pago proveedor', area: 'Contabilidad', status: 'Pendiente', date: '2024-05-24', time: '10:18', priority: 'Media' },
-    { ticket: '#INC-2024-1250', client: 'TechSolutions S.A.', initials: 'TS', subject: 'Restablecer credenciales de acceso', area: 'Técnica', status: 'Resuelto', date: '2024-05-23', time: '17:02', priority: 'Media' },
-    { ticket: '#REQ-2024-1249', client: 'Retail Plus', initials: 'RP', subject: 'Ampliación de usuarios del plan', area: 'Comercial', status: 'Aprobado', date: '2024-05-22', time: '12:10', priority: 'Baja' },
-    { ticket: '#PRO-2024-1248', client: 'Constructora Bello', initials: 'CB', subject: 'Configuración ambiente de pruebas', area: 'Proyectos', status: 'Pendiente', date: '2024-05-21', time: '08:45', priority: 'Alta' },
-    { ticket: '#CON-2024-1247', client: 'Industrias Andinas', initials: 'IA', subject: 'Validación de retenciones', area: 'Contabilidad', status: 'Resuelto', date: '2024-05-20', time: '13:26', priority: 'Baja' },
-    ...Array.from({ length: 44 }, (_, index): ServiceRequest => {
-      const areas: RequestArea[] = ['Técnica', 'Comercial', 'Proyectos', 'Contabilidad'];
-      const statuses: RequestStatus[] = ['En proceso', 'Pendiente', 'Resuelto', 'Aprobado'];
-      const priorities: RequestPriority[] = ['Alta', 'Media', 'Baja'];
-      const subjects = ['Actualización de permisos', 'Solicitud de nueva licencia', 'Seguimiento de implementación', 'Conciliación de comprobantes'];
-      const client = this.clients[index % this.clients.length];
-      const day = 19 - (index % 19);
-      const ticketPrefix = ['INC', 'REQ', 'PRO', 'CON'][index % 4];
+  tickets:any = [];
 
-      return {
-        ticket: `#${ticketPrefix}-2024-${1246 - index}`,
-        client,
-        initials: client.split(' ').slice(0, 2).map(word => word[0]).join('').toUpperCase(),
-        subject: subjects[index % subjects.length],
-        area: areas[index % areas.length],
-        status: statuses[index % statuses.length],
-        date: `2024-05-${String(day).padStart(2, '0')}`,
-        time: `${String(8 + (index % 10)).padStart(2, '0')}:${String((index * 7) % 60).padStart(2, '0')}`,
-        priority: priorities[index % priorities.length]
-      };
-    })
-  ];
+  ngOnInit() {
+    this.glpiService.getTickets().subscribe({
+      next: (data: any) => {
+        this.tickets = data?.data || [];
+      },
+      error: (error: any) => {
+        console.error('Error fetching tickets:', error);
+        this.utilsService.onError('Error al obtener los tickets por favor, inténtelo de nuevo más tarde.');
+      }
+    });
+  }
 
-  get filteredRequests(): ServiceRequest[] {
-    const { dateFrom, dateTo, area, status, client } = this.appliedFilters;
-    return this.requests
-      .filter(request => !dateFrom || request.date >= dateFrom)
-      .filter(request => !dateTo || request.date <= dateTo)
-      .filter(request => !area || request.area === area)
-      .filter(request => !status || request.status === status)
-      .filter(request => !client || request.client === client);
+  getTxtStatus(statusId: number): string {
+    switch (statusId) {
+      case 1:
+        return 'Nuevo';
+      case 2:
+        return 'En curso (asignado)';
+      case 3:
+        return 'En curso (planificado)';
+      case 4:
+        return 'En espera';
+      case 5:
+        return 'Resuelto';
+      case 6:
+        return 'Cerrado';
+      default:
+        return 'Desconocido';
+    }
+  }
+
+  getTxtPriority(priorityId: number): string {
+    switch (priorityId) {
+      case 1:
+        return 'Muy baja';
+      case 2:
+        return 'Baja';
+      case 3:
+        return 'Media';
+      case 4:
+        return 'Alta';
+      case 5:
+        return 'Muy alta';
+      case 6:
+        return 'Crítica';
+      default:
+        return 'Desconocido';
+    }
   }
 
   applyFilters(): void {
@@ -122,8 +133,8 @@ export class RequestsComponent {
     return `${year}-${month}-${day}`;
   }
 
-  toggleMenu(ticket: string): void {
-    this.activeMenu = this.activeMenu === ticket ? null : ticket;
+  toggleMenu(ticketId: number): void {
+    this.activeMenu = this.activeMenu === ticketId ? null : ticketId;
   }
 
   trackRequest(_: number, request: ServiceRequest): string {

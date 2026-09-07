@@ -18,7 +18,6 @@ import { NgxTippyModule } from 'ngx-tippy-wrapper';
 import { TagModule } from 'primeng/tag';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { Subscription } from 'rxjs';
-import { EventSourceService } from 'src/app/services/event-source.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { EntryDetailsModalComponent } from 'src/app/components/modals/entry-details-modal/entry-details-modal.component';
 import { ImageGalleryComponent } from 'src/app/components/modals/shared/preview-image/preview-image.component';
@@ -67,7 +66,6 @@ export class AccessControlComponent {
     private readonly logbookService = inject(LogbookService);
     private readonly dispatchService = inject(DispatchService);
     private readonly userService = inject(UserService);
-    private readonly eventSourceService = inject(EventSourceService);
     readonly utilsService = inject(UtilsService);
 
     private sseSub?: Subscription;

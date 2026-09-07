@@ -16,6 +16,7 @@ import { AuditingTechnicalComponent } from './pages/tables/auditing-technical/au
 import { NewAuditingComponent } from './pages/forms/new-auditing/new-auditing.component';
 import { RequestsComponent } from './pages/tables/requests/requests.component';
 import { RequestDetailComponent } from './pages/tables/request-detail/request-detail.component';
+import { RequestsComponentCopy } from './pages/tables/requests copy/requests.component';
 
 export const routes: Routes = [
     {
@@ -44,12 +45,17 @@ export const routes: Routes = [
             },
             {
                 path: "solicitudes",
-                loadComponent: () => RequestsComponent,
+                loadComponent: () => RequestsComponentCopy,
                 canActivate: [AuthGuard]
             },
             {
                 path: "solicitudes/:ticket",
                 loadComponent: () => RequestDetailComponent,
+                canActivate: [AuthGuard]
+            },
+            {
+                path: "tickets-glpi",
+                loadComponent: () => RequestsComponent,
                 canActivate: [AuthGuard]
             },
             

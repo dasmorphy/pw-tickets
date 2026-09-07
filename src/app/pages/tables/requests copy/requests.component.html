@@ -6,7 +6,7 @@
         <h1 id="requests-title">Solicitudes</h1>
         <p>Consulta y gestiona las solicitudes registradas.</p>
       </div>
-      <span class="request-count"><strong>{{ tickets.length }}</strong> tickets</span>
+      <span class="request-count"><strong>{{ filteredRequests.length }}</strong> solicitudes</span>
     </header>
 
     <div class="filters" aria-label="Filtros de solicitudes">
@@ -49,35 +49,44 @@
     </div>
 
     <div class="table-card">
-      <p-table #requestsTable [value]="tickets" [paginator]="true" [rows]="8"
+      <p-table #requestsTable [value]="filteredRequests" [paginator]="true" [rows]="8"
         [rowsPerPageOptions]="[5, 8, 10]" [showCurrentPageReport]="true"
         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} resultados"
         sortField="date" [sortOrder]="-1" [scrollable]="true" scrollDirection="horizontal"
         styleClass="requests-table" dataKey="ticket">
         <ng-template pTemplate="header">
             <tr>
-              <th pSortableColumn="ticket">Ticket<p-sortIcon field="ticket"></p-sortIcon></th>
+              <th pSortableColumn="ticket">Ticket GLPI<p-sortIcon field="ticket"></p-sortIcon></th>
+              <th pSortableColumn="request">Solcitud <p-sortIcon field="request"></p-sortIcon></th>
               <th pSortableColumn="date">Fecha <p-sortIcon field="date"></p-sortIcon></th>
-              <th pSortableColumn="client">Titulo <p-sortIcon field="client"></p-sortIcon></th>
-              <th pSortableColumn="subject">Categoría <p-sortIcon field="subject"></p-sortIcon></th>
-              <th pSortableColumn="area">Solicitante <p-sortIcon field="area"></p-sortIcon></th>
-              <th pSortableColumn="status">Estado <p-sortIcon field="status"></p-sortIcon></th>
+              <th pSortableColumn="client">Cliente <p-sortIcon field="client"></p-sortIcon></th>
+              <th pSortableColumn="subject">Solicitud <p-sortIcon field="subject"></p-sortIcon></th>
+              <th pSortableColumn="area">Área actual <p-sortIcon field="area"></p-sortIcon></th>
+              <th pSortableColumn="status">Estado GLPI <p-sortIcon field="status"></p-sortIcon></th>
+              <th pSortableColumn="status">Estado Interno <p-sortIcon field="status"></p-sortIcon></th>
               <th pSortableColumn="priority">Prioridad <p-sortIcon field="priority"></p-sortIcon></th>
               <th class="actions-heading"><span class="sr-only">Acciones</span></th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-request>
             <tr>
-              <td><a [routerLink]="['/solicitudes', request.ticket]" class="ticket-link">{{ request.id }}</a></td>
-              <td><span class="date">{{ request.date }}</span></td>
-              <td><span class="date">{{ request.name }}</span></td>
-              <td class="subject-cell">{{ request.itilcategories_id == 0 ? 'N/A' : request.itilcategories_id }}</td>
-              <td class="subject-cell">{{ request.users_id_recipient }}</td>
-              <td><span>{{ getTxtStatus(request.status) }}</span></td>
-              <td><span>{{ getTxtPriority(request.priority) }}</span></td>
+              <td><a [routerLink]="['/solicitudes', request.ticket.substring(1)]" class="ticket-link">{{ request.ticket }}</a></td>
+              <td><a [routerLink]="['/solicitudes', request.ticket.substring(1)]" class="ticket-link">{{ request.ticket }}</a></td>
+              <td><span class="date">{{ formatDate(request.date) }}</span><span class="time">{{ request.time }}</span></td>
+              <td>
+                <div class="client-cell">
+                  <span class="client-avatar">{{ request.initials }}</span>
+                  <span>{{ request.client }}</span>
+                </div>
+              </td>
+              <td class="subject-cell">{{ request.subject }}</td>
+              <td><span class="badge area" [ngClass]="request.area.toLowerCase()"><i></i>{{ request.area }}</span></td>
+              <td><span class="badge status" [ngClass]="request.status.toLowerCase().replace(' ', '-')"><i class="pi" [ngClass]="request.status === 'Pendiente' ? 'pi-clock' : request.status === 'Resuelto' || request.status === 'Aprobado' ? 'pi-check-circle' : 'pi-spin pi-spinner'"></i>{{ request.status }}</span></td>
+              <td><span class="badge status" [ngClass]="request.status.toLowerCase().replace(' ', '-')"><i class="pi" [ngClass]="request.status === 'Pendiente' ? 'pi-clock' : request.status === 'Resuelto' || request.status === 'Aprobado' ? 'pi-check-circle' : 'pi-spin pi-spinner'"></i>{{ request.status }}</span></td>
+              <td><span class="badge priority" [ngClass]="request.priority.toLowerCase()"><i></i>{{ request.priority }}</span></td>
               <td class="row-actions">
-                <button type="button" aria-label="Opciones" (click)="$event.stopPropagation(); toggleMenu(request.id)"><i class="pi pi-ellipsis-v"></i></button>
-                <div class="action-menu" *ngIf="activeMenu === request.id">
+                <button type="button" aria-label="Opciones" (click)="$event.stopPropagation(); toggleMenu(request.ticket)"><i class="pi pi-ellipsis-v"></i></button>
+                <div class="action-menu" *ngIf="activeMenu === request.ticket">
                   <button type="button"><i class="pi pi-eye"></i> Ver detalle</button>
                   <button type="button"><i class="pi pi-bolt"></i> Registro</button>
                   <button type="button"><i class="pi pi-pencil"></i> Editar</button>

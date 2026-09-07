@@ -8,7 +8,6 @@ import { DropdownModule } from "primeng/dropdown";
 import { InputNumberModule } from "primeng/inputnumber";
 import { InputTextModule } from "primeng/inputtext";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
-import { EventSourceService } from "src/app/services/event-source.service";
 import { LogbookService } from "src/app/services/logbook.service";
 import { UtilsService } from "src/app/services/utils.service";
 import { LogBookDetailsModalComponent } from "../../modals/logbook-details-modal/logbook-details-modal.component";
@@ -38,8 +37,6 @@ import { UserService } from "src/app/services/user.service";
 
 export class LogbookRecentComponent implements OnInit, OnDestroy {
     private readonly logbookService = inject(LogbookService);
-    private readonly eventSourceService = inject(EventSourceService);
-    private readonly utilsService = inject(UtilsService);
     private readonly authService = inject(AuthService);
     private readonly userService = inject(UserService);
 
@@ -58,25 +55,6 @@ export class LogbookRecentComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.fetchHistoryLogbook();
-
-        this.sseSub = this.eventSourceService.connect(0).subscribe({
-            next: (data: any) => {
-                this.audio.play().catch(err => {
-                    console.warn('No se pudo reproducir el sonido:', err);
-                });
-                this.utilsService.onSuccess(`Se ha recibido una nueva bitácora de la finca ${data?.logbook?.group_name ?? 'N/A'}`)
-                const dataLogbook = data?.logbook;
-                if (dataLogbook) {
-                    dataLogbook?.id_logbook_out ? data.logbook.record_type = "out" : data.logbook.record_type = "entry"
-                }
-                this.dataComplete.unshift(data?.logbook);
-                this.dataHistory = this.mapHistory(this.dataComplete).slice(0, 5);
-
-            },
-            error: (err: any) => {
-                console.error('Error SSE:', err);
-            }
-        });
     }
 
     ngOnDestroy() {
