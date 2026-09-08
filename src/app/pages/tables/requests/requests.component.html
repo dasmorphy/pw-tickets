@@ -49,11 +49,19 @@
     </div>
 
     <div class="table-card">
-      <p-table #requestsTable [value]="tickets" [paginator]="true" [rows]="8"
-        [rowsPerPageOptions]="[5, 8, 10]" [showCurrentPageReport]="true"
-        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} resultados"
-        sortField="date" [sortOrder]="-1" [scrollable]="true" scrollDirection="horizontal"
-        styleClass="requests-table" dataKey="ticket">
+      <p-table #requestsTable 
+        [value]="tickets" 
+        [paginator]="true" 
+        [totalRecords]="totalRecords"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [showCurrentPageReport]="false"
+        [lazy]="true"
+        (onLazyLoad)="pageChange($event)"
+        rowStyleClass="custom-row-height"
+        styleClass="requests-table" 
+        dataKey="ticket"
+      >
         <ng-template pTemplate="header">
             <tr>
               <th pSortableColumn="ticket">Ticket<p-sortIcon field="ticket"></p-sortIcon></th>
@@ -68,18 +76,18 @@
         </ng-template>
         <ng-template pTemplate="body" let-request>
             <tr>
-              <td><a [routerLink]="['/solicitudes', request.ticket]" class="ticket-link">{{ request.id }}</a></td>
+              <td><a [routerLink]="['/registro-ticket', request.id]" class="ticket-link">{{ request.id }}</a></td>
               <td><span class="date">{{ request.date }}</span></td>
               <td><span class="date">{{ request.name }}</span></td>
               <td class="subject-cell">{{ request.itilcategories_id == 0 ? 'N/A' : request.itilcategories_id }}</td>
               <td class="subject-cell">{{ request.users_id_recipient }}</td>
-              <td><span>{{ getTxtStatus(request.status) }}</span></td>
-              <td><span>{{ getTxtPriority(request.priority) }}</span></td>
+              <td><span>{{ utilsService.getTxtStatus(request.status) }}</span></td>
+              <td><span>{{ utilsService.getTxtPriority(request.priority) }}</span></td>
               <td class="row-actions">
                 <button type="button" aria-label="Opciones" (click)="$event.stopPropagation(); toggleMenu(request.id)"><i class="pi pi-ellipsis-v"></i></button>
                 <div class="action-menu" *ngIf="activeMenu === request.id">
                   <button type="button"><i class="pi pi-eye"></i> Ver detalle</button>
-                  <button type="button"><i class="pi pi-bolt"></i> Registro</button>
+                  <button type="button" [routerLink]="['/registro-ticket', request.id]"><i class="pi pi-bolt"></i> Registro</button>
                   <button type="button"><i class="pi pi-pencil"></i> Editar</button>
                 </div>
               </td>

@@ -163,6 +163,62 @@ export class UtilsService {
         }
     }
 
+    getTxtStatus(statusId: number): string {
+        switch (statusId) {
+        case 1:
+            return 'Nuevo';
+        case 2:
+            return 'En curso (asignado)';
+        case 3:
+            return 'En curso (planificado)';
+        case 4:
+            return 'En espera';
+        case 5:
+            return 'Resuelto';
+        case 6:
+            return 'Cerrado';
+        default:
+            return 'Desconocido';
+        }
+    }
+
+    getTxtPriority(priorityId: number): string {
+        switch (priorityId) {
+        case 1:
+            return 'Muy baja';
+        case 2:
+            return 'Baja';
+        case 3:
+            return 'Media';
+        case 4:
+            return 'Alta';
+        case 5:
+            return 'Muy alta';
+        case 6:
+            return 'Crítica';
+        default:
+            return 'Desconocido';
+        }
+    }
+
+    formatTxtDetailTicket(content: string): string {
+        if (!content) return '';
+
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = content;
+
+        const decoded = textarea.value;
+
+        return decoded
+            .replace(/<br\s*\/?>/gi, '. ')
+            .replace(/<\/p>/gi, '. ')
+            .replace(/<p[^>]*>/gi, '')
+            .replace(/<[^>]+>/g, '')
+            .replace(/\s+/g, ' ')
+            .replace(/\.\s*\./g, '.')
+            .trim();
+    }
+
     onSuccess(message: string, time: number = 5000, title: string = 'Éxito') {
         this.messageService.add({
             life: time,

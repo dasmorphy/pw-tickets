@@ -3,7 +3,7 @@
 <main class="detail-page">
   <div class="detail-shell">
     <nav class="breadcrumb" aria-label="Navegación">
-      <a routerLink="/solicitudes">Solicitudes</a>
+      <a routerLink="/tickets-glpi">Tickets</a>
       <i class="pi pi-chevron-right"></i>
       <span>Ticket {{ ticket }}</span>
     </nav>
@@ -13,21 +13,17 @@
         <div class="ticket-icon"><i class="pi pi-file"></i></div>
         <div>
           <div class="title-line">
-            <h1>{{ ticket }}</h1>
-            <span class="status-badge"><i></i> En proceso</span>
+            <h1>{{ ticketDetails?.name }}</h1>
           </div>
           <div class="ticket-meta">
-            <span><i class="pi pi-briefcase"></i> TechSolutions S.A.</span>
-            <span>Creado el 29/05/2024 10:32</span>
-            <span>por <a href="javascript:void(0)">Laura Gómez (GLPI)</a></span>
+            <!-- <span><i class="pi pi-briefcase"></i> TechSolutions S.A.</span> -->
+            <span>Creado el {{ ticketDetails?.date_creation }} por {{ ticketDetails?.users_id_recipient }}</span>
           </div>
         </div>
       </div>
 
       <div class="summary-indicators">
         <div><label>Área actual</label><span class="area-badge"><i></i> Técnica</span></div>
-        <div><label>Prioridad</label><span class="priority-badge"><i></i> Alta</span></div>
-        <div><label>SLA</label><span class="sla-badge">Dentro del plazo</span></div>
       </div>
     </section>
 
@@ -35,21 +31,53 @@
       <section class="info-card glpi-card">
         <header><i class="pi pi-file-export"></i><h2>Información GLPI</h2></header>
         <dl>
-          <div><dt>Ticket</dt><dd><a href="javascript:void(0)">#INC-2024-1258</a></dd></div>
-          <div><dt>Cliente</dt><dd><a href="javascript:void(0)">TechSolutions S.A.</a></dd></div>
-          <div><dt>Solicitud</dt><dd>No funciona acceso VPN</dd></div>
-          <div><dt>Descripción breve</dt><dd>El usuario reporta que no puede conectarse a la VPN desde la red externa. El error aparece al intentar autenticarse con sus credenciales corporativas.</dd></div>
-          <div><dt>Prioridad</dt><dd><span class="priority-badge"><i></i> Alta</span></dd></div> 
-          <div><dt>Fecha de creación</dt><dd>29/05/2024 10:32</dd></div>
-          <div><dt>Responsable GLPI</dt><dd class="responsible"><span>LG</span> Laura Gómez</dd></div>
-          <div><dt>Categoría</dt><dd>Redes &gt; VPN</dd></div>
-          <div><dt>Estado GLPI</dt><dd><span class="status-badge"><i></i> En proceso</span></dd></div>
+          <div><dt>Ticket</dt><dd>{{ ticketDetails?.id }}</dd></div>
+          <!-- <div><dt>Cliente</dt><dd><a href="javascript:void(0)">TechSolutions S.A.</a></dd></div> -->
+          <div><dt>Categoría</dt><dd>{{ ticketDetails?.itilcategories_id }}</dd></div>
+          <div><dt>Descripción</dt><dd>{{ utilsService.formatTxtDetailTicket(ticketDetails?.content) }}</dd></div>
+          <div><dt>Prioridad</dt><dd><span class="priority-badge"><i></i> {{ utilsService.getTxtPriority(ticketDetails?.priority) }}</span></dd></div> 
+          <div><dt>Fecha de creación</dt><dd>{{ ticketDetails?.date_creation }}</dd></div>
+          <div><dt>Responsable GLPI</dt><dd>{{ ticketDetails?.users_id_recipient }}</dd></div>
+          <div><dt>Estado GLPI</dt><dd><span class="status-badge"><i></i> {{ utilsService.getTxtStatus(ticketDetails?.status) }}</span></dd></div>
         </dl>
         <footer>
           <a href="javascript:void(0)"><i class="pi pi-comment"></i> Ver comentarios (3)</a>
-          <a href="javascript:void(0)"><i class="pi pi-paperclip"></i> Ver adjuntos (2)</a>
+          <a href="javascript:void(0)"><i class="pi pi-paperclip"></i> Ver adjuntos ({{ ticketDetails?._documents?.length ?? 0 }})</a>
         </footer>
       </section>
+
+      @if (ticketDetails?._documents?.length) {
+        <section class="info-card attachments-card">
+          <header class="attachments-header">
+            <span class="attachments-icon"><i class="pi pi-paperclip"></i></span>
+            <div>
+              <h2>Archivos adjuntos</h2>
+              <p>Documentos y archivos compartidos en el ticket</p>
+            </div>
+          </header>
+
+          <div class="documents-grid">
+            @for (document of ticketDetails._documents; track document.id) {
+              <article class="document-card">
+                <div class="document-file-icon" [class.pdf-file]="document.mime === 'application/pdf'">
+                  <i [class]="getDocumentIcon(document)"></i>
+                </div>
+
+                <div class="document-info">
+                  <strong [title]="getDocumentName(document)">{{ getDocumentName(document) }}</strong>
+                  <span>{{ getDocumentType(document) }}</span>
+                  <span>{{ formatDocumentDate(document.assocdate) }}</span>
+                  <small>{{ document.users_id }}</small>
+                </div>
+
+                <div class="document-actions" aria-label="Acciones del archivo">
+                  <button pButton type="button" class="p-button-text p-button-rounded" icon="pi pi-download" aria-label="Descargar archivo"></button>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
 
       <section class="info-card commercial-card">
         <header><span class="commercial-icon"><i class="pi pi-chart-line"></i></span><h2>Gestión Comercial</h2></header>

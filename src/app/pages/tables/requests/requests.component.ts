@@ -35,7 +35,7 @@ export class RequestsComponent {
   @ViewChild('requestsTable') requestsTable?: Table;
 
   private readonly glpiService = inject(GlpiService)
-  private readonly utilsService = inject(UtilsService);
+  readonly utilsService = inject(UtilsService);
 
   readonly areas: RequestArea[] = ['Técnica', 'Comercial', 'Proyectos', 'Contabilidad'];
   readonly statuses: RequestStatus[] = ['En proceso', 'Pendiente', 'Resuelto', 'Aprobado'];
@@ -47,57 +47,43 @@ export class RequestsComponent {
   selectedClient: string | null = null;
   appliedFilters = { dateFrom: '2024-05-01', dateTo: '2024-05-31', area: '', status: '', client: '' };
   activeMenu: number | null = null;
+  totalRecords: number = 0;
+
+  filters: any = {
+    first: 0,
+    rows: 5
+  };
+
 
   tickets:any = [];
 
-  ngOnInit() {
-    this.glpiService.getTickets().subscribe({
-      next: (data: any) => {
-        this.tickets = data?.data || [];
+  pageChange(event: any) {
+    const page = (event.first / event.rows) + 1;
+    this.filters.first = page;
+    this.filters.rows = event.rows;
+    this.fetchTickets();
+  }
+
+  fetchTickets() {
+    const first = (this.filters.first - 1) * this.filters.rows;
+    const rows = this.filters.rows;
+
+    this.glpiService.getTickets(first, rows).subscribe({
+      next: (response: any) => {
+        const body = response?.body || {};
+        this.tickets = body?.data || [];
+        const contentRange = response.headers.get('Content-Range');
+
+        if (contentRange) {
+          const [, total] = contentRange.split('/');
+          this.totalRecords = Number(total);
+        }
       },
       error: (error: any) => {
         console.error('Error fetching tickets:', error);
         this.utilsService.onError('Error al obtener los tickets por favor, inténtelo de nuevo más tarde.');
       }
     });
-  }
-
-  getTxtStatus(statusId: number): string {
-    switch (statusId) {
-      case 1:
-        return 'Nuevo';
-      case 2:
-        return 'En curso (asignado)';
-      case 3:
-        return 'En curso (planificado)';
-      case 4:
-        return 'En espera';
-      case 5:
-        return 'Resuelto';
-      case 6:
-        return 'Cerrado';
-      default:
-        return 'Desconocido';
-    }
-  }
-
-  getTxtPriority(priorityId: number): string {
-    switch (priorityId) {
-      case 1:
-        return 'Muy baja';
-      case 2:
-        return 'Baja';
-      case 3:
-        return 'Media';
-      case 4:
-        return 'Alta';
-      case 5:
-        return 'Muy alta';
-      case 6:
-        return 'Crítica';
-      default:
-        return 'Desconocido';
-    }
   }
 
   applyFilters(): void {

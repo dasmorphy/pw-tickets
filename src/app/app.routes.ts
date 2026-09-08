@@ -49,7 +49,7 @@ export const routes: Routes = [
                 canActivate: [AuthGuard]
             },
             {
-                path: "solicitudes/:ticket",
+                path: "registro-ticket/:ticket",
                 loadComponent: () => RequestDetailComponent,
                 canActivate: [AuthGuard]
             },
