@@ -22,9 +22,10 @@
         </div>
       </div>
 
-      <div class="summary-indicators">
-        <div><label>Área actual</label><span class="area-badge"><i></i> Técnica</span></div>
+      <div class="summary-actions">
+        <p-button label="Ver en GLPI" icon="pi pi-external-link" [outlined]="true" styleClass="glpi-button"></p-button>
       </div>
+
     </section>
 
     <div class="content-grid">
@@ -40,44 +41,47 @@
           <div><dt>Responsable GLPI</dt><dd>{{ ticketDetails?.users_id_recipient }}</dd></div>
           <div><dt>Estado GLPI</dt><dd><span class="status-badge"><i></i> {{ utilsService.getTxtStatus(ticketDetails?.status) }}</span></dd></div>
         </dl>
-        <footer>
+        <!-- <footer>
           <a href="javascript:void(0)"><i class="pi pi-comment"></i> Ver comentarios (3)</a>
           <a href="javascript:void(0)"><i class="pi pi-paperclip"></i> Ver adjuntos ({{ ticketDetails?._documents?.length ?? 0 }})</a>
-        </footer>
-      </section>
-
-      @if (ticketDetails?._documents?.length) {
-        <section class="info-card attachments-card">
-          <header class="attachments-header">
-            <span class="attachments-icon"><i class="pi pi-paperclip"></i></span>
-            <div>
-              <h2>Archivos adjuntos</h2>
-              <p>Documentos y archivos compartidos en el ticket</p>
-            </div>
-          </header>
-
+        </footer> -->
+        @if (ticketDetails?._documents?.length) {
+          <header class="pt-2"><i class="pi pi-paperclip"></i><h2>Archivos adjuntos</h2></header>
           <div class="documents-grid">
             @for (document of ticketDetails._documents; track document.id) {
               <article class="document-card">
-                <div class="document-file-icon" [class.pdf-file]="document.mime === 'application/pdf'">
-                  <i [class]="getDocumentIcon(document)"></i>
-                </div>
+                <div class="flex justify-content-between align-items-center">
+                  <div class="document-file-icon" [class.pdf-file]="document.mime === 'application/pdf'">
+                    <i [class]="getDocumentIcon(document)"></i>
+                  </div>
+                  
+                  <div class="flex">
+                    <button pButton type="button"
+                      class="p-button-text p-button-rounded p-0 w-full b-download" 
+                      icon="pi pi-download" 
+                      aria-label="Descargar archivo">
+                    </button>
+                  </div>
 
+
+                </div>
+      
                 <div class="document-info">
                   <strong [title]="getDocumentName(document)">{{ getDocumentName(document) }}</strong>
                   <span>{{ getDocumentType(document) }}</span>
                   <span>{{ formatDocumentDate(document.assocdate) }}</span>
                   <small>{{ document.users_id }}</small>
                 </div>
-
-                <div class="document-actions" aria-label="Acciones del archivo">
+      
+                <!-- <div class="document-actions" aria-label="Acciones del archivo">
                   <button pButton type="button" class="p-button-text p-button-rounded" icon="pi pi-download" aria-label="Descargar archivo"></button>
-                </div>
+                </div> -->
               </article>
             }
           </div>
-        </section>
-      }
+        }
+
+      </section>
 
       <section class="info-card commercial-card">
         <header><span class="commercial-icon"><i class="pi pi-chart-line"></i></span><h2>Gestión Comercial</h2></header>
