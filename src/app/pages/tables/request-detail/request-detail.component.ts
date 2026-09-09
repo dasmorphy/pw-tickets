@@ -10,6 +10,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ToastModule } from 'primeng/toast';
+import { RegisterTicketCommercialComponent } from 'src/app/components/forms/register-ticket-commercial/register-ticket-commercial.component';
 import { GlpiService } from 'src/app/services/glpi.service';
 import { UtilsService } from 'src/app/services/utils.service';
 
@@ -53,7 +54,8 @@ interface GlpiDocument {
     DropdownModule,
     InputNumberModule,
     InputTextareaModule,
-    ToastModule
+    ToastModule,
+    RegisterTicketCommercialComponent
   ],
   templateUrl: './request-detail.component.html',
   styleUrls: ['./request-detail.component.sass']

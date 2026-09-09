@@ -1,0 +1,118 @@
+<section class="info-card commercial-card">
+    <header><span class="commercial-icon"><i class="pi pi-chart-line"></i></span>
+        <h2>Gestión Comercial</h2>
+    </header>
+
+    <form #commercialForm="ngForm" [formGroup]="ticketForm" class="commercial-form">
+        <div class="form-grid">
+            <div class="field">
+                <label for="origin">Origen</label>
+                <p-dropdown inputId="origin" name="origin" [options]="origins" formControlName="origin"
+                    placeholder="Seleccione un origen" styleClass="w-full" appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="solutionType">Tipo de solución</label>
+                <p-dropdown inputId="solutionType" name="solutionType" [options]="solutionTypes"
+                    formControlName="solutionType" placeholder="Seleccione una solución" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="quotedValue">Valor cotizado</label>
+                <p-inputNumber inputId="quotedValue" name="quotedValue" formControlName="quotedValue"
+                    mode="currency" currency="USD" locale="en-US" [minFractionDigits]="2" [maxFractionDigits]="2"
+                    styleClass="w-full"></p-inputNumber>
+            </div>
+
+            <div class="field">
+                <label for="commercialStatus">Estado</label>
+                <p-dropdown inputId="commercialStatus" name="commercialStatus" [options]="statuses"
+                    formControlName="status" placeholder="Seleccione un estado" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="closeProbability">Probabilidad de cierre</label>
+                <p-inputNumber inputId="closeProbability" name="closeProbability"
+                    formControlName="closeProbability" suffix=" %" [min]="0" [max]="100" [minFractionDigits]="0"
+                    [maxFractionDigits]="0" styleClass="w-full"></p-inputNumber>
+            </div>
+
+            <div class="field">
+                <label for="estimatedCloseDate">Fecha estimada de cierre</label>
+                <p-calendar inputId="estimatedCloseDate" name="estimatedCloseDate"
+                    formControlName="estimatedCloseDate" dateFormat="dd/mm/yy" [showIcon]="true"
+                    [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+            </div>
+
+            <div class="field">
+                <label for="nextFollowUp">Próximo seguimiento</label>
+                <p-calendar inputId="nextFollowUp" name="nextFollowUp" formControlName="nextFollowUp"
+                    dateFormat="dd/mm/yy" [showIcon]="true" [readonlyInput]="true" styleClass="w-full"
+                    appendTo="body"></p-calendar>
+            </div>
+
+            <div class="field">
+                <label for="nextAction">Próxima acción</label>
+                <p-dropdown inputId="nextAction" name="nextAction" [options]="nextActions"
+                    formControlName="nextAction" placeholder="Seleccione una acción" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
+            </div>
+
+            <!-- <div class="field">
+                <label for="actionOwner">Responsable próxima acción</label>
+                <p-dropdown inputId="actionOwner" name="actionOwner" [options]="actionOwners"
+                    formControlName="nextActionOwner" placeholder="Seleccione un responsable" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
+            </div> -->
+
+            <div class="field">
+                <label for="expectedStartDate">Fecha prevista de inicio</label>
+                <p-calendar inputId="expectedStartDate" name="expectedStartDate"
+                    formControlName="expectedStartDate" dateFormat="dd/mm/yy" [showIcon]="true"
+                    [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+            </div>
+        </div>
+
+        <div class="checks-grid">
+            <label class="check-field" for="technicalSupport">
+                <p-checkbox inputId="technicalSupport" name="technicalSupport"
+                    formControlName="requiresTechnicalSupport" [binary]="true"></p-checkbox>
+                <span><strong>Requiere apoyo técnico</strong><small>{{ ticketForm.get('requiresTechnicalSupport')?.value ? 'Sí' : 'No'
+                        }}</small></span>
+            </label>
+            <label class="check-field" for="requiresMaterials">
+                <p-checkbox inputId="requiresMaterials" name="requiresMaterials"
+                    formControlName="requiresMaterials" [binary]="true"></p-checkbox>
+                <span><strong>Requiere compra / materiales</strong><small>{{ ticketForm.get('requiresMaterials')?.value ? 'Sí' : 'No'
+                        }}</small></span>
+            </label>
+            <label class="check-field" for="contractReceived">
+                <p-checkbox inputId="contractReceived" name="contractReceived" formControlName="contractReceived"
+                    [binary]="true"></p-checkbox>
+                <span><strong>OC / contrato recibido</strong><small>{{ ticketForm.get('contractReceived')?.value ? 'Sí' : 'No'
+                        }}</small></span>
+            </label>
+        </div>
+
+        <div class="field full-field">
+            <label for="observations">Observaciones</label>
+            <textarea pInputTextarea id="observations" name="observations" formControlName="observations"
+                rows="3" [autoResize]="true"></textarea>
+        </div>
+
+        <div class="field full-field loss-field" *ngIf="ticketForm.get('status')?.value === 'Rechazada'">
+            <label for="lossReason">Motivo de pérdida</label>
+            <textarea pInputTextarea id="lossReason" name="lossReason" formControlName="lossReason" rows="3"
+                placeholder="Describe el motivo por el cual se rechazó la oportunidad" [autoResize]="true"></textarea>
+        </div>
+
+        <div class="form-actions">
+            <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
+                routerLink="/solicitudes"></p-button>
+            <p-button type="submit" label="Guardar gestión comercial" icon="pi pi-save"
+                styleClass="save-button"></p-button>
+        </div>
+    </form>
+</section>
