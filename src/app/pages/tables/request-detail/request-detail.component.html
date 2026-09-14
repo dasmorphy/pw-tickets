@@ -34,7 +34,7 @@
         <dl>
           <div><dt>Ticket</dt><dd>{{ ticketDetails?.id }}</dd></div>
           <!-- <div><dt>Cliente</dt><dd><a href="javascript:void(0)">TechSolutions S.A.</a></dd></div> -->
-          <div><dt>Categoría</dt><dd>{{ ticketDetails?.itilcategories_id }}</dd></div>
+          <div><dt>Categoría</dt><dd>{{ ticketDetails?.itilcategories_id == 0 ? 'N/A' : ticketDetails?.itilcategories_id }}</dd></div>
           <div><dt>Descripción</dt><dd>{{ utilsService.formatTxtDetailTicket(ticketDetails?.content) }}</dd></div>
           <div><dt>Prioridad</dt><dd><span class="priority-badge"><i></i> {{ utilsService.getTxtPriority(ticketDetails?.priority) }}</span></dd></div> 
           <div><dt>Fecha de creación</dt><dd>{{ ticketDetails?.date_creation }}</dd></div>
@@ -83,7 +83,13 @@
 
       </section>
 
-      <app-register-ticket-commercial></app-register-ticket-commercial>
+      @if (rol_user == 'tecnico') {
+        <app-register-ticket-technical></app-register-ticket-technical>
+      }
+
+      @if (rol_user == 'comercial') {
+        <app-register-ticket-commercial></app-register-ticket-commercial>
+      }
     </div>
   </div>
 </main>

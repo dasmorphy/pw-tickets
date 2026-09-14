@@ -12,7 +12,6 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DoughnutComponent } from 'src/app/components/graphs/doughnut/doughnut.component';
 import { UserService } from 'src/app/services/user.service';
 import { DialogModule } from 'primeng/dialog';
-import { LogbookRecentComponent } from 'src/app/components/logbook/logbook-recent/logbook-recent.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { AccessControlComponent } from 'src/app/components/dashboards/biomar/access-control/access-control.component';
 import { RawMaterialDispatchComponent } from 'src/app/components/dashboards/biomar/raw-material-dispatch/raw-material-dispatch.component';
@@ -40,7 +39,6 @@ import { TechnicalDashboardComponent } from 'src/app/components/dashboards/techn
         ProgressSpinnerModule,
         DoughnutComponent,
         DialogModule,
-        LogbookRecentComponent,
         RawMaterialDispatchComponent,
         FinishedProductDispatchComponent,
         AccessControlComponent,

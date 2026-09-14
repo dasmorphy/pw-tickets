@@ -61,6 +61,38 @@ export class MenuComponent implements OnInit {
       {
         label: 'Solicitudes',
         icon: 'pi pi-list-check',
+        routerLink: ['tickets-glpi'],
+        // visible: this.user_permissions_signal()?.includes('VER_BITACORAS'),
+        command: () => { this.clickHiddenToggle(true) },
+        
+      },
+      {
+        label: 'Solicitudes Tecnico',
+        icon: 'pi pi-list-check',
+        routerLink: ['tickets-tecnicos'],
+        // visible: this.user_permissions_signal()?.includes('VER_BITACORAS'),
+        command: () => { this.clickHiddenToggle(true) },
+        
+      },
+      {
+        label: 'Solicitudes Comercial',
+        icon: 'pi pi-list-check',
+        routerLink: ['tickets-comercial'],
+        // visible: this.user_permissions_signal()?.includes('VER_BITACORAS'),
+        command: () => { this.clickHiddenToggle(true) },
+        
+      },
+      {
+        label: 'Solicitudes Proyectos',
+        icon: 'pi pi-list-check',
+        routerLink: ['solicitudes'],
+        // visible: this.user_permissions_signal()?.includes('VER_BITACORAS'),
+        command: () => { this.clickHiddenToggle(true) },
+        
+      },
+      {
+        label: 'Solicitudes Contabilidad',
+        icon: 'pi pi-list-check',
         routerLink: ['solicitudes'],
         // visible: this.user_permissions_signal()?.includes('VER_BITACORAS'),
         command: () => { this.clickHiddenToggle(true) },

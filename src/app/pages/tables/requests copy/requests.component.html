@@ -70,8 +70,8 @@
         </ng-template>
         <ng-template pTemplate="body" let-request>
             <tr>
-              <td><a [routerLink]="['/solicitudes', request.ticket.substring(1)]" class="ticket-link">{{ request.ticket }}</a></td>
-              <td><a [routerLink]="['/solicitudes', request.ticket.substring(1)]" class="ticket-link">{{ request.ticket }}</a></td>
+              <td><a [routerLink]="['/tickets-glpi', request.ticket.substring(1)]" class="ticket-link">{{ request.ticket }}</a></td>
+              <td><a [routerLink]="['/tickets-glpi', request.ticket.substring(1)]" class="ticket-link">{{ request.ticket }}</a></td>
               <td><span class="date">{{ formatDate(request.date) }}</span><span class="time">{{ request.time }}</span></td>
               <td>
                 <div class="client-cell">

@@ -9,7 +9,7 @@ import { RouterModule } from '@angular/router';
 import { GlpiService } from 'src/app/services/glpi.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { TagModule } from 'primeng/tag';
-import { SplitButtonModule } from 'primeng/splitbutton';
+import { PanelMenuModule } from "primeng/panelmenu";
 
 type RequestArea = 'Técnica' | 'Comercial' | 'Proyectos' | 'Contabilidad';
 type RequestStatus = 'En proceso' | 'Pendiente' | 'Resuelto' | 'Aprobado';
@@ -27,15 +27,14 @@ interface ServiceRequest {
 }
 
 @Component({
-  selector: 'app-requests',
+  selector: 'app-tickets-technical',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, ButtonModule, CalendarModule, DropdownModule, TableModule,
-    TagModule, SplitButtonModule
-  ],
-  templateUrl: './requests.component.html',
-  styleUrls: ['./requests.component.sass']
+    TagModule, PanelMenuModule],
+  templateUrl: './tickets-technical.component.html',
+  styleUrls: ['./tickets-technical.component.sass']
 })
-export class RequestsComponent {
+export class TicketsTechnicalComponent {
   @ViewChild('requestsTable') requestsTable?: Table;
 
   private readonly glpiService = inject(GlpiService)
@@ -52,7 +51,6 @@ export class RequestsComponent {
   appliedFilters = { dateFrom: '2024-05-01', dateTo: '2024-05-31', area: '', status: '', client: '' };
   activeMenu: number | null = null;
   totalRecords: number = 0;
-  selectedTicket: any;
 
   filters: any = {
     first: 0,
@@ -62,48 +60,37 @@ export class RequestsComponent {
 
   tickets:any = [];
 
-
-  items: any = [
-    {
-        label: 'Ver detalles',
-        icon: 'pi pi-eye',
-        // command: () => this.viewLogbookDetails(this.selectedLogbook)
-    },
-    {
-        label: 'Registro',
-        icon: 'pi pi-play-circle',
-        // visible: () => this.user_permissions_signal().includes('CONTINUAR_BITACORA') && this.selectedLogbook?.status === 'Pendiente Salida',
-        // command: () => this.routeOut()
-    },
-];
-
-  pageChange(event: any) {
-    const page = (event.first / event.rows) + 1;
-    this.filters.first = page;
-    this.filters.rows = event.rows;
-    this.fetchTickets();
+  ngOnInit() {
+    // this.fetchTickets();
   }
 
   fetchTickets() {
     const page = (this.filters.first - 1) * this.filters.rows;
     const page_size = this.filters.rows;
 
-    this.glpiService.getTickets(page, page_size).subscribe({
-      next: (response: any) => {
-        const body = response?.body || {};
-        this.tickets = body?.data || [];
-        const contentRange = response.headers.get('Content-Range');
+    const filters = {
+      page,
+      page_size
+    }
 
-        if (contentRange) {
-          const [, total] = contentRange.split('/');
-          this.totalRecords = Number(total);
-        }
+    this.glpiService.getTicketsTechnical(filters).subscribe({
+      next: (response: any) => {
+        console.log(response);
+        this.tickets = response?.data?.data || [];
+        this.totalRecords = response?.pagination?.total
       },
       error: (error: any) => {
         console.error('Error fetching tickets:', error);
         this.utilsService.onError('Error al obtener los tickets por favor, inténtelo de nuevo más tarde.');
       }
     });
+  }
+
+  pageChange(event: any) {
+    const page = (event.first / event.rows) + 1;
+    this.filters.first = page;
+    this.filters.rows = event.rows;
+    this.fetchTickets();
   }
 
   applyFilters(): void {
@@ -145,10 +132,6 @@ export class RequestsComponent {
 
   trackRequest(_: number, request: ServiceRequest): string {
     return request.ticket;
-  }
-
-  optionsTicket(ticket: any) {
-    this.selectedTicket = ticket
   }
 
   getSeverity(status: string) {

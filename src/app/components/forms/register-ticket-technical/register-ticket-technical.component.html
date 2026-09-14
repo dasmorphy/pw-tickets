@@ -1,0 +1,95 @@
+<section class="info-card commercial-card">
+    <header><span class="commercial-icon"><i class="pi pi-cog"></i></span>
+        <h2>Gestión Técnica</h2>
+    </header>
+
+    <form #commercialForm="ngForm" [formGroup]="ticketForm" class="commercial-form">
+        <div class="form-grid">
+            <div class="field">
+                <label for="client_id">Cliente</label>
+                <p-dropdown inputId="client_id" name="client_id" [options]="clientsOptions" formControlName="client_id" [filter]="true" filterBy="name"
+                    placeholder="Seleccione un cliente" styleClass="w-full" appendTo="body" optionValue="id_client" optionLabel="name"
+                    (onChange)="changeClient($event.value)">
+                </p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="ubication_id">Ubicación</label>
+                <p-dropdown inputId="ubication_id" name="ubication_id" [options]="ubicationsOptions"
+                    [filter]="true" filterBy="name" optionValue="id_location" optionLabel="name"
+                    formControlName="ubication_id" placeholder="Seleccione una ubicación" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="contact">Contacto</label>
+                <input pInputText inputId="contact" formControlName="contact"
+                    styleClass="w-full" class="w-full">
+            </div>
+
+            <div class="field">
+                <label for="case_type">Ruta del caso</label>
+                <p-dropdown inputId="case_type" name="case_type" [options]="caseTypeOptions"
+                    formControlName="case_type" placeholder="Seleccione una opción" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="priority">Prioridad</label>
+                <p-dropdown inputId="priority" name="priority" [options]="priorityOptions"
+                    formControlName="priority" placeholder="Seleccione una opción" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="management_status">Estado del levantamiento</label>
+                <p-dropdown inputId="management_status" name="management_status" [options]="managementStatusOptions"
+                    formControlName="management_status" placeholder="Seleccione una opción" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="next_action">Próxima acción</label>
+                <p-dropdown inputId="next_action" name="next_action" [options]="nextActionsOptions"
+                    formControlName="next_action" placeholder="Seleccione una opción" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="commitment_date">Fecha compomiso</label>
+                <p-calendar inputId="commitment_date" name="commitment_date"
+                    formControlName="commitment_date" dateFormat="dd/mm/yy" [showIcon]="true"
+                    [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+            </div>
+        </div>
+
+        <div class="checks-grid">
+            <label class="check-field" for="requires_material">
+                <p-checkbox inputId="requires_material" name="requires_material"
+                    formControlName="requires_material" [binary]="true"></p-checkbox>
+                <span><strong>Requiere materiales</strong><small>{{ ticketForm.get('requires_material')?.value ? 'Sí' : 'No'
+                        }}</small></span>
+            </label>
+
+            <label class="check-field" for="requires_monitoring">
+                <p-checkbox inputId="requires_monitoring" name="requires_monitoring"
+                    formControlName="requires_monitoring" [binary]="true"></p-checkbox>
+                <span><strong>Requiere monitoreo</strong><small>{{ ticketForm.get('requires_monitoring')?.value ? 'Sí' : 'No'
+                        }}</small></span>
+            </label>
+        </div>
+
+        <div class="field full-field">
+            <label for="observations">Observaciones</label>
+            <textarea pInputTextarea id="observations" name="observations" formControlName="observations"
+                rows="3" [autoResize]="true"></textarea>
+        </div>
+
+        <div class="form-actions">
+            <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
+                routerLink="/solicitudes"></p-button>
+            <p-button type="submit" label="Guardar" icon="pi pi-save"
+               (click)="saveTicket()" styleClass="save-button"></p-button>
+        </div>
+    </form>
+</section>

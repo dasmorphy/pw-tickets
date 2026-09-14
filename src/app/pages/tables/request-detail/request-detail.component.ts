@@ -11,6 +11,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ToastModule } from 'primeng/toast';
 import { RegisterTicketCommercialComponent } from 'src/app/components/forms/register-ticket-commercial/register-ticket-commercial.component';
+import { RegisterTicketTechnicalComponent } from 'src/app/components/forms/register-ticket-technical/register-ticket-technical.component';
 import { GlpiService } from 'src/app/services/glpi.service';
 import { UtilsService } from 'src/app/services/utils.service';
 
@@ -55,7 +56,8 @@ interface GlpiDocument {
     InputNumberModule,
     InputTextareaModule,
     ToastModule,
-    RegisterTicketCommercialComponent
+    RegisterTicketCommercialComponent,
+    RegisterTicketTechnicalComponent
   ],
   templateUrl: './request-detail.component.html',
   styleUrls: ['./request-detail.component.sass']
@@ -95,6 +97,8 @@ export class RequestDetailComponent {
 
   ticketIdRouteParam: number | null = null;
   ticketDetails: any = null;
+
+  rol_user = localStorage.getItem('rol')
 
   ngOnInit() {
     const ticketId = this.route.snapshot.paramMap.get('ticket');

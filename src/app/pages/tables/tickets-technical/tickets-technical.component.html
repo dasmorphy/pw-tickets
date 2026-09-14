@@ -51,48 +51,51 @@
     <div class="table-card">
       <p-table #requestsTable 
         [value]="tickets" 
-        [paginator]="true" 
+        [paginator]="true"
         [totalRecords]="totalRecords"
         [rows]="5"
         [rowsPerPageOptions]="[5, 10, 25]"
-        [showCurrentPageReport]="false"
         [lazy]="true"
         (onLazyLoad)="pageChange($event)"
+        [showCurrentPageReport]="false"
         rowStyleClass="custom-row-height"
         styleClass="requests-table" 
         dataKey="ticket"
       >
         <ng-template pTemplate="header">
             <tr>
-              <th>Ticket</th>
-              <th >Fecha</th>
-              <th>Titulo</th>
+              <th>Solicitud</th>
+              <th>Ticket Glpi</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
               <!-- <th pSortableColumn="subject">Categoría <p-sortIcon field="subject"></p-sortIcon></th> -->
-              <th>Solicitante</th>
+              <th>Ubicación</th>
+              <th>Contacto</th>
               <!-- <th pSortableColumn="status">Estado <p-sortIcon field="status"></p-sortIcon></th> -->
-              <th>Area actual</th>
               <th>Prioridad</th>
+              <th>Usuario</th>
               <th class="actions-heading"><span class="sr-only">Acciones</span></th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-request>
             <tr>
-              <td><a [routerLink]="['/registro-ticket', request.id]" class="ticket-link">{{ request.id }}</a></td>
-              <td><span class="date">{{ request.date }}</span></td>
-              <td><span class="date">{{ request.name }}</span></td>
+              <td>{{ request.code_management }}</td>
+              <td>{{ request.ticket_glpi }}</td>
+              <td><span class="date" tooltipPosition="top" [pTooltip]="'Hora de registro: ' + (request?.created_at | date:'HH:mm':'UTC')" >{{ request.created_at | date:'dd/MM/yyyy':'UTC' }}</span></td>
+              <td><span class="date">{{ request.client_name }}</span></td>
               <!-- <td class="subject-cell">{{ request.itilcategories_id == 0 ? 'N/A' : request.itilcategories_id }}</td> -->
-              <td class="subject-cell">{{ request.users_id_recipient }}</td>
+              <td class="subject-cell">{{ request.location_name }}</td>
+              <td class="subject-cell">{{ request.contact }}</td>
               <!-- <td><span>{{ utilsService.getTxtStatus(request.status) }}</span></td> -->
-              <td>
-                <p-tag [value]="request?.management_area ?? 'N/A'" [severity]="getSeverity(request?.management_area)"></p-tag>
-              </td>
-              <td><span>{{request.priority_intern ?? 'N/A' }}</span></td>
+              <td><span>{{request.priority ?? 'N/A' }}</span></td>
+              <td><span>{{request.created_by ?? 'N/A' }}</span></td>
               <td class="row-actions">
-                <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(request)" [model]="items">
-                  <ng-template pTemplate="dropdownicon">
-                    <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
-                  </ng-template>
-                </p-splitButton>
+                <button type="button" aria-label="Opciones" (click)="$event.stopPropagation(); toggleMenu(request.id)"><i class="pi pi-ellipsis-v"></i></button>
+                <div class="action-menu" *ngIf="activeMenu === request.id">
+                  <button type="button"><i class="pi pi-eye"></i> Ver detalle</button>
+                  <button type="button" [routerLink]="['/registro-ticket', request.id]"><i class="pi pi-bolt"></i> Registro</button>
+                  <button type="button"><i class="pi pi-pencil"></i> Editar</button>
+                </div>
               </td>
             </tr>
         </ng-template>
