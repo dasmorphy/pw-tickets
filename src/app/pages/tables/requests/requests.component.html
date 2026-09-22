@@ -66,18 +66,18 @@
             <tr>
               <th>Ticket</th>
               <th >Fecha</th>
-              <th>Titulo</th>
+              <th>Título</th>
               <!-- <th pSortableColumn="subject">Categoría <p-sortIcon field="subject"></p-sortIcon></th> -->
               <th>Solicitante</th>
               <!-- <th pSortableColumn="status">Estado <p-sortIcon field="status"></p-sortIcon></th> -->
-              <th>Area actual</th>
+              <th>Área actual</th>
               <th>Prioridad</th>
               <th class="actions-heading"><span class="sr-only">Acciones</span></th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-request>
             <tr>
-              <td><a [routerLink]="['/registro-ticket', request.id]" class="ticket-link">{{ request.id }}</a></td>
+              <td>{{ request.id }}</td>
               <td><span class="date">{{ request.date }}</span></td>
               <td><span class="date">{{ request.name }}</span></td>
               <!-- <td class="subject-cell">{{ request.itilcategories_id == 0 ? 'N/A' : request.itilcategories_id }}</td> -->
@@ -105,3 +105,50 @@
     </div>
   </section>
 </main>
+
+<p-dialog [(visible)]="historyVisible" [modal]="true" [draggable]="false" [resizable]="false" [closable]="false"
+  [style]="{ width: 'min(42rem, calc(100vw - 2rem))' }" styleClass="area-history-dialog">
+  <ng-template pTemplate="header">
+    <div class="dialog-title">
+      <div>
+        <h2 class="text-center">Historial de áreas</h2>
+        <p class="text-center">Ticket {{ selectedTicket?.id ?? 'N/A' }} · {{ selectedTicket?.name ?? 'Solicitud' }}</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="history-loading" *ngIf="historyLoading">
+    <i class="pi pi-spin pi-spinner"></i>
+    <span>Cargando historial...</span>
+  </div>
+
+  <div class="area-timeline mt-4" *ngIf="!historyLoading && areaHistory.length; else emptyHistory">
+    <article class="timeline-item" *ngFor="let entry of areaHistory">
+      <div class="timeline-marker"><i class="pi pi-directions-alt"></i></div>
+      <div class="timeline-content">
+        <div class="timeline-meta">
+          <strong>{{ entry.created_at | date:'dd/MM/yyyy HH:mm':'UTC' }}</strong>
+          <span>{{ entry.created_by ?? 'N/A' }}</span>
+        </div>
+        <div class="area-change">
+          <span>{{ entry.previous_area || 'Sin área anterior' }}</span>
+          <i class="pi pi-arrow-right"></i>
+          <strong>{{ entry.current_area || 'Sin área asignada' }}</strong>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <ng-template #emptyHistory>
+    <div class="empty-history" *ngIf="!historyLoading">
+      <strong>No hay movimientos registrados</strong>
+      <p>Los cambios de área de este ticket aparecerán en esta línea de tiempo.</p>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex w-full justify-content-center">
+      <button pButton (click)="historyVisible = false">Cerrar</button>
+    </div>
+  </ng-template>
+</p-dialog>

@@ -322,6 +322,172 @@ tbody tr
   white-space: nowrap
   border: 0
 
+:host::ng-deep .area-history-dialog
+  .p-dialog-header
+    padding: 1.2rem 1.35rem 0
+    border: 0
+
+  .p-dialog-content
+    padding-bottom: 0!important
+
+  .p-dialog-footer
+    padding: 0 1.35rem 1.35rem
+    border: 0
+
+.dialog-title
+  display: flex
+  align-items: center
+  gap: .75rem
+
+  h2
+    margin: 0
+    color: #10254b
+    font-size: 1.05rem
+
+  p
+    max-width: 29rem
+    margin: .2rem 0 0
+    overflow: hidden
+    color: #718098
+    font-size: .77rem
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.dialog-title-icon
+  display: grid
+  width: 2.4rem
+  height: 2.4rem
+  place-items: center
+  border-radius: .7rem
+  background: #e8f1fd
+  color: #2462a7
+
+.history-loading
+  display: flex
+  min-height: 10rem
+  align-items: center
+  justify-content: center
+  gap: .65rem
+  color: #69809e
+  font-size: .82rem
+
+  i
+    color: #2462a7
+    font-size: 1.15rem
+
+.area-timeline
+  display: grid
+  gap: 0
+  max-height: min(58vh, 34rem)
+  overflow-y: auto
+  padding: .15rem .15rem .15rem 0
+
+.timeline-item
+  position: relative
+  display: grid
+  grid-template-columns: 2rem 1fr
+  gap: .75rem
+  padding: 0 0 1.25rem
+
+  &:not(:last-child)::before
+    position: absolute
+    top: 1.8rem
+    bottom: .2rem
+    left: .78rem
+    width: 1px
+    background: #dbe5f1
+    content: ''
+
+.timeline-marker
+  z-index: 1
+  display: grid
+  width: 1.6rem
+  height: 1.6rem
+  place-items: center
+  border: 3px solid #e8f1fd
+  border-radius: 50%
+  background: #3a79bd
+  color: #fff
+  font-size: .62rem
+
+.timeline-content
+  padding: .75rem .85rem
+  border: 1px solid #e2e9f2
+  border-radius: .7rem
+  background: #fff
+
+.timeline-meta
+  display: flex
+  align-items: baseline
+  justify-content: space-between
+  gap: .75rem
+
+  strong
+    color: #274d7e
+    font-size: .77rem
+
+  span
+    overflow: hidden
+    color: #77859a
+    font-size: .72rem
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.area-change
+  display: flex
+  align-items: center
+  flex-wrap: wrap
+  gap: .45rem
+  margin-top: .65rem
+  color: #64748a
+  font-size: .8rem
+
+  > span
+    padding: .28rem .48rem
+    border-radius: .35rem
+    background: #f2f5f9
+
+  > i
+    color: #7a91ad
+    font-size: .72rem
+
+  > strong
+    padding: .28rem .48rem
+    border-radius: .35rem
+    background: #e8f1fd
+    color: #225c9d
+    font-size: .8rem
+
+.empty-history
+  display: grid
+  min-height: 10rem
+  justify-items: center
+  align-content: center
+  padding: 2rem 1.5rem
+  text-align: center
+
+  > span
+    display: grid
+    width: 3.4rem
+    height: 3.4rem
+    margin-bottom: .85rem
+    place-items: center
+    border-radius: 50%
+    background: #eef4fb
+    color: #4b82bd
+    font-size: 1.25rem
+
+  strong
+    color: #264269
+    font-size: .9rem
+
+  p
+    max-width: 20rem
+    margin: .4rem 0 0
+    color: #78869b
+    font-size: .78rem
+    line-height: 1.4
+
 @media screen and (max-width: 1180px)
   .filters
     grid-template-columns: repeat(2, minmax(0, 1fr))
@@ -357,6 +523,11 @@ tbody tr
 
   .filter-actions p-button
     flex: 1
+
+  .timeline-meta
+    align-items: flex-start
+    flex-direction: column
+    gap: .2rem
 
 :host::ng-deep
   .request-dropdown,

@@ -1,0 +1,580 @@
+:host
+  display: block
+
+.detail-page
+  min-height: calc(100vh - 6rem)
+  margin-top: 6rem
+  padding: 1.6rem 2rem 2.5rem
+  background: #f7f9fc
+  color: #15233f
+
+.detail-shell
+  max-width: 1480px
+  margin: 0 auto
+
+.breadcrumb
+  display: flex
+  align-items: center
+  gap: .65rem
+  margin-bottom: 1rem
+  font-size: .82rem
+
+  a
+    color: #23446e
+    text-decoration: none
+
+  i
+    color: #78869b
+    font-size: .58rem
+
+  span
+    color: #18345e
+    font-weight: 600
+
+.b-download
+  border-radius: 0
+  height: 7px
+  span
+    font-size: .68rem!important
+
+.ticket-summary
+  display: flex
+  justify-content: space-between
+  align-items: center
+  min-height: 7.35rem
+  padding: 1.15rem 1.4rem
+  border: 1px solid #dfe6ef
+  border-radius: .85rem
+  background: #fff
+  box-shadow: 0 3px 14px rgba(22, 45, 82, .035)
+
+.ticket-identity
+  display: flex
+  align-items: center
+  gap: 1.25rem
+
+.ticket-icon
+  display: flex
+  flex: 0 0 4rem
+  align-items: center
+  justify-content: center
+  width: 4rem
+  height: 4rem
+  border-radius: .75rem
+  background: linear-gradient(145deg, #0862ca, #063d8f)
+  color: #fff
+
+  i
+    font-size: 1.75rem
+
+.title-line
+  display: flex
+  align-items: center
+  gap: .9rem
+
+  h1
+    margin: 0
+    color: #10213e
+    font-size: 1.55rem
+
+.ticket-meta
+  display: flex
+  flex-wrap: wrap
+  gap: 1.5rem
+  margin-top: .7rem
+  color: #65748d
+  font-size: .73rem
+
+  i
+    margin-right: .35rem
+    font-size: .72rem
+
+  a
+    color: #116bd8
+    text-decoration: none
+
+.summary-indicators
+  display: flex
+  gap: 2.2rem
+
+  > div
+    display: flex
+    flex-direction: column
+    align-items: flex-start
+    gap: .7rem
+
+  label
+    color: #4f5f78
+    font-size: .69rem
+
+.summary-actions
+  display: flex
+  gap: .75rem
+
+.status-badge, .area-badge, .priority-badge, .sla-badge
+  display: inline-flex
+  align-items: center
+  gap: .4rem
+  padding: .35rem .55rem
+  border-radius: .35rem
+  font-size: .68rem
+  font-weight: 600
+  white-space: nowrap
+
+  > i
+    width: .4rem
+    height: .4rem
+    border-radius: 50%
+    background: currentColor
+
+.status-badge, .area-badge
+  background: #e8f2ff
+  color: #156bd7
+
+.priority-badge
+  background: #fff0ee
+  color: #e7443e
+
+.sla-badge
+  background: #e9f8ed
+  color: #29964d
+
+.content-grid
+  display: grid
+  grid-template-columns: minmax(21rem, .72fr) minmax(38rem, 1.45fr)
+  grid-template-areas: "glpi commercial" "attachments commercial"
+  gap: 1.2rem
+  align-items: start
+  margin-top: 1.2rem
+
+.info-card
+  border: 1px solid #dfe6ef
+  border-radius: .85rem
+  background: #fff
+  box-shadow: 0 3px 14px rgba(22, 45, 82, .035)
+
+  > header
+    display: flex
+    align-items: center
+    gap: .75rem
+    padding: 1.25rem 1.35rem 1rem
+
+    > i
+      color: #124e98
+      font-size: 1rem
+
+    h2
+      margin: 0
+      color: #14233f
+      font-size: .95rem
+
+.glpi-card
+  grid-area: glpi
+  padding-bottom: 1rem
+
+  dl
+    margin: 0
+    padding: .2rem 1.35rem 1rem
+
+    > div
+      display: grid
+      grid-template-columns: 7.5rem 1fr
+      gap: .8rem
+      padding: .64rem 0
+
+    dt
+      color: #263753
+      font-size: .72rem
+      font-weight: 600
+
+    dd
+      margin: 0
+      color: #33445f
+      font-size: .72rem
+      line-height: 1.65
+
+      a
+        color: #0868d8
+        text-decoration: none
+
+  footer
+    display: flex
+    justify-content: space-between
+    margin: 0 1.35rem
+    padding-top: 1rem
+    border-top: 1px solid #e7edf4
+
+    a
+      color: #0868d8
+      font-size: .69rem
+      text-decoration: none
+
+      i
+        margin-right: .35rem
+
+.commercial-card
+  grid-area: commercial
+
+.attachments-card
+  grid-area: attachments
+  min-width: 0
+  padding-bottom: 1.1rem
+
+  .attachments-header
+    align-items: flex-start
+    padding-bottom: .8rem
+
+    div
+      min-width: 0
+
+    p
+      margin: .28rem 0 0
+      color: #6f7d94
+      font-size: .66rem
+      line-height: 1.35
+
+.attachments-icon
+  display: inline-flex
+  flex: 0 0 2rem
+  align-items: center
+  justify-content: center
+  width: 2rem
+  height: 2rem
+  border-radius: 50%
+  background: #e9f3ff
+  color: #0871e8
+
+  i
+    font-size: .9rem
+
+.documents-grid
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: .7rem
+  padding: .2rem 1.1rem 0
+
+.document-card
+  display: flex
+  min-width: 0
+  min-height: 9.5rem
+  padding: .85rem .75rem .55rem
+  border: 1px solid #dfe6ef
+  border-radius: .55rem
+  background: #fff
+  flex-direction: column
+  transition: border-color .15s ease, box-shadow .15s ease
+
+  &:hover
+    border-color: #c8d5e5
+    box-shadow: 0 5px 14px rgba(24, 53, 91, .07)
+
+.document-file-icon
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  width: 2.25rem
+  height: 2.45rem
+  margin-bottom: .65rem
+  border-radius: .35rem
+  background: #edf3fa
+  color: #536985
+
+  i
+    font-size: 1.25rem
+
+  &.pdf-file
+    background: #feeceb
+    color: #df2925
+
+.document-info
+  display: flex
+  min-width: 0
+  flex: 1
+  flex-direction: column
+  gap: .2rem
+
+  strong
+    display: -webkit-box
+    overflow: hidden
+    color: #24344f
+    font-size: .66rem
+    line-height: 1.35
+    -webkit-box-orient: vertical
+    -webkit-line-clamp: 2
+
+  span
+    overflow: hidden
+    color: #74839a
+    font-size: .61rem
+    text-overflow: ellipsis
+    white-space: nowrap
+
+  small
+    overflow: hidden
+    color: #8c98aa
+    font-size: .58rem
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.document-actions
+  display: flex
+  align-items: center
+  justify-content: space-between
+  margin-top: .5rem
+  padding-top: .45rem
+  border-top: 1px solid #edf1f5
+
+.responsible
+  display: flex
+  align-items: center
+  gap: .5rem
+
+  > span
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    width: 1.45rem
+    height: 1.45rem
+    border-radius: 50%
+    background: #e7edf5
+    color: #3e506b
+    font-size: .56rem
+    font-weight: 700
+
+.commercial-icon
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  width: 2rem
+  height: 2rem
+  border-radius: 50%
+  background: #35ba61
+  color: #fff
+
+  i
+    font-size: .8rem
+
+.commercial-form
+  padding: .15rem 1.35rem 1.35rem
+
+.form-grid
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: .9rem 1rem
+
+.field
+  min-width: 0
+
+  > label
+    display: block
+    margin-bottom: .4rem
+    color: #34445f
+    font-size: .7rem
+    font-weight: 600
+
+.checks-grid
+  display: grid
+  grid-template-columns: repeat(3, minmax(0, 1fr))
+  gap: .7rem
+  margin-top: 1rem
+
+.check-field
+  display: flex
+  align-items: center
+  gap: .7rem
+  min-height: 3.45rem
+  padding: .55rem .75rem
+  border: 1px solid #e1e7ef
+  border-radius: .48rem
+  background: #fafbfd
+  cursor: pointer
+
+  span
+    display: flex
+    flex-direction: column
+    gap: .2rem
+
+  strong
+    color: #34445f
+    font-size: .66rem
+
+  small
+    color: #7c899d
+    font-size: .63rem
+
+.full-field
+  margin-top: 1rem
+
+  textarea
+    width: 100%
+    min-height: 4.6rem
+    padding: .7rem
+    border: 1px solid #dbe3ee
+    border-radius: .45rem
+    color: #31415c
+    font-size: .72rem
+    line-height: 1.5
+    resize: vertical
+
+.loss-field
+  padding: .8rem
+  border: 1px solid #f3d5d2
+  border-radius: .55rem
+  background: #fff9f8
+
+.form-actions
+  display: flex
+  justify-content: flex-end
+  gap: .7rem
+  margin-top: 1.1rem
+  padding-top: 1rem
+  border-top: 1px solid #e8edf3
+
+:host::ng-deep
+  .glpi-button, .more-button, .cancel-button, .save-button
+    height: 2.45rem
+    border-radius: .45rem
+    box-shadow: none
+    font-size: .72rem
+
+  .glpi-button, .cancel-button
+    border-color: #d5deea
+    background: #fff
+    color: #314461
+
+  .more-button, .save-button
+    border-color: #092f68
+    background: #092f68
+    color: #fff
+
+  .more-button
+    min-width: 10rem
+
+  .commercial-form
+    .p-dropdown, .p-inputnumber, .p-calendar
+      width: 100%
+      box-shadow: none
+
+    .p-dropdown, .p-inputtext
+      height: 2.45rem
+      border-color: #dbe3ee
+      border-radius: .45rem
+      color: #2d3e59
+      font-size: .72rem
+
+    .p-dropdown-label, .p-inputnumber-input, .p-calendar .p-inputtext
+      padding: .68rem .72rem
+
+    .p-calendar .p-inputtext
+      border-radius: .45rem 0 0 .45rem
+
+    .p-datepicker-trigger
+      width: 2.5rem
+      border-color: #dbe3ee
+      border-left: 0
+      border-radius: 0 .45rem .45rem 0
+      background: #fff
+      color: #657792
+
+    .p-dropdown:not(.p-disabled).p-focus, .p-inputtext:enabled:focus
+      border-color: #7890ae
+      box-shadow: 0 0 0 2px rgba(22, 81, 153, .08)
+
+    .p-checkbox .p-checkbox-box
+      width: 1.15rem
+      height: 1.15rem
+      border-color: #b9c5d4
+
+      &.p-highlight
+        border-color: #0b64ca
+        background: #0b64ca
+
+  .document-actions .p-button
+    width: 1.7rem
+    height: 1.7rem
+    padding: 0
+    color: #1269d2
+    box-shadow: none
+
+    .p-button-icon
+      font-size: .72rem
+
+@media screen and (max-width: 1400px)
+  .ticket-summary
+    grid-template-columns: 1fr auto
+
+  .summary-actions
+    grid-column: 1 / -1
+    justify-content: flex-end
+
+  .content-grid
+    grid-template-columns: minmax(19rem, .72fr) minmax(31rem, 1.35fr)
+
+  .checks-grid
+    grid-template-columns: 1fr
+
+@media screen and (max-width: 900px)
+  .detail-page
+    padding: 1rem
+
+  .ticket-summary, .content-grid
+    grid-template-columns: 1fr
+
+  .content-grid
+    grid-template-areas: "glpi" "attachments" "commercial"
+
+  .ticket-summary
+    gap: 1.2rem
+
+  .summary-indicators
+    justify-content: flex-start
+
+  .summary-actions
+    grid-column: auto
+    justify-content: flex-start
+
+@media screen and (max-width: 620px)
+  .detail-page
+    margin-top: 4rem
+
+  .ticket-identity
+    align-items: flex-start
+
+  .ticket-icon
+    flex-basis: 3rem
+    width: 3rem
+    height: 3rem
+
+  .title-line
+    align-items: flex-start
+    flex-direction: column
+    gap: .45rem
+
+    h1
+      font-size: 1.15rem
+
+  .ticket-meta, .summary-indicators
+    gap: .8rem
+
+  .form-grid
+    grid-template-columns: 1fr
+
+  .glpi-card dl > div
+    grid-template-columns: 6.5rem 1fr
+
+  .glpi-card footer
+    align-items: flex-start
+    flex-direction: column
+    gap: .8rem
+
+  .documents-grid
+    grid-template-columns: 1fr
+
+  .form-actions
+    flex-direction: column-reverse
+
+    p-button
+      width: 100%
+
+  :host::ng-deep .form-actions .p-button
+    width: 100%

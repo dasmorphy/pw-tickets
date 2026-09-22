@@ -1,0 +1,199 @@
+<p-toast></p-toast>
+
+<main class="requests-page" (click)="activeMenu = null">
+  <section class="requests-panel" aria-labelledby="commercial-requests-title">
+    <header class="panel-heading">
+      <div>
+        <span class="eyebrow">Gestión comercial</span>
+        <h1 id="commercial-requests-title">Solicitudes comercial</h1>
+        <p>Consulta y gestiona las solicitudes comerciales por estado.</p>
+      </div>
+      <span class="request-count"><strong>{{ activeIndex === 0 ? pendingTotalRecords : completedTotalRecords }}</strong> tickets</span>
+    </header>
+    
+    <p-tabView styleClass="commercial-tab-view" [(activeIndex)]="activeIndex" (onChange)="onTabChange($event)">
+      <p-tabPanel header="Pendientes" leftIcon="pi pi-clock">
+        <div class="filters" aria-label="Filtros de solicitudes pendientes">
+          <div class="filter-field date-filter">
+            <label>Fecha</label>
+            <p-calendar [(ngModel)]="dateRange" selectionMode="range" dateFormat="dd/mm/yy" [showIcon]="true"
+              [readonlyInput]="true" placeholder="Seleccionar rango" styleClass="request-calendar" inputId="date-filter" appendTo="body">
+            </p-calendar>
+          </div>
+
+          <div class="filter-field">
+            <label for="area-filter">Área</label>
+            <p-dropdown inputId="area-filter" [options]="areas" [(ngModel)]="selectedArea" placeholder="Todas" [showClear]="true" styleClass="request-dropdown"></p-dropdown>
+          </div>
+
+          <div class="filter-field">
+            <label for="status-filter">Estado</label>
+            <p-dropdown inputId="status-filter" [options]="statuses" [(ngModel)]="selectedStatus" placeholder="Todos" [showClear]="true" styleClass="request-dropdown"></p-dropdown>
+          </div>
+
+          <div class="filter-field">
+            <label for="client-filter">Cliente</label>
+            <p-dropdown inputId="client-filter" [options]="clients" [(ngModel)]="selectedClient" placeholder="Todos" [showClear]="true" [filter]="true" filterPlaceholder="Buscar cliente" styleClass="request-dropdown"></p-dropdown>
+          </div>
+
+          <div class="filter-actions">
+            <p-button label="Limpiar filtros" icon="pi pi-refresh" [outlined]="true" styleClass="clear-button" (onClick)="clearFilters()"></p-button>
+            <p-button label="Filtrar" icon="pi pi-filter" styleClass="filter-button" (onClick)="applyFilters()"></p-button>
+          </div>
+        </div>
+
+        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: pendingTickets, tableRef: 'pendingTable', totalRecords: pendingTotalRecords, lazy: true }"></ng-container>
+      </p-tabPanel>
+
+      <p-tabPanel header="Registrados" leftIcon="pi pi-check-circle">
+        <div class="completed-heading">
+          <div>
+            <h2>Solicitudes completadas</h2>
+            <p>Registros obtenidos desde el servicio comercial.</p>
+          </div>
+          <p-button label="Actualizar" icon="pi pi-refresh" [loading]="completedLoading" [outlined]="true" styleClass="clear-button" (onClick)="fetchCompletedTickets()"></p-button>
+        </div>
+
+        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: completedTickets, tableRef: 'completedTable', totalRecords: completedTotalRecords, lazy: false }"></ng-container>
+      </p-tabPanel>
+    </p-tabView>
+
+    <ng-template #ticketsTable let-tickets let-tableRef="tableRef" let-totalRecords="totalRecords" let-lazy="lazy">
+      <div class="table-card">
+        <p-table #pendingTable [value]="tickets" [paginator]="true" [totalRecords]="totalRecords" [rows]="5"
+          [rowsPerPageOptions]="[5, 10, 25]" [lazy]="lazy" (onLazyLoad)="lazy && pendingPageChange($event)"
+          rowStyleClass="custom-row-height" styleClass="requests-table" dataKey="id">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Solicitud</th>
+              <th>Ticket Glpi</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Ubicación</th>
+              <th>Contacto</th>
+              <th>Prioridad</th>
+              <th>Estado</th>
+              <th>Usuario</th>
+              <th *ngIf="activeIndex === 1">Último seguimiento</th>
+              <th class="actions-heading"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-request>
+            <tr>
+              <td>{{ request.code_management ?? 'N/A' }}</td>
+              <td>{{ request.ticket_glpi ?? 'N/A' }}</td>
+              <td><span class="date" [pTooltip]="request.created_at ? 'Hora de registro: ' + (request.created_at | date:'HH:mm':'UTC') : ''" tooltipPosition="top">{{ request.created_at ? (request.created_at | date:'dd/MM/yyyy':'UTC') : 'N/A' }}</span></td>
+              <td><span class="date">{{ request.client_name ?? 'N/A' }}</span></td>
+              <td class="subject-cell">{{ request.location_name ?? 'N/A' }}</td>
+              <td class="subject-cell">{{ request.contact ?? 'N/A' }}</td>
+              <td><span>{{ request.priority ?? 'N/A' }}</span></td>
+              <td><span>{{ request.status_name ?? 'N/A' }}</span></td>
+              <td><span>{{ request.created_by ?? 'N/A' }}</span></td>
+              <td *ngIf="activeIndex === 1">
+                <span *ngIf="request.last_followup_at; else noFollowup" class="last-followup" [pTooltip]="'Hora ' + (request.last_followup_at | date:'HH:mm':'UTC')" tooltipPosition="top">
+                  <i class="pi pi-clock"></i>{{ request.last_followup_at | date:'dd/MM/yyyy':'UTC' }}
+                </span>
+                <ng-template #noFollowup><span class="no-followup">N/A</span></ng-template>
+              </td>
+              <td class="row-actions">
+                <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(request)" [model]="activeIndex === 1 ? items : itemsTechnical">
+                  <ng-template pTemplate="dropdownicon">
+                    <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                  </ng-template>
+                </p-splitButton>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td [attr.colspan]="activeIndex === 1 ? 11 : 10" class="empty-state"><i class="pi pi-inbox"></i><strong>No hay solicitudes</strong><span>Prueba con otros filtros.</span></td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </ng-template>
+  </section>
+</main>
+
+<p-dialog [(visible)]="registerFollowupVisible" [modal]="true" [draggable]="false" [resizable]="false" [closable]="false"
+  [style]="{ width: 'min(32rem, calc(100vw - 2rem))' }" styleClass="followup-dialog">
+  <ng-template pTemplate="header">
+    <div class="dialog-title">
+      <div>
+        <h2>Registrar seguimiento</h2>
+        <p class="text-center">{{ selectedTicket?.code_management ?? 'Registro comercial' }}</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="followup-form mt-3">
+    <div class="followup-context">
+      <i class="pi pi-briefcase"></i>
+      <div>
+        <span>Ticket GLPI</span>
+        <strong>{{ selectedTicket?.ticket_glpi ?? 'N/A' }}</strong>
+      </div>
+    </div>
+
+    <label for="followup-observation">Observación <span>Opcional</span></label>
+    <textarea id="followup-observation" pInputTextarea [(ngModel)]="followupObservation" rows="5"
+      placeholder="Escribe una nota sobre la gestión realizada..."></textarea>
+    <small>Podrás registrar el seguimiento aunque no agregues una observación.</small>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-actions">
+      <p-button label="Cancelar" [text]="true" styleClass="cancel-followup-button" (onClick)="closeNewFollowup()"></p-button>
+      <p-button label="Guardar seguimiento" icon="pi pi-check" styleClass="save-followup-button" (onClick)="saveFollowup()"></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="followupsVisible" [modal]="true" [draggable]="false" [resizable]="false" [closable]="false"
+  [style]="{ width: 'min(42rem, calc(100vw - 2rem))' }" styleClass="followup-dialog followups-history-dialog">
+  <ng-template pTemplate="header">
+    <div class="dialog-title">
+      <div>
+        <h2>Seguimientos registrados</h2>
+        <p class="text-center">{{ selectedTicket?.code_management }} </p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="followup-timeline mt-4" *ngIf="followups.length; else emptyFollowups">
+    <article class="timeline-item" *ngFor="let followup of followups">
+      <div class="timeline-marker"><i class="pi pi-check"></i></div>
+      <div class="timeline-content">
+        <div class="timeline-meta">
+          <strong>{{ followup.created_at | date:'dd/MM/yyyy HH:mm':'UTC' }}</strong>
+          <span>{{ followup.created_by ?? 'Usuario no identificado' }}</span>
+        </div>
+        <p>{{ followup.observations || 'Seguimiento registrado sin observación.' }}</p>
+      </div>
+    </article>
+  </div>
+
+  <ng-template #emptyFollowups>
+    <div class="empty-followups">
+      <span><i class="pi pi-comments"></i></span>
+      <strong>Aún no hay seguimientos</strong>
+      <p>Los seguimientos que se registren para esta solicitud aparecerán aquí.</p>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex w-full justify-content-center">
+      <button pButton (click)="followupsVisible = false">Cerrar</button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<div class="overlay" *ngIf="isLoading">
+  <p-progressSpinner
+    class="center-spinner"
+    [style]="{ width: '50px', height: '50px' }"
+    strokeWidth="8"
+    fill="#007bff"
+    animationDuration="2s"
+  ></p-progressSpinner>
+</div>

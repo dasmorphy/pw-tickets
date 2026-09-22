@@ -1,3 +1,28 @@
+<p-toast></p-toast>
+
+<p-dialog header="Header" [closable]="false" [(visible)]="showConfirm" [draggable]="false" [modal]="true"
+  [style]="{ 'width': '23vw', 'border-radius': '32px'}">
+  <ng-template pTemplate="header">
+    <div style="display: grid; place-items: center;">
+      <i class="pi pi-exclamation-circle mt-4" style="color: #EB6506; font-size: 40px;"></i>
+      <h1 style="margin: 0; font-size: 22px;" class="text-center mt-3">
+          ¿Está seguro de continuar?
+      </h1>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+      <p-button label="Aceptar" (onClick)="approveTicket()"
+        styleClass="bg-btn-primary w-full">
+      </p-button>
+      <p-button label="Cancelar" (onClick)="showConfirm = false"
+        styleClass="bg-btn-cancel w-full">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
 <main class="requests-page" (click)="activeMenu = null">
   <section class="requests-panel" aria-labelledby="requests-title">
     <header class="panel-heading">
@@ -52,11 +77,8 @@
       <p-table #requestsTable 
         [value]="tickets" 
         [paginator]="true"
-        [totalRecords]="totalRecords"
         [rows]="5"
         [rowsPerPageOptions]="[5, 10, 25]"
-        [lazy]="true"
-        (onLazyLoad)="pageChange($event)"
         [showCurrentPageReport]="false"
         rowStyleClass="custom-row-height"
         styleClass="requests-table" 
@@ -71,7 +93,6 @@
               <!-- <th pSortableColumn="subject">Categoría <p-sortIcon field="subject"></p-sortIcon></th> -->
               <th>Ubicación</th>
               <th>Contacto</th>
-              <!-- <th pSortableColumn="status">Estado <p-sortIcon field="status"></p-sortIcon></th> -->
               <th>Prioridad</th>
               <th>Estado</th>
               <th>Usuario</th>
@@ -87,17 +108,10 @@
               <!-- <td class="subject-cell">{{ request.itilcategories_id == 0 ? 'N/A' : request.itilcategories_id }}</td> -->
               <td class="subject-cell">{{ request.location_name }}</td>
               <td class="subject-cell">{{ request.contact }}</td>
-              <!-- <td><span>{{ utilsService.getTxtStatus(request.status) }}</span></td> -->
               <td><span>{{request.priority ?? 'N/A' }}</span></td>
-              <td><span>{{request.status ?? 'N/A' }}</span></td>
+              <td><span>{{ request.status_name}}</span></td>
               <td><span>{{request.created_by ?? 'N/A' }}</span></td>
               <td class="row-actions">
-                <!-- <button type="button" aria-label="Opciones" (click)="$event.stopPropagation(); toggleMenu(request.id)"><i class="pi pi-ellipsis-v"></i></button>
-                <div class="action-menu" *ngIf="activeMenu === request.id">
-                  <button type="button"><i class="pi pi-eye"></i> Ver detalle</button>
-                  <button type="button" [routerLink]="['/registro-ticket', request.id]"><i class="pi pi-bolt"></i> Registro</button>
-                  <button type="button"><i class="pi pi-pencil"></i> Editar</button>
-                </div> -->
                 <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(request)" [model]="items">
                   <ng-template pTemplate="dropdownicon">
                     <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
@@ -115,3 +129,13 @@
     </div>
   </section>
 </main>
+
+<div class="overlay" *ngIf="isLoading">
+  <p-progressSpinner
+    class="center-spinner"
+    [style]="{ width: '50px', height: '50px' }"
+    strokeWidth="8"
+    fill="#007bff"
+    animationDuration="2s"
+  ></p-progressSpinner>
+</div>

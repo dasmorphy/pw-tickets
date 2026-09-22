@@ -1,0 +1,71 @@
+@import '../tickets-technical/tickets-technical.component'
+
+:host::ng-deep
+  .p-tieredmenu
+    width: 100%
+    border: none
+
+  .p-menuitem-content .p-menuitem-link
+    padding: 0.75rem 0
+
+  .p-splitbutton-defaultbutton
+    display: none
+
+  .p-splitbutton-menubutton
+    border-top-left-radius: 7px!important
+    border-bottom-left-radius: 7px!important
+    background-color: transparent
+
+  .p-splitbutton button
+    border: none
+    
+  .commercial-tab-view
+    .p-tabview-nav
+      margin: 0 0 1rem
+      border: 1px solid #e0e7f0
+      border-radius: .85rem
+      background: #fff
+
+    .p-tabview-nav li
+      margin-right: 0
+
+      .p-tabview-nav-link
+        padding: .95rem 1.15rem
+        border-width: 0 0 2px
+        color: #64738b
+        font-size: .82rem
+        font-weight: 600
+
+      &.p-highlight .p-tabview-nav-link
+        border-color: #0b326b
+        color: #0b326b
+
+    .p-tabview-panels
+      padding: 0
+      background: transparent
+
+.completed-heading
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: 1rem
+  margin-bottom: 1rem
+  padding: 1rem 1.15rem
+  border: 1px solid #e0e7f0
+  border-radius: .85rem
+  background: #fff
+
+  h2
+    margin: 0 0 .25rem
+    color: #10254b
+    font-size: 1rem
+
+  p
+    margin: 0
+    color: #6f7d95
+    font-size: .8rem
+
+@media screen and (max-width: 700px)
+  .completed-heading
+    align-items: flex-start
+    flex-direction: column

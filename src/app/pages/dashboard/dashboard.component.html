@@ -4,7 +4,7 @@
   class="container xl:justify-content-evenly p-3-responsive border-box bg-white mt-dashboard flex-column">
   <div class="flex w-full justify-content-between align-items-center mb-3 px-5 column-responsive">
     <h2>¡Hola {{user_session?.attributes?.fullname ?? 'Desconocido'}}!</h2>
-    <div class="flex gap-2">
+    <!-- <div class="flex gap-2">
       @if (optionDashboardSelected == 'Biomar') {
         <i class="flex justify-content-center align-items-center pi pi-filter cursor-pointer" (click)="op.toggle($event)"></i>      
           <p-overlayPanel #op [dismissable]="true" [style]="{ width: '320px' }">
@@ -54,55 +54,9 @@
           [options]="optionsDashboard" (onChange)="onChangeDahboard($event.value)">
         </p-dropdown>
       }
-    </div>
+    </div> -->
   </div>
-<!-- 
-  @if (user_permissions_signal().includes('VER_DASHBOARD_BIOMAR') || optionDashboardSelected == 'Biomar') {
-    <app-biomar-dashboard class="w-full"></app-biomar-dashboard>
-  } -->
 
-  @if (user_permissions_signal().includes('VER_DASHBOARD_TECNICO') || optionDashboardSelected == 'Técnicos') {
-    <app-technical-dashboard class="w-full" [filtersGraph]="filters"></app-technical-dashboard>
-  }
-
-  @if (user_permissions_signal().includes('VER_DASHBOARD_BIOMAR') || optionDashboardSelected == 'Biomar') {
-    @if (optionGraphBiomarSelected == 'Control de acceso') {      
-      <app-access-dashboard class="w-full" [filtersGraph]="filters"></app-access-dashboard>
-    }
-
-    @if (optionGraphBiomarSelected == 'Despacho de materia prima') {      
-      <app-raw-material-dispatch class="w-full" [filtersGraph]="filters"></app-raw-material-dispatch>
-    }
-
-    @if (optionGraphBiomarSelected == 'Despacho de producto terminado') {      
-      <app-finished-product-dispatch class="w-full" [filtersGraph]="filters"></app-finished-product-dispatch>
-    }
-
-    <!-- <app-biomar-dashboard class="w-full"></app-biomar-dashboard> -->
-  }
-
-  @if (user_permissions_signal().includes('VER_DASHBOARD_EXPALSA') || optionDashboardSelected == 'Expalsa') {
-    @if (optionGraphExpalsaSelected == 'Bitácoras') {      
-      <div class="flex w-full justify-content-center column-responsive">
-        <div class="flex flex-column align-items-center p-3-responsive xl:w-7 w-full h-funnel">
-    
-          <app-doughnut class="w-full bg-funnel shadow-1 border-round-2xl"></app-doughnut>
-        </div>
-    
-        <div class="flex flex-column align-items-center p-3-responsive h-funnel">
-          <div class="bg-funnel shadow-1 border-round-2xl w-history">
-            <div class="p-5 flex flex-column">
-            </div>
-          </div>
-        </div>
-    
-      </div>
-    }
-
-    @if (optionGraphExpalsaSelected == 'Balanceado y combustible') {
-      <app-balanced-fuel class="w-full"></app-balanced-fuel>
-    }
-  }
 </div>
 
 <div class="overlay" *ngIf="isLoading">

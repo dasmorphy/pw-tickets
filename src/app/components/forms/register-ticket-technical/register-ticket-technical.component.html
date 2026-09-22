@@ -7,17 +7,17 @@
         <div class="form-grid">
             <div class="field">
                 <label for="client_id">Cliente</label>
-                <p-dropdown inputId="client_id" name="client_id" [options]="clientsOptions" formControlName="client_id" [filter]="true" filterBy="name"
-                    placeholder="Seleccione un cliente" styleClass="w-full" appendTo="body" optionValue="id_client" optionLabel="name"
-                    (onChange)="changeClient($event.value)">
+                <p-dropdown inputId="client_id" name="client_id" [options]="clientsOptions" [filter]="true" filterBy="name"
+                    placeholder="Seleccione un cliente" styleClass="w-full" appendTo="body" optionLabel="name"
+                    optionValue="id_client" formControlName="client_id" (onChange)="changeClient($event.value)">
                 </p-dropdown>
             </div>
 
             <div class="field">
                 <label for="ubication_id">Ubicación</label>
                 <p-dropdown inputId="ubication_id" name="ubication_id" [options]="ubicationsOptions"
-                    [filter]="true" filterBy="name" optionValue="id_location" optionLabel="name"
-                    formControlName="ubication_id" placeholder="Seleccione una ubicación" styleClass="w-full"
+                    [filter]="true" filterBy="name" (onChange)="changeUbication($event.value)" optionLabel="name"
+                    optionValue="id_location" formControlName="ubication_id" placeholder="Seleccione una ubicación" styleClass="w-full"
                     appendTo="body"></p-dropdown>
             </div>
 
@@ -60,6 +60,13 @@
                 <p-calendar inputId="commitment_date" name="commitment_date"
                     formControlName="commitment_date" dateFormat="dd/mm/yy" [showIcon]="true"
                     [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+            </div>
+
+            <div class="field">
+                <label for="status">Estado</label>
+                <p-dropdown inputId="status" name="status" [options]="statusOptions"
+                    formControlName="status" placeholder="Seleccione una opción" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
             </div>
         </div>
 

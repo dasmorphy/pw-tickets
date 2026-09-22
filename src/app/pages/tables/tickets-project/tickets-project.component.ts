@@ -5,12 +5,16 @@ import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { Table, TableModule } from 'primeng/table';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { GlpiService } from 'src/app/services/glpi.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { TagModule } from 'primeng/tag';
 import { PanelMenuModule } from "primeng/panelmenu";
 import { SplitButtonModule } from 'primeng/splitbutton';
+import { DialogModule } from 'primeng/dialog';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ToastModule } from 'primeng/toast';
+import { UserService } from 'src/app/services/user.service';
 
 type RequestArea = 'Técnica' | 'Comercial' | 'Proyectos' | 'Contabilidad';
 type RequestStatus = 'En proceso' | 'Pendiente' | 'Resuelto' | 'Aprobado';
@@ -28,19 +32,33 @@ interface ServiceRequest {
 }
 
 @Component({
-  selector: 'app-tickets-technical',
+  selector: 'app-tickets-project',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ButtonModule, CalendarModule, DropdownModule, TableModule,
-    TagModule, PanelMenuModule, SplitButtonModule],
-  templateUrl: './tickets-technical.component.html',
-  styleUrls: ['./tickets-technical.component.sass']
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    RouterModule, 
+    ButtonModule, 
+    CalendarModule, 
+    DropdownModule, 
+    TableModule,
+    TagModule, 
+    PanelMenuModule,
+    SplitButtonModule,
+    DialogModule,
+    ProgressSpinnerModule,
+    ToastModule
+  ],
+  templateUrl: './tickets-project.component.html',
+  styleUrls: ['./tickets-project.component.sass']
 })
-export class TicketsTechnicalComponent {
+export class TicketsProjectComponent {
   @ViewChild('requestsTable') requestsTable?: Table;
 
   private readonly glpiService = inject(GlpiService)
-  private readonly router = inject(Router);
   readonly utilsService = inject(UtilsService);
+  private readonly userService = inject(UserService);
+  
 
   readonly areas: RequestArea[] = ['Técnica', 'Comercial', 'Proyectos', 'Contabilidad'];
   readonly statuses: RequestStatus[] = ['En proceso', 'Pendiente', 'Resuelto', 'Aprobado'];
@@ -52,16 +70,13 @@ export class TicketsTechnicalComponent {
   selectedClient: string | null = null;
   appliedFilters = { dateFrom: '2024-05-01', dateTo: '2024-05-31', area: '', status: '', client: '' };
   activeMenu: number | null = null;
-  totalRecords: number = 0;
   selectedTicket: any;
-
-  filters: any = {
-    first: 0,
-    rows: 5
-  };
-
-
   tickets:any = [];
+  showConfirm: boolean = false;
+  user_json: any;
+
+  isLoading: boolean = false;
+
 
   items: any = [
     {
@@ -70,44 +85,33 @@ export class TicketsTechnicalComponent {
         // command: () => this.viewLogbookDetails(this.selectedLogbook)
     },
     {
-        label: 'Editar',
+        label: 'Confirmar',
         icon: 'pi pi-play-circle',
-        visible: () => this.selectedTicket?.status != 'Listo para cotizar',
-        command: () => this.routeRegister()
+        command: () => this.showConfirm = true
     },
   ];
 
+
   ngOnInit() {
-    // this.fetchTickets();
+    this.user_json = this.userService.getDataSession();
+    this.fetchTickets();
   }
 
   fetchTickets() {
-    const page = (this.filters.first - 1) * this.filters.rows;
-    const page_size = this.filters.rows;
-
     const filters = {
-      page,
-      page_size
+      is_registred: true,
     }
 
-    this.glpiService.getTicketsTechnical(filters).subscribe({
+    this.glpiService.getTicketsCommercial(filters).subscribe({
       next: (response: any) => {
         console.log(response);
-        this.tickets = response?.data?.data || [];
-        this.totalRecords = response?.pagination?.total
+        this.tickets = response?.data || [];
       },
       error: (error: any) => {
         console.error('Error fetching tickets:', error);
         this.utilsService.onError('Error al obtener los tickets por favor, inténtelo de nuevo más tarde.');
       }
     });
-  }
-
-  pageChange(event: any) {
-    const page = (event.first / event.rows) + 1;
-    this.filters.first = page;
-    this.filters.rows = event.rows;
-    this.fetchTickets();
   }
 
   applyFilters(): void {
@@ -151,6 +155,10 @@ export class TicketsTechnicalComponent {
     return request.ticket;
   }
 
+  optionsTicket(ticket: any) {
+    this.selectedTicket = ticket
+  }
+
   getSeverity(status: string) {
     switch (status) {
       case "Técnica":
@@ -166,13 +174,25 @@ export class TicketsTechnicalComponent {
     }
   }
 
-  optionsTicket(ticket: any) {
-    this.selectedTicket = ticket
-  }
+  approveTicket() {
+    this.isLoading = true;
+    const data = {
+      id_commercial_ticket: this.selectedTicket?.id_management_commercial,
+      user: this.user_json?.user
+    }
 
-  routeRegister() {
-    this.router.navigate([
-      `/editar-ticket/${this.selectedTicket?.ticket_glpi}/${this.selectedTicket?.id_management_technical}`
-    ]);
+    this.glpiService.approveCommercialTicket(data).subscribe({
+      next: (data: any) => {
+        this.isLoading = false;
+        this.showConfirm = false;
+        this.utilsService.onSuccess('Ticket aprobado')
+      },
+      error: (error: any) => {
+        console.log(error)
+        this.isLoading = false;
+        this.showConfirm = false;
+        this.utilsService.onError(error?.error?.message ?? 'No se pudo aprobar el ticket, por favor intente nuevamente')
+      }
+    })
   }
 }

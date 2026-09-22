@@ -1,0 +1,70 @@
+<section class="info-card commercial-card">
+    <header><span class="commercial-icon"><i class="pi pi-dollar"></i></span>
+        <h2>Gestión Financiera</h2>
+    </header>
+
+    <form #commercialForm="ngForm" [formGroup]="ticketForm" class="commercial-form">
+        <div class="form-grid">
+            <div class="field">
+                <label for="number_doc">Número documento</label>
+                <input pInputText inputId="number_doc" formControlName="number_document"
+                    styleClass="w-full" class="w-full">
+            </div>
+
+            <div class="field">
+                <label for="dateDocument">Fecha documento</label>
+                <p-calendar inputId="dateDocument" name="dateDocument"
+                    formControlName="date_document" dateFormat="dd/mm/yy" [showIcon]="true"
+                    [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+            </div>
+
+            <div class="field">
+                <label for="typeManagement">Tipo de gestión</label>
+                <p-dropdown inputId="typeManagement" name="typeManagement" [options]="typeManagement" (onChange)="onChangeTypeManagement($event.value)"
+                    formControlName="type_management" placeholder="Seleccione una opción" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="commercialStatus">Estado</label>
+                <p-dropdown inputId="commercialStatus" name="commercialStatus" [options]="status"
+                    formControlName="status" placeholder="Seleccione un estado" styleClass="w-full"
+                    appendTo="body"></p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="valueInvoice">Valor facturado</label>
+                <p-inputNumber inputId="valueInvoice" name="valueInvoice" formControlName="invoice_price" (onInput)="calculateAmountPending()"
+                    mode="currency" currency="USD" locale="en-US" [minFractionDigits]="2" [maxFractionDigits]="2"
+                    styleClass="w-full"></p-inputNumber>
+            </div>
+
+            <div class="field">
+                <label for="amountPaid">Valor abonado</label>
+                <p-inputNumber inputId="amountPaid" name="amountPaid" formControlName="amount_paid" (onInput)="calculateAmountPending()"
+                    mode="currency" currency="USD" locale="en-US" [minFractionDigits]="2" [maxFractionDigits]="2"
+                    styleClass="w-full"></p-inputNumber>
+            </div>
+
+            <div class="field">
+                <label for="amountPending">Valor pendiente</label>
+                <p-inputNumber inputId="amountPending" name="amountPending" formControlName="amount_pending"
+                    mode="currency" currency="USD" locale="en-US" [minFractionDigits]="2" [maxFractionDigits]="2"
+                    styleClass="w-full"></p-inputNumber>
+            </div>
+        </div>
+
+        <div class="field full-field">
+            <label for="observations">Observaciones</label>
+            <textarea pInputTextarea id="observations" name="observations" formControlName="observations"
+                rows="3" [autoResize]="true"></textarea>
+        </div>
+
+        <div class="form-actions">
+            <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
+                routerLink="/solicitudes"></p-button>
+            <p-button type="submit" label="Guardar" icon="pi pi-save"
+                styleClass="save-button" (click)="saveTicket()"></p-button>
+        </div>
+    </form>
+</section>

@@ -9,12 +9,16 @@ import { RequestsComponent } from './pages/tables/requests/requests.component';
 import { RequestDetailComponent } from './pages/tables/request-detail/request-detail.component';
 import { RequestsComponentCopy } from './pages/tables/requests copy/requests.component';
 import { TicketsTechnicalComponent } from './pages/tables/tickets-technical/tickets-technical.component';
+import { TicketsCommercialComponent } from './pages/tables/tickets-commercial/tickets-commercial.component';
+import { TicketsFinancialComponent } from './pages/tables/tickets-financial/tickets-financial.component';
+import { TicketsProjectComponent } from './pages/tables/tickets-project/tickets-project.component';
+import { PermissionRouteGuard } from './guards/permission-route.guard';
 
 export const routes: Routes = [
     {
         path: "login",
         component: SigninComponent,
-        // canActivate: [NoAuthGuard]
+        canActivate: [NoAuthGuard]
     },
     {
         path: "",
@@ -30,31 +34,61 @@ export const routes: Routes = [
                 loadComponent: () => DashboardComponent,
                 canActivate: [AuthGuard]
             },
+            // {
+            //     path: "solicitudes",
+            //     loadComponent: () => RequestsComponentCopy,
+            //     canActivate: [AuthGuard]
+            // },
             {
-                path: "solicitudes",
-                loadComponent: () => RequestsComponentCopy,
+                path: "registro-ticket/:ticket_glpi",
+                loadComponent: () => RequestDetailComponent,
                 canActivate: [AuthGuard]
             },
             {
-                path: "registro-ticket/:ticket",
+                path: "editar-ticket/:ticket_glpi/:ticket_intern",
                 loadComponent: () => RequestDetailComponent,
                 canActivate: [AuthGuard]
             },
             {
                 path: "tickets-glpi",
                 loadComponent: () => RequestsComponent,
-                canActivate: [AuthGuard]
+                canActivate: [AuthGuard, PermissionRouteGuard],
+                data: {
+                    permission: 'VER_TICKETS_GLPI'
+                }
             },
             {
                 path: "tickets-tecnicos",
                 loadComponent: () => TicketsTechnicalComponent,
-                canActivate: [AuthGuard]
+                canActivate: [AuthGuard, PermissionRouteGuard],
+                data: {
+                    permission: 'VER_TICKETS_TECNICOS'
+                }
             },
             {
                 path: "tickets-comercial",
-                loadComponent: () => TicketsTechnicalComponent,
-                canActivate: [AuthGuard]
-            },           
+                loadComponent: () => TicketsCommercialComponent,
+                canActivate: [AuthGuard, PermissionRouteGuard],
+                data: {
+                    permission: 'VER_TICKETS_COMERCIALES'
+                }
+            },
+            {
+                path: "tickets-proyectos",
+                loadComponent: () => TicketsProjectComponent,
+                canActivate: [AuthGuard, PermissionRouteGuard],
+                data: {
+                    permission: 'VER_TICKETS_PROYECTOS'
+                }
+            },
+            {
+                path: "tickets-financieros",
+                loadComponent: () => TicketsFinancialComponent,
+                canActivate: [AuthGuard, PermissionRouteGuard],
+                data: {
+                    permission: 'VER_TICKETS_FINANCIEROS'
+                }
+            },
         ],
         canActivate: [AuthGuard]
     },

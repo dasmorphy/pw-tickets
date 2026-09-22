@@ -1,0 +1,107 @@
+<main class="requests-page" (click)="activeMenu = null">
+  <section class="requests-panel" aria-labelledby="commercial-requests-title">
+    <header class="panel-heading">
+      <div>
+        <span class="eyebrow">Gestión financiero</span>
+        <h1 id="commercial-requests-title">Solicitudes financiero</h1>
+        <p>Consulta y gestiona las solicitudes financiero por estado.</p>
+      </div>
+      <span class="request-count"><strong>{{ activeIndex === 0 ? pendingTotalRecords : completedTotalRecords }}</strong> tickets</span>
+    </header>
+
+    <p-tabView styleClass="commercial-tab-view" [(activeIndex)]="activeIndex" (onChange)="onTabChange($event)">
+      <p-tabPanel header="Pendientes" leftIcon="pi pi-clock">
+        <div class="filters" aria-label="Filtros de solicitudes pendientes">
+          <div class="filter-field date-filter">
+            <label>Fecha</label>
+            <p-calendar [(ngModel)]="dateRange" selectionMode="range" dateFormat="dd/mm/yy" [showIcon]="true"
+              [readonlyInput]="true" placeholder="Seleccionar rango" styleClass="request-calendar" inputId="date-filter" appendTo="body">
+            </p-calendar>
+          </div>
+
+          <div class="filter-field">
+            <label for="area-filter">Área</label>
+            <p-dropdown inputId="area-filter" [options]="areas" [(ngModel)]="selectedArea" placeholder="Todas" [showClear]="true" styleClass="request-dropdown"></p-dropdown>
+          </div>
+
+          <div class="filter-field">
+            <label for="status-filter">Estado</label>
+            <p-dropdown inputId="status-filter" [options]="statuses" [(ngModel)]="selectedStatus" placeholder="Todos" [showClear]="true" styleClass="request-dropdown"></p-dropdown>
+          </div>
+
+          <div class="filter-field">
+            <label for="client-filter">Cliente</label>
+            <p-dropdown inputId="client-filter" [options]="clients" [(ngModel)]="selectedClient" placeholder="Todos" [showClear]="true" [filter]="true" filterPlaceholder="Buscar cliente" styleClass="request-dropdown"></p-dropdown>
+          </div>
+
+          <div class="filter-actions">
+            <p-button label="Limpiar filtros" icon="pi pi-refresh" [outlined]="true" styleClass="clear-button" (onClick)="clearFilters()"></p-button>
+            <p-button label="Filtrar" icon="pi pi-filter" styleClass="filter-button" (onClick)="applyFilters()"></p-button>
+          </div>
+        </div>
+
+        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: pendingTickets, tableRef: 'pendingTable', totalRecords: pendingTotalRecords, lazy: true }"></ng-container>
+      </p-tabPanel>
+
+      <p-tabPanel header="Registrados" leftIcon="pi pi-check-circle">
+        <div class="completed-heading">
+          <div>
+            <h2>Solicitudes completadas</h2>
+            <p>Registros obtenidos desde el servicio comercial.</p>
+          </div>
+          <p-button label="Actualizar" icon="pi pi-refresh" [loading]="completedLoading" [outlined]="true" styleClass="clear-button" (onClick)="fetchCompletedTickets()"></p-button>
+        </div>
+
+        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: completedTickets, tableRef: 'completedTable', totalRecords: completedTotalRecords, lazy: false }"></ng-container>
+      </p-tabPanel>
+    </p-tabView>
+
+    <ng-template #ticketsTable let-tickets let-tableRef="tableRef" let-totalRecords="totalRecords" let-lazy="lazy">
+      <div class="table-card">
+        <p-table #pendingTable [value]="tickets" [paginator]="true" [rows]="5"
+          [rowsPerPageOptions]="[5, 10, 25]"
+          rowStyleClass="custom-row-height" styleClass="requests-table" dataKey="id">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Solicitud</th>
+              <th>Ticket Glpi</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Ubicación</th>
+              <th>Contacto</th>
+              <th>Prioridad</th>
+              <th>Estado</th>
+              <th>Usuario</th>
+              <th class="actions-heading"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-request>
+            <tr>
+              <td>{{ request.code_management ?? 'N/A' }}</td>
+              <td>{{ request.ticket_glpi ?? 'N/A' }}</td>
+              <td><span class="date" [pTooltip]="request.created_at ? 'Hora de registro: ' + (request.created_at | date:'HH:mm':'UTC') : ''" tooltipPosition="top">{{ request.created_at ? (request.created_at | date:'dd/MM/yyyy':'UTC') : 'N/A' }}</span></td>
+              <td><span class="date">{{ request.client_name ?? 'N/A' }}</span></td>
+              <td class="subject-cell">{{ request.location_name ?? 'N/A' }}</td>
+              <td class="subject-cell">{{ request.contact ?? 'N/A' }}</td>
+              <td><span>{{ request.priority ?? 'N/A' }}</span></td>
+              <td><span>{{ request.status_name ?? 'N/A' }}</span></td>
+              <td><span>{{ request.created_by ?? 'N/A' }}</span></td>
+              <td class="row-actions">
+                <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(request)" [model]="items">
+                  <ng-template pTemplate="dropdownicon">
+                    <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                  </ng-template>
+                </p-splitButton>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="9" class="empty-state"><i class="pi pi-inbox"></i><strong>No hay solicitudes</strong><span>Prueba con otros filtros.</span></td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </ng-template>
+  </section>
+</main>

@@ -23,7 +23,9 @@
       </div>
 
       <div class="summary-actions">
-        <p-button label="Ver en GLPI" icon="pi pi-external-link" [outlined]="true" styleClass="glpi-button"></p-button>
+        <p-button label="Ver en GLPI" icon="pi pi-external-link" 
+          [outlined]="true" styleClass="glpi-button" (click)="redirectTicketGlpi()">
+        </p-button>
       </div>
 
     </section>
@@ -56,9 +58,9 @@
                   </div>
                   
                   <div class="flex">
-                    <button pButton type="button"
+                    <button pButton type="button" style="box-shadow: none;"
                       class="p-button-text p-button-rounded p-0 w-full b-download" 
-                      icon="pi pi-download" 
+                      icon="pi pi-download" (click)="downloadDocument(document?.id)"
                       aria-label="Descargar archivo">
                     </button>
                   </div>
@@ -83,12 +85,16 @@
 
       </section>
 
-      @if (rol_user == 'tecnico') {
-        <app-register-ticket-technical></app-register-ticket-technical>
+      @if (area_user == 'tecnico') {
+        <app-register-ticket-technical [ticketIdEdit]=ticketIdEdit></app-register-ticket-technical>
       }
 
-      @if (rol_user == 'comercial') {
-        <app-register-ticket-commercial></app-register-ticket-commercial>
+      @if (area_user == 'comercial') {
+        <app-register-ticket-commercial [ticketIdEdit]=ticketIdEdit></app-register-ticket-commercial>
+      }
+
+      @if (area_user == 'financiera') {
+        <app-register-ticket-financial></app-register-ticket-financial>
       }
     </div>
   </div>

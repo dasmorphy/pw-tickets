@@ -62,7 +62,7 @@ export class MenuComponent implements OnInit {
         label: 'Solicitudes',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-glpi'],
-        // visible: this.user_permissions_signal()?.includes('VER_BITACORAS'),
+        visible: this.user_permissions_signal()?.includes('VER_TICKETS_GLPI'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
@@ -70,7 +70,7 @@ export class MenuComponent implements OnInit {
         label: 'Solicitudes Tecnico',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-tecnicos'],
-        // visible: this.user_permissions_signal()?.includes('VER_BITACORAS'),
+        visible: this.user_permissions_signal()?.includes('VER_TICKETS_TECNICOS'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
@@ -78,23 +78,23 @@ export class MenuComponent implements OnInit {
         label: 'Solicitudes Comercial',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-comercial'],
-        // visible: this.user_permissions_signal()?.includes('VER_BITACORAS'),
+        visible: this.user_permissions_signal()?.includes('VER_TICKETS_COMERCIALES'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
       {
         label: 'Solicitudes Proyectos',
         icon: 'pi pi-list-check',
-        routerLink: ['solicitudes'],
-        // visible: this.user_permissions_signal()?.includes('VER_BITACORAS'),
+        routerLink: ['tickets-proyectos'],
+        visible: this.user_permissions_signal()?.includes('VER_TICKETS_PROYECTOS'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
       {
         label: 'Solicitudes Contabilidad',
         icon: 'pi pi-list-check',
-        routerLink: ['solicitudes'],
-        // visible: this.user_permissions_signal()?.includes('VER_BITACORAS'),
+        routerLink: ['tickets-financieros'],
+        visible: this.user_permissions_signal()?.includes('VER_TICKETS_FINANCIEROS'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
@@ -107,9 +107,9 @@ export class MenuComponent implements OnInit {
   })
 
   ngOnInit() {
-    // this.user_session = this.userService.getDataSession();
-    // const attributes = this.user_session?.attributes
-    // this.authService.setPermissionsUser(attributes.permissions);
+    this.user_session = this.userService.getDataSession();
+    const attributes = this.user_session?.attributes
+    this.authService.setPermissionsUser(attributes.permissions);
     this.userService.setUserStorage(this.user_session)
     // this.calculateUserPermissions();
   }

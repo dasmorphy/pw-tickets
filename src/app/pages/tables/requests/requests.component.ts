@@ -1,15 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, computed, inject, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { Table, TableModule } from 'primeng/table';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { GlpiService } from 'src/app/services/glpi.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { TagModule } from 'primeng/tag';
 import { SplitButtonModule } from 'primeng/splitbutton';
+import { DialogModule } from 'primeng/dialog';
+import { AuthService } from 'src/app/services/auth.service';
 
 type RequestArea = 'Técnica' | 'Comercial' | 'Proyectos' | 'Contabilidad';
 type RequestStatus = 'En proceso' | 'Pendiente' | 'Resuelto' | 'Aprobado';
@@ -26,11 +28,20 @@ interface ServiceRequest {
   priority: RequestPriority;
 }
 
+interface AreaTicketHistory {
+  id_history: number | string;
+  ticket_id: number | string;
+  previous_area?: string;
+  current_area?: string;
+  created_at: string;
+  created_by?: string | null;
+}
+
 @Component({
   selector: 'app-requests',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, ButtonModule, CalendarModule, DropdownModule, TableModule,
-    TagModule, SplitButtonModule
+    TagModule, SplitButtonModule, DialogModule
   ],
   templateUrl: './requests.component.html',
   styleUrls: ['./requests.component.sass']
@@ -40,6 +51,11 @@ export class RequestsComponent {
 
   private readonly glpiService = inject(GlpiService)
   readonly utilsService = inject(UtilsService);
+  readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+
+  user_permissions_signal = computed(() => this.authService.user_permissions_signal());
 
   readonly areas: RequestArea[] = ['Técnica', 'Comercial', 'Proyectos', 'Contabilidad'];
   readonly statuses: RequestStatus[] = ['En proceso', 'Pendiente', 'Resuelto', 'Aprobado'];
@@ -53,6 +69,9 @@ export class RequestsComponent {
   activeMenu: number | null = null;
   totalRecords: number = 0;
   selectedTicket: any;
+  historyVisible = false;
+  historyLoading = false;
+  areaHistory: AreaTicketHistory[] = [];
 
   filters: any = {
     first: 0,
@@ -72,10 +91,15 @@ export class RequestsComponent {
     {
         label: 'Registro',
         icon: 'pi pi-play-circle',
-        // visible: () => this.user_permissions_signal().includes('CONTINUAR_BITACORA') && this.selectedLogbook?.status === 'Pendiente Salida',
-        // command: () => this.routeOut()
+        visible: () =>  !this.selectedTicket?.management_area && this.user_permissions_signal()?.includes('CREAR_FLUJO_GLPI'),
+        command: () => this.routeNewRegister()
     },
-];
+    {
+        label: 'Historial',
+        icon: 'pi pi-history',
+        command: () => this.openHistoryDialog()
+    },
+  ];
 
   pageChange(event: any) {
     const page = (event.first / event.rows) + 1;
@@ -149,6 +173,33 @@ export class RequestsComponent {
 
   optionsTicket(ticket: any) {
     this.selectedTicket = ticket
+  }
+
+  openHistoryDialog(): void {
+    const ticketId = this.selectedTicket?.id;
+
+    if (!ticketId) {
+      return;
+    }
+
+    this.historyVisible = true;
+    this.historyLoading = true;
+    this.areaHistory = [];
+
+    this.glpiService.getAreaTicketHistory(ticketId).subscribe({
+      next: (response: any) => {
+        this.areaHistory = Array.isArray(response?.data) ? response.data : [];
+        this.historyLoading = false;
+      },
+      error: () => {
+        this.historyLoading = false;
+        this.utilsService.onError('Error al obtener el historial de áreas del ticket.');
+      }
+    });
+  }
+
+  routeNewRegister() {
+    this.router.navigate([`/registro-ticket/${this.selectedTicket?.id}`]);
   }
 
   getSeverity(status: string) {

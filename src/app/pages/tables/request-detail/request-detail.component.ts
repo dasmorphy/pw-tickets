@@ -11,8 +11,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ToastModule } from 'primeng/toast';
 import { RegisterTicketCommercialComponent } from 'src/app/components/forms/register-ticket-commercial/register-ticket-commercial.component';
+import { RegisterTicketFinancialComponent } from 'src/app/components/forms/register-ticket-financial/register-ticket-financial.component';
 import { RegisterTicketTechnicalComponent } from 'src/app/components/forms/register-ticket-technical/register-ticket-technical.component';
 import { GlpiService } from 'src/app/services/glpi.service';
+import { UserService } from 'src/app/services/user.service';
 import { UtilsService } from 'src/app/services/utils.service';
 
 interface CommercialForm {
@@ -57,7 +59,8 @@ interface GlpiDocument {
     InputTextareaModule,
     ToastModule,
     RegisterTicketCommercialComponent,
-    RegisterTicketTechnicalComponent
+    RegisterTicketTechnicalComponent,
+    RegisterTicketFinancialComponent
   ],
   templateUrl: './request-detail.component.html',
   styleUrls: ['./request-detail.component.sass']
@@ -67,6 +70,7 @@ export class RequestDetailComponent {
   private readonly messageService = inject(MessageService);
 
   private readonly glpiService = inject(GlpiService)
+  private readonly userService = inject(UserService);
   readonly utilsService = inject(UtilsService);
   
 
@@ -77,36 +81,28 @@ export class RequestDetailComponent {
   readonly nextActions = ['Facturar', 'Solicitar reunión con cliente', 'En revisión por cliente'];
   readonly actionOwners = ['Asesor', 'Área técnica', 'Contabilidad'];
 
-  commercial: CommercialForm = {
-    origin: 'Cliente Actual',
-    solutionType: 'Redes / telecomunicaciones',
-    quotedValue: 2350,
-    status: 'Seguimiento',
-    closeProbability: 65,
-    estimatedCloseDate: new Date(2024, 5, 14),
-    nextFollowUp: new Date(2024, 5, 3),
-    nextAction: 'Solicitar reunión con cliente',
-    nextActionOwner: 'Asesor',
-    requiresTechnicalSupport: true,
-    requiresMaterials: false,
-    expectedStartDate: new Date(2024, 5, 24),
-    contractReceived: false,
-    observations: 'Se cotiza paquete de soporte para diagnóstico y configuración de acceso VPN remoto.',
-    lossReason: ''
-  };
+  user_json: any;
+  area_user: string;
 
   ticketIdRouteParam: number | null = null;
   ticketDetails: any = null;
-
-  rol_user = localStorage.getItem('rol')
+  ticketIdEdit: number;
 
   ngOnInit() {
-    const ticketId = this.route.snapshot.paramMap.get('ticket');
+    this.user_json = this.userService.getDataSession();
+    this.area_user = this.user_json?.attributes?.area
+    const ticketId = this.route.snapshot.paramMap.get('ticket_glpi');
     if (ticketId) {
       this.ticketIdRouteParam = Number(ticketId);
       this.getDetailTicket(this.ticketIdRouteParam);
     }
+
+    this.ticketIdEdit = Number(
+      this.route.snapshot.paramMap.get('ticket_intern')
+    );
+
   }
+
 
   getDetailTicket(ticketId: number): void {
     this.glpiService.getDetailTicket(ticketId).subscribe({
@@ -152,4 +148,27 @@ export class RequestDetailComponent {
       detail: 'La gestión comercial se actualizó correctamente.'
     });
   }
+
+  downloadDocument(documentId: number): void {
+    this.glpiService.downloadDocument(documentId).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+
+        window.open(url, '_blank');
+
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url);
+        }, 1000);
+      },
+      error: (error) => {
+        console.error('Error al descargar documento:', error);
+      }
+    });
+  }
+
+  redirectTicketGlpi() {
+    const url = `http://192.168.230.253/glpi/front/ticket.form.php?id=${this.ticketIdRouteParam}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
 }

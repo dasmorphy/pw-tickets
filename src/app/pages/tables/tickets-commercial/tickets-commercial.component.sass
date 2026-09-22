@@ -1,0 +1,302 @@
+@import '../tickets-technical/tickets-technical.component'
+
+:host::ng-deep
+  .p-tieredmenu
+    width: 100%
+    border: none
+
+  .p-menuitem-content .p-menuitem-link
+    padding: 0.75rem 0
+
+  .p-splitbutton-defaultbutton
+    display: none
+
+  .p-splitbutton-menubutton
+    border-top-left-radius: 7px!important
+    border-bottom-left-radius: 7px!important
+    background-color: transparent
+
+  .p-splitbutton button
+    border: none
+    
+  .commercial-tab-view
+    .p-tabview-nav
+      margin: 0 0 1rem
+      border: 1px solid #e0e7f0
+      border-radius: .85rem
+      background: #fff
+
+    .p-tabview-nav li
+      margin-right: 0
+
+      .p-tabview-nav-link
+        padding: .95rem 1.15rem
+        border-width: 0 0 2px
+        color: #64738b
+        font-size: .82rem
+        font-weight: 600
+
+      &.p-highlight .p-tabview-nav-link
+        border-color: #0b326b
+        color: #0b326b
+
+    .p-tabview-panels
+      padding: 0
+      background: transparent
+
+.completed-heading
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: 1rem
+  margin-bottom: 1rem
+  padding: 1rem 1.15rem
+  border: 1px solid #e0e7f0
+  border-radius: .85rem
+  background: #fff
+
+  h2
+    margin: 0 0 .25rem
+    color: #10254b
+    font-size: 1rem
+
+  p
+    margin: 0
+    color: #6f7d95
+    font-size: .8rem
+
+.last-followup
+  display: inline-flex
+  align-items: center
+  gap: .4rem
+  color: #245b9f
+  font-size: .78rem
+  font-weight: 600
+  white-space: nowrap
+
+  i
+    color: #4b8fd6
+    font-size: .74rem
+
+.no-followup
+  color: #8793a7
+  font-size: .76rem
+  font-style: italic
+  white-space: nowrap
+
+:host::ng-deep 
+  .followup-dialog
+    .p-dialog-header
+      padding: 1.2rem 1.35rem 0
+      border: 0
+
+    .p-dialog-content
+      padding-bottom: 0!important
+
+    .p-dialog-footer
+      padding: 0 1.35rem 1.35rem
+      border: 0
+
+.dialog-title
+  display: flex
+  align-items: center
+  gap: .75rem
+
+  h2
+    margin: 0
+    color: #10254b
+    font-size: 1.05rem
+
+  p
+    margin: .2rem 0 0
+    color: #718098
+    font-size: .77rem
+
+.dialog-title-icon
+  display: grid
+  width: 2.4rem
+  height: 2.4rem
+  place-items: center
+  border-radius: .7rem
+  background: #f4eafb
+  color: #83378f
+
+  &.history
+    background: #e8f1fd
+    color: #2462a7
+
+.followup-form
+  display: grid
+  gap: .65rem
+
+  label
+    color: #253b5f
+    font-size: .82rem
+    font-weight: 700
+
+    span
+      margin-left: .3rem
+      color: #8793a7
+      font-size: .72rem
+      font-weight: 500
+
+  textarea
+    width: 100%
+    min-height: 8rem
+    resize: vertical
+    border-color: #d8e1ed
+    color: #263955
+    font: inherit
+
+    &:focus
+      border-color: #83378f
+      box-shadow: 0 0 0 .15rem rgba(131, 55, 143, .12)
+
+  small
+    color: #7c899e
+    font-size: .72rem
+
+.followup-context
+  display: flex
+  align-items: center
+  gap: .65rem
+  margin-bottom: .6rem
+  padding: .75rem .85rem
+  border: 1px solid #e4eaf2
+  border-radius: .65rem
+  background: #f8fafc
+
+  > i
+    color: #527294
+
+  div
+    display: grid
+    gap: .1rem
+
+  span
+    color: #77859a
+    font-size: .69rem
+
+  strong
+    color: #223c63
+    font-size: .82rem
+
+.dialog-actions
+  display: flex
+  justify-content: flex-end
+  gap: .55rem
+
+:host::ng-deep
+  .cancel-followup-button
+    color: #5e6f87
+
+  .save-followup-button
+    border-color: #83378f
+    background: #83378f
+
+    &:enabled:hover
+      border-color: #6f2d79
+      background: #6f2d79
+
+.followup-timeline
+  display: grid
+  gap: 0
+  max-height: min(58vh, 34rem)
+  overflow-y: auto
+  padding: .15rem .15rem .15rem 0
+
+.timeline-item
+  position: relative
+  display: grid
+  grid-template-columns: 2rem 1fr
+  gap: .75rem
+  padding: 0 0 1.25rem
+
+  &:not(:last-child)::before
+    position: absolute
+    top: 1.8rem
+    bottom: .2rem
+    left: .78rem
+    width: 1px
+    background: #dbe5f1
+    content: ''
+
+.timeline-marker
+  z-index: 1
+  display: grid
+  width: 1.6rem
+  height: 1.6rem
+  place-items: center
+  border: 3px solid #e8f1fd
+  border-radius: 50%
+  background: #3a79bd
+  color: #fff
+  font-size: .58rem
+
+.timeline-content
+  padding: .75rem .85rem
+  border: 1px solid #e2e9f2
+  border-radius: .7rem
+  background: #fff
+
+  p
+    margin: .5rem 0 0
+    color: #53627a
+    font-size: .8rem
+    line-height: 1.45
+    white-space: pre-line
+
+.timeline-meta
+  display: flex
+  align-items: baseline
+  justify-content: space-between
+  gap: .75rem
+
+  strong
+    color: #274d7e
+    font-size: .77rem
+
+  span
+    overflow: hidden
+    color: #77859a
+    font-size: .72rem
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.empty-followups
+  display: grid
+  justify-items: center
+  padding: 2.3rem 1.5rem
+  text-align: center
+
+  > span
+    display: grid
+    width: 3.4rem
+    height: 3.4rem
+    margin-bottom: .85rem
+    place-items: center
+    border-radius: 50%
+    background: #eef4fb
+    color: #4b82bd
+    font-size: 1.25rem
+
+  strong
+    color: #264269
+    font-size: .9rem
+
+  p
+    max-width: 18rem
+    margin: .4rem 0 0
+    color: #78869b
+    font-size: .78rem
+    line-height: 1.4
+
+@media screen and (max-width: 700px)
+  .completed-heading
+    align-items: flex-start
+    flex-direction: column
+
+  .timeline-meta
+    align-items: flex-start
+    flex-direction: column
+    gap: .2rem
