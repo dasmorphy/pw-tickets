@@ -48,6 +48,10 @@ export class GlpiService {
         });
     }
 
+    saveInspectionTechnical(data: any) {
+        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection`, {data})
+    }
+
     saveTicketTechnical(data: any) {
         return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-technical`, {data})
     }
@@ -68,16 +72,8 @@ export class GlpiService {
         return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-financial`, {data})
     }
 
-    getTicketsTechnical(filters: any) {
+    getTicketsTechnical(filters?: any) {
         let params = new HttpParams();
-
-        if (filters?.page !== undefined && filters?.page !== null) {
-            params = params.set('page', filters.page + 1);
-        }
-
-        if (filters?.page_size !== undefined && filters?.page_size !== null) {
-            params = params.set('page_size', filters.page_size);
-        }
 
         if (filters?.pending_commercial) {
             params = params.set('pending_commercial', filters.pending_commercial);
@@ -121,7 +117,7 @@ export class GlpiService {
     }
 
     getCommercialTypeSolution() {
-        return this.http.get(`${environment.apiTicket}/proxy-glpi-api/v1.0/type-solution`);
+        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/type-solution`);
     }
 
     getCommercialStatus() {
@@ -130,6 +126,20 @@ export class GlpiService {
 
     getCommercialOrigin() {
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/commercial-origin`);
+    }
+
+    getInspectionTechnical(filters?: any) {
+        let params = new HttpParams();
+
+        if (filters?.id_inspection) {
+            params = params.set('id_inspection', filters.id_inspection);
+        }
+
+        if (filters?.pending_technical) {
+            params = params.set('pending_technical', filters.pending_technical);
+        }
+
+        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection`, {params});
     }
 
     getTicketsFinancial(filters?: any) {

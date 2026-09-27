@@ -11,6 +11,8 @@ import { UtilsService } from 'src/app/services/utils.service';
 import { TagModule } from 'primeng/tag';
 import { PanelMenuModule } from "primeng/panelmenu";
 import { SplitButtonModule } from 'primeng/splitbutton';
+import { TabViewModule } from 'primeng/tabview';
+import { TooltipModule } from 'primeng/tooltip';
 
 type RequestArea = 'Técnica' | 'Comercial' | 'Proyectos' | 'Contabilidad';
 type RequestStatus = 'En proceso' | 'Pendiente' | 'Resuelto' | 'Aprobado';
@@ -31,7 +33,7 @@ interface ServiceRequest {
   selector: 'app-tickets-technical',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, ButtonModule, CalendarModule, DropdownModule, TableModule,
-    TagModule, PanelMenuModule, SplitButtonModule],
+    TagModule, PanelMenuModule, SplitButtonModule, TabViewModule, TooltipModule],
   templateUrl: './tickets-technical.component.html',
   styleUrls: ['./tickets-technical.component.sass']
 })
@@ -52,7 +54,6 @@ export class TicketsTechnicalComponent {
   selectedClient: string | null = null;
   appliedFilters = { dateFrom: '2024-05-01', dateTo: '2024-05-31', area: '', status: '', client: '' };
   activeMenu: number | null = null;
-  totalRecords: number = 0;
   selectedTicket: any;
 
   filters: any = {
@@ -61,7 +62,11 @@ export class TicketsTechnicalComponent {
   };
 
 
-  tickets:any = [];
+  activeIndex = 0;
+  pendingTickets: any[] = [];
+  registeredTickets: any[] = [];
+  registeredLoading = false;
+  private registeredLoaded = false;
 
   items: any = [
     {
@@ -77,24 +82,27 @@ export class TicketsTechnicalComponent {
     },
   ];
 
+  itemsPending: any = [
+    {
+        label: 'Ver detalles',
+        icon: 'pi pi-eye',
+    },
+    {
+        label: 'Registro',
+        icon: 'pi pi-play-circle',
+        command: () => this.routeNewRegister()
+    },
+  ];
+
   ngOnInit() {
-    // this.fetchTickets();
+    this.fetchInspection();
   }
 
-  fetchTickets() {
-    const page = (this.filters.first - 1) * this.filters.rows;
-    const page_size = this.filters.rows;
-
-    const filters = {
-      page,
-      page_size
-    }
-
-    this.glpiService.getTicketsTechnical(filters).subscribe({
+  fetchInspection() {
+    this.glpiService.getInspectionTechnical({pending_technical: true}).subscribe({
       next: (response: any) => {
         console.log(response);
-        this.tickets = response?.data?.data || [];
-        this.totalRecords = response?.pagination?.total
+        this.pendingTickets = this.extractRecords(response?.data);
       },
       error: (error: any) => {
         console.error('Error fetching tickets:', error);
@@ -103,11 +111,31 @@ export class TicketsTechnicalComponent {
     });
   }
 
-  pageChange(event: any) {
-    const page = (event.first / event.rows) + 1;
-    this.filters.first = page;
-    this.filters.rows = event.rows;
-    this.fetchTickets();
+  fetchTicketsTechnical() {
+    this.registeredLoading = true;
+    this.glpiService.getTicketsTechnical().subscribe({
+      next: (response: any) => {
+        console.log(response);
+        this.registeredTickets = this.extractRecords(response?.data);
+        this.registeredLoaded = true;
+        this.registeredLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Error fetching tickets:', error);
+        this.registeredLoading = false;
+        this.utilsService.onError('Error al obtener los tickets por favor, inténtelo de nuevo más tarde.');
+      }
+    });
+  }
+
+
+  onTabChange(event: { index: number }): void {
+    this.activeIndex = event.index;
+    this.activeMenu = null;
+
+    if (event.index === 1 && !this.registeredLoaded) {
+      this.fetchTicketsTechnical();
+    }
   }
 
   applyFilters(): void {
@@ -166,13 +194,26 @@ export class TicketsTechnicalComponent {
     }
   }
 
+  private extractRecords(payload: any): any[] {
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+
+    const records = payload?.data ?? payload?.items ?? payload?.results;
+    return Array.isArray(records) ? records : [];
+  }
+
   optionsTicket(ticket: any) {
     this.selectedTicket = ticket
   }
 
   routeRegister() {
     this.router.navigate([
-      `/editar-ticket/${this.selectedTicket?.ticket_glpi}/${this.selectedTicket?.id_management_technical}`
+      `/editar-ticket/${this.selectedTicket?.id_inspection}/${this.selectedTicket?.id_management_technical}`
     ]);
+  }
+
+  routeNewRegister() {
+    this.router.navigate([`/registro-ticket/${this.selectedTicket?.id_inspection}`]);
   }
 }

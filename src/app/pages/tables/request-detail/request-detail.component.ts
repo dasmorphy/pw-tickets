@@ -91,7 +91,7 @@ export class RequestDetailComponent {
   ngOnInit() {
     this.user_json = this.userService.getDataSession();
     this.area_user = this.user_json?.attributes?.area
-    const ticketId = this.route.snapshot.paramMap.get('ticket_glpi');
+    const ticketId = this.route.snapshot.paramMap.get('inspection_id');
     if (ticketId) {
       this.ticketIdRouteParam = Number(ticketId);
       this.getDetailTicket(this.ticketIdRouteParam);
@@ -104,11 +104,11 @@ export class RequestDetailComponent {
   }
 
 
-  getDetailTicket(ticketId: number): void {
-    this.glpiService.getDetailTicket(ticketId).subscribe({
+  getDetailTicket(inspectionId: number): void {
+    this.glpiService.getInspectionTechnical({id_inspection: inspectionId}).subscribe({
       next: (response: any) => {
-        const data = response?.body || {};
-        this.ticketDetails = data?.data || {};
+        console.log('dadasdsa')
+        this.ticketDetails = response?.data[0] || {};
         console.log('Ticket details:', this.ticketDetails);
       },
       error: (error: any) => {

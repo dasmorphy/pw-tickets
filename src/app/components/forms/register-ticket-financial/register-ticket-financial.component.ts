@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -12,6 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ToastModule } from 'primeng/toast';
 import { GlpiService } from 'src/app/services/glpi.service';
+import { UserService } from 'src/app/services/user.service';
 import { UtilsService } from 'src/app/services/utils.service';
 
 @Component({
@@ -37,6 +38,7 @@ import { UtilsService } from 'src/app/services/utils.service';
 export class RegisterTicketFinancialComponent {
     private glpiService = inject(GlpiService);
     private utilsService = inject(UtilsService);
+    private userService = inject(UserService);
 
     ticketForm: FormGroup;
 
@@ -44,13 +46,14 @@ export class RegisterTicketFinancialComponent {
     typeManagement: any = ['Orden de compra', 'Factura'];
     status: any = [];
     // valueInvoice = ['1 mes', '3 meses', '6 meses', '9 meses'];
+    user_session: any;
 
 
     readonly nextActions = ['Facturar', 'Solicitar reunión con cliente', 'En revisión por cliente'];
     readonly actionOwners = ['Asesor', 'Área técnica', 'Contabilidad'];
 
 
-    constructor(private fb: FormBuilder, private route: ActivatedRoute) {
+    constructor(private fb: FormBuilder, private route: ActivatedRoute, private router: Router) {
         this.ticketForm = this.fb.group({
             type_management: ['', Validators.required],
             status: ['', Validators.required],
@@ -66,6 +69,7 @@ export class RegisterTicketFinancialComponent {
 
 
     ngOnInit() {
+        this.user_session = this.userService.getDataSession();
         const ticketId = this.route.snapshot.paramMap.get('ticket');
         if (ticketId) {
             this.ticketForm.patchValue({
@@ -107,7 +111,11 @@ export class RegisterTicketFinancialComponent {
     saveTicket() {
         console.log(this.ticketForm)
         if (this.ticketForm.valid) {
-            const ticketData = this.ticketForm.value;
+            const ticketData = {
+                ...this.ticketForm.value,
+                user: this.user_session?.user
+            };
+
             console.log('Ticket data to save:', ticketData);
             // Here you would typically send the ticketData to your backend service
 
@@ -115,6 +123,7 @@ export class RegisterTicketFinancialComponent {
                 next: (data: any) => {
                     console.log(data)
                     this.utilsService.onSuccess('Ticket registrado exitosamente.');
+                    this.router.navigate(['/tickets-financieros'])
                 },
                 error: (error: any) => {
                     console.log(error)

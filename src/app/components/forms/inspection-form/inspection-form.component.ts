@@ -17,7 +17,7 @@ import { UserService } from 'src/app/services/user.service';
 import { MultiSelectModule } from 'primeng/multiselect';
 
 @Component({
-    selector: 'app-register-ticket-technical',
+    selector: 'app-inspection-form',
     standalone: true,
     imports: [
         CommonModule,
@@ -34,10 +34,10 @@ import { MultiSelectModule } from 'primeng/multiselect';
         InputTextModule,
         MultiSelectModule
     ],
-    templateUrl: './register-ticket-technical.component.html',
-    styleUrls: ['./register-ticket-technical.component.sass']
+    templateUrl: './inspection-form.component.html',
+    styleUrls: ['./inspection-form.component.sass']
 })
-export class RegisterTicketTechnicalComponent {
+export class InspectionFormComponent {
     @Input() ticketIdEdit: number;
     
     private glpiService = inject(GlpiService);
@@ -73,33 +73,24 @@ export class RegisterTicketTechnicalComponent {
             priority: [null, Validators.required],
             management_status: [null, Validators.required],
             status: [null, Validators.required],
-            next_action: [null, Validators.required],
             commitment_date: ['', Validators.required],
-            ticket_glpi: [null, Validators.required],
             requires_material: [false],
             requires_monitoring: [false],
-            responsible: ['', Validators.required],
+            responsible_id: ['', Validators.required],
+            responsible_name: [''],
             observations: [''],
         });
     }
     
     ngOnInit() {
-        console.log(this.ticketIdEdit)
         this.user_session = this.userService.getDataSession();
-        const ticketId = this.route.snapshot.paramMap.get('ticket_glpi');
-        if (ticketId) {
-            this.ticketForm.patchValue({
-                ticket_glpi: parseInt(ticketId, 10),
-            })
-        }
-
         this.fetchClients();
         this.fetchUsers();
     }
 
     fetchUsers() {
         const filters = {
-            roles: ['asesor_comercial', 'tecnico']
+            roles: ['jefe_sistemas', 'asiste_sistemas', 'jefe_tecnico', 'tecnico']
         }
         this.userService.getUsers(filters).subscribe({
             next: (data: any) => {
@@ -112,6 +103,16 @@ export class RegisterTicketTechnicalComponent {
                 console.log(error);
             }
         });
+    }
+
+    changeResponsible(value: string) {
+        const name_responsible = this.users_intern.find((user: any) => user.id_user == value);
+        
+        console.log(name_responsible)
+        this.ticketForm.patchValue({
+            responsible_name: name_responsible?.fullname ?? ''
+        })
+
     }
 
     loadTicket(): void {
@@ -200,21 +201,21 @@ export class RegisterTicketTechnicalComponent {
 
             console.log('Ticket data to save:', ticketData);
 
-            if (this.ticketIdEdit) {
-                this.updateTicket(ticketData);
-            }else{
-                this.glpiService.saveTicketTechnical(ticketData).subscribe({
+            // if (this.ticketIdEdit) {
+            //     this.updateTicket(ticketData);
+            // }else{
+                this.glpiService.saveInspectionTechnical(ticketData).subscribe({
                     next: (data: any) => {
                         console.log(data)
-                        this.utilsService.onSuccess('Ticket registrado exitosamente.');
-                        this.router.navigate(['/tickets-tecnicos'])
+                        this.utilsService.onSuccess('Inspección registrado exitosamente.');
+                        this.router.navigate(['/inspecciones'])
                     },
                     error: (error: any) => {
                         console.log(error)
                         this.utilsService.onError(error?.error?.message ?? 'Error al crear el registro, por favor intente nuevamente');
                     }
                 })
-            }
+            // }
 
         } else {
             this.utilsService.onWarn('Por favor, complete todos los campos requeridos.');

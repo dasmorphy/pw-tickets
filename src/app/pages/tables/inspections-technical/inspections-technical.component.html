@@ -1,0 +1,125 @@
+<p-dialog [(visible)]="historyVisible" [modal]="true" [draggable]="false" [resizable]="false" [closable]="false"
+  [style]="{ width: 'min(42rem, calc(100vw - 2rem))' }" styleClass="area-history-dialog">
+  <ng-template pTemplate="header">
+    <div class="dialog-title">
+      <div>
+        <h2 class="text-center">Historial de áreas</h2>
+        <p class="text-center">Ticket {{ selectedInspection?.id ?? 'N/A' }} · {{ selectedInspection?.name ?? 'Solicitud' }}</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="history-loading" *ngIf="historyLoading">
+    <i class="pi pi-spin pi-spinner"></i>
+    <span>Cargando historial...</span>
+  </div>
+
+  <div class="area-timeline mt-4" *ngIf="!historyLoading && areaHistory.length; else emptyHistory">
+    <article class="timeline-item" *ngFor="let entry of areaHistory">
+      <div class="timeline-marker"><i class="pi pi-directions-alt"></i></div>
+      <div class="timeline-content">
+        <div class="timeline-meta">
+          <strong>{{ entry.created_at | date:'dd/MM/yyyy HH:mm':'UTC' }}</strong>
+          <span>{{ entry.created_by ?? 'N/A' }}</span>
+        </div>
+        <div class="area-change">
+          <span>{{ entry.previous_area || 'Sin área anterior' }}</span>
+          <i class="pi pi-arrow-right"></i>
+          <strong>{{ entry.current_area || 'Sin área asignada' }}</strong>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <ng-template #emptyHistory>
+    <div class="empty-history" *ngIf="!historyLoading">
+      <strong>No hay movimientos registrados</strong>
+      <p>Los cambios de área de este ticket aparecerán en esta línea de tiempo.</p>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="flex w-full justify-content-center">
+      <button pButton (click)="historyVisible = false">Cerrar</button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+
+<main class="inspections-page">
+  <section class="inspections-panel" aria-labelledby="inspections-title">
+    <header class="page-heading">
+      <div>
+        <span class="eyebrow">Gestión técnica</span>
+        <h1 id="inspections-title">Inspecciones técnicas</h1>
+        <p>Consulta las inspecciones registradas y su ruta de gestión.</p>
+      </div>
+      <span class="inspection-count"><strong>{{ inspections.length }}</strong> inspecciones</span>
+    </header>
+
+    <div class="table-card">
+      <p-table #inspectionsTable [value]="inspections" [paginator]="true" [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 25, 50]" [globalFilterFields]="['ticket_glpi', 'title_ticket', 'client_name', 'location_name', 'contact', 'management_area', 'next_area', 'priority']"
+        dataKey="ticket_id" styleClass="inspections-table" rowStyleClass="custom-row-height">
+        <ng-template pTemplate="caption">
+          <div class="table-tools">
+            <span class="search-field">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" placeholder="Buscar inspección" (input)="filterGlobal($event)" aria-label="Buscar inspección">
+            </span>
+            <p-button icon="pi pi-sync" [rounded]="true" [text]="true" pTooltip="Actualizar inspecciones"
+              tooltipPosition="top" (onClick)="fetchInspections()"></p-button>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Fecha</th>
+            <th>Título</th>
+            <th>Cliente</th>
+            <th>Ubicación</th>
+            <th>Responsable</th>
+            <th>Prioridad</th>
+            <th>Área actual</th>
+            <th>Siguiente área</th>
+            <th>Responsable</th>
+            <th class="actions-heading"><span class="sr-only">Acciones</span></th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-inspection>
+          <tr>
+            <td [pTooltip]="inspection.created_at ? 'Hora de registro: ' + (inspection.created_at | date:'HH:mm':'UTC') : ''" tooltipPosition="top">
+              {{ inspection.created_at ? (inspection.created_at | date:'dd/MM/yyyy':'UTC') : 'N/A' }}
+            </td>
+            <td class="title-cell">{{ inspection.title_ticket ?? 'Sin título' }}</td>
+            <td>{{ inspection.client_name ?? 'N/A' }}</td>
+            <td class="location-cell">{{ inspection.location_name ?? 'N/A' }}</td>
+            <td>{{ inspection.contact ?? 'N/A' }}</td>
+            <td><span class="priority">{{ inspection.priority ?? 'N/A' }}</span></td>
+            <td><p-tag [value]="inspection.management_area ?? 'N/A'" [severity]="getAreaSeverity(inspection.management_area)"></p-tag></td>
+            <td><p-tag [value]="inspection.next_area ?? 'N/A'" [severity]="getAreaSeverity(inspection.next_area)"></p-tag></td>
+            <td>{{ inspection.responsible_name ?? 'N/A' }}</td>
+            <td class="row-actions">
+              <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(inspection)" [model]="items">
+                <ng-template pTemplate="dropdownicon">
+                  <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                </ng-template>
+              </p-splitButton>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="10" class="empty-state"><i class="pi pi-inbox"></i><strong>No hay inspecciones disponibles</strong><span>Intenta actualizar la información.</span></td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" *ngIf="isLoading">
+  <p-progressSpinner [style]="{ width: '50px', height: '50px' }" strokeWidth="8" fill="#007bff" animationDuration="2s"></p-progressSpinner>
+</div>

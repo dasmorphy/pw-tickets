@@ -12,6 +12,7 @@ import { TagModule } from 'primeng/tag';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { DialogModule } from 'primeng/dialog';
 import { AuthService } from 'src/app/services/auth.service';
+import { UserService } from 'src/app/services/user.service';
 
 type RequestArea = 'Técnica' | 'Comercial' | 'Proyectos' | 'Contabilidad';
 type RequestStatus = 'En proceso' | 'Pendiente' | 'Resuelto' | 'Aprobado';
@@ -50,6 +51,7 @@ export class RequestsComponent {
   @ViewChild('requestsTable') requestsTable?: Table;
 
   private readonly glpiService = inject(GlpiService)
+  private readonly userService = inject(UserService)
   readonly utilsService = inject(UtilsService);
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -72,6 +74,7 @@ export class RequestsComponent {
   historyVisible = false;
   historyLoading = false;
   areaHistory: AreaTicketHistory[] = [];
+  users_intern: any = [];
 
   filters: any = {
     first: 0,

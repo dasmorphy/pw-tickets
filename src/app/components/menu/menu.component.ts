@@ -59,18 +59,34 @@ export class MenuComponent implements OnInit {
         command: () => { this.clickHiddenToggle(true) },
       },
       {
-        label: 'Solicitudes',
+        label: 'Inspecciones',
         icon: 'pi pi-list-check',
-        routerLink: ['tickets-glpi'],
-        visible: this.user_permissions_signal()?.includes('VER_TICKETS_GLPI'),
+        // routerLink: ['tickets-glpi'],
+        // visible: this.user_permissions_signal()?.includes('VER_INSPECCION'),
         command: () => { this.clickHiddenToggle(true) },
+        items: [
+          {
+            label: 'Todos',
+            icon: 'pi pi-list-check',
+            // visible: this.user_permissions_signal()?.includes('VER_INSPECCION'),
+            routerLink: ['inspecciones'],
+            command: () => { this.clickHiddenToggle() }
+          },
+          {
+            label: 'Nuevo',
+            icon: 'pi pi-list-check',
+            // visible: this.user_permissions_signal()?.includes('NUEVA_INSPECCION'),
+            routerLink: ['nueva-inspeccion'],
+            command: () => { this.clickHiddenToggle() }
+          }
+        ]
         
       },
       {
         label: 'Solicitudes Tecnico',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-tecnicos'],
-        visible: this.user_permissions_signal()?.includes('VER_TICKETS_TECNICOS'),
+        // visible: this.user_permissions_signal()?.includes('VER_TICKETS_TECNICOS'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
@@ -78,7 +94,7 @@ export class MenuComponent implements OnInit {
         label: 'Solicitudes Comercial',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-comercial'],
-        visible: this.user_permissions_signal()?.includes('VER_TICKETS_COMERCIALES'),
+        // visible: this.user_permissions_signal()?.includes('VER_TICKETS_COMERCIALES'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
@@ -86,7 +102,7 @@ export class MenuComponent implements OnInit {
         label: 'Solicitudes Proyectos',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-proyectos'],
-        visible: this.user_permissions_signal()?.includes('VER_TICKETS_PROYECTOS'),
+        // visible: this.user_permissions_signal()?.includes('VER_TICKETS_PROYECTOS'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
@@ -94,9 +110,37 @@ export class MenuComponent implements OnInit {
         label: 'Solicitudes Contabilidad',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-financieros'],
-        visible: this.user_permissions_signal()?.includes('VER_TICKETS_FINANCIEROS'),
+        // visible: this.user_permissions_signal()?.includes('VER_TICKETS_FINANCIEROS'),
         command: () => { this.clickHiddenToggle(true) },
         
+      },
+      {
+        label: 'Proyectos técnicos',
+        icon: 'pi pi-folder-open',
+        // visible: this.user_permissions_signal()?.includes('VER_PROYECTOS'),
+        items: [
+          {
+            label: 'Proyectos técnicos',
+            icon: 'pi pi-list-check',
+            visible: this.user_permissions_signal()?.includes('VER_PROYECTOS'),
+            routerLink: ['proyectos-tecnicos'],
+            command: () => { this.clickHiddenToggle() }
+          },
+          {
+            label: 'Fiscalización',
+            icon: 'pi pi-list-check',
+            visible: this.user_permissions_signal()?.includes('VER_FISCALIZACION'),
+            routerLink: ['fiscalizaciones'],
+            command: () => { this.clickHiddenToggle() }
+          },
+          {
+            label: 'Nueva fiscalización',
+            icon: 'pi pi-file-check',
+            visible: this.user_permissions_signal()?.includes('NUEVA_FISCALIZACION'),
+            routerLink: ['nueva-fiscalizacion'],
+            command: () => { this.clickHiddenToggle() }
+          }
+        ]
       },
       {
         label: 'Cerrar Sesión',

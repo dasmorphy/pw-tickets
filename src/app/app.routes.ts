@@ -13,6 +13,11 @@ import { TicketsCommercialComponent } from './pages/tables/tickets-commercial/ti
 import { TicketsFinancialComponent } from './pages/tables/tickets-financial/tickets-financial.component';
 import { TicketsProjectComponent } from './pages/tables/tickets-project/tickets-project.component';
 import { PermissionRouteGuard } from './guards/permission-route.guard';
+import { NewAuditingComponent } from './pages/forms/new-auditing/new-auditing.component';
+import { ProjectTechnicalComponent } from './pages/tables/project-technical/project-technical.component';
+import { AuditingTechnicalComponent } from './pages/tables/auditing-technical/auditing-technical.component';
+import { InspectionFormComponent } from './components/forms/inspection-form/inspection-form.component';
+import { InspectionsTechnicalComponent } from './pages/tables/inspections-technical/inspections-technical.component';
 
 export const routes: Routes = [
     {
@@ -40,53 +45,85 @@ export const routes: Routes = [
             //     canActivate: [AuthGuard]
             // },
             {
-                path: "registro-ticket/:ticket_glpi",
+                path: "registro-ticket/:inspection_id",
                 loadComponent: () => RequestDetailComponent,
                 canActivate: [AuthGuard]
             },
             {
-                path: "editar-ticket/:ticket_glpi/:ticket_intern",
+                path: "editar-ticket/:inspection_id/:ticket_intern",
                 loadComponent: () => RequestDetailComponent,
                 canActivate: [AuthGuard]
             },
             {
-                path: "tickets-glpi",
-                loadComponent: () => RequestsComponent,
-                canActivate: [AuthGuard, PermissionRouteGuard],
-                data: {
-                    permission: 'VER_TICKETS_GLPI'
-                }
+                path: "inspecciones",
+                loadComponent: () => InspectionsTechnicalComponent,
+                canActivate: [AuthGuard],
+                // data: {
+                //     permission: 'VER_INSPECCION'
+                // }
+            },
+            {
+                path: "nueva-inspeccion",
+                loadComponent: () => InspectionFormComponent,
+                canActivate: [AuthGuard],
+                // data: {
+                //     permission: 'NUEVA_INSPECCION'
+                // }
             },
             {
                 path: "tickets-tecnicos",
                 loadComponent: () => TicketsTechnicalComponent,
-                canActivate: [AuthGuard, PermissionRouteGuard],
-                data: {
-                    permission: 'VER_TICKETS_TECNICOS'
-                }
+                canActivate: [AuthGuard],
+                // data: {
+                //     permission: 'VER_TICKETS_TECNICOS'
+                // }
             },
             {
                 path: "tickets-comercial",
                 loadComponent: () => TicketsCommercialComponent,
-                canActivate: [AuthGuard, PermissionRouteGuard],
-                data: {
-                    permission: 'VER_TICKETS_COMERCIALES'
-                }
+                canActivate: [AuthGuard],
+                // data: {
+                //     permission: 'VER_TICKETS_COMERCIALES'
+                // }
             },
             {
                 path: "tickets-proyectos",
                 loadComponent: () => TicketsProjectComponent,
-                canActivate: [AuthGuard, PermissionRouteGuard],
-                data: {
-                    permission: 'VER_TICKETS_PROYECTOS'
-                }
+                canActivate: [AuthGuard],
+                // data: {
+                //     permission: 'VER_TICKETS_PROYECTOS'
+                // }
             },
             {
                 path: "tickets-financieros",
                 loadComponent: () => TicketsFinancialComponent,
+                canActivate: [AuthGuard],
+                // data: {
+                //     permission: 'VER_TICKETS_FINANCIEROS'
+                // }
+            },
+            {
+                path: "fiscalizaciones",
+                loadComponent: () => AuditingTechnicalComponent,
                 canActivate: [AuthGuard, PermissionRouteGuard],
                 data: {
-                    permission: 'VER_TICKETS_FINANCIEROS'
+                    permission: 'VER_FISCALIZACION'
+                }
+            },
+            {
+                path: "nueva-fiscalizacion",
+                loadComponent: () => NewAuditingComponent,
+                canActivate: [AuthGuard, PermissionRouteGuard],
+                data: {
+                    permission: 'NUEVA_FISCALIZACION'
+                }
+            },
+            {
+                path: "proyectos-tecnicos",
+                loadComponent: () => ProjectTechnicalComponent,
+                canActivate: [AuthGuard, PermissionRouteGuard],
+                data: {
+                    permission: 'VER_PROYECTOS'
                 }
             },
         ],

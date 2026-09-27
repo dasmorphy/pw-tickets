@@ -22,6 +22,21 @@
             </div>
 
             <div class="field">
+                <label for="client_id">Responsable</label>
+                <p-multiSelect 
+                    [style]="{ boxShadow: 'none' }"
+                    styleClass="border-round w-full text-xs"
+                    id="optionSector"
+                    [filter]="true" filterBy="fullname"
+                    [options]="users_intern"
+                    optionLabel="fullname"
+                    optionValue="id_user"
+                    formControlName="responsible"
+                    placeholder="Seleccione una opción"
+                ></p-multiSelect>
+            </div>
+
+            <div class="field">
                 <label for="contact">Contacto</label>
                 <input pInputText inputId="contact" formControlName="contact"
                     styleClass="w-full" class="w-full">
@@ -48,12 +63,12 @@
                     appendTo="body"></p-dropdown>
             </div>
 
-            <div class="field">
+            <!-- <div class="field">
                 <label for="next_action">Próxima acción</label>
                 <p-dropdown inputId="next_action" name="next_action" [options]="nextActionsOptions"
                     formControlName="next_action" placeholder="Seleccione una opción" styleClass="w-full"
                     appendTo="body"></p-dropdown>
-            </div>
+            </div> -->
 
             <div class="field">
                 <label for="commitment_date">Fecha compomiso</label>

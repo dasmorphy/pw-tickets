@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -11,6 +11,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ToastModule } from 'primeng/toast';
 import { GlpiService } from 'src/app/services/glpi.service';
+import { UserService } from 'src/app/services/user.service';
 import { UtilsService } from 'src/app/services/utils.service';
 
 @Component({
@@ -37,6 +38,7 @@ export class RegisterTicketCommercialComponent {
     
     private glpiService = inject(GlpiService);
     private utilsService = inject(UtilsService);
+    private userService = inject(UserService);
 
     ticketForm: FormGroup;
 
@@ -46,8 +48,9 @@ export class RegisterTicketCommercialComponent {
     readonly nextActions = ['Facturar', 'Solicitar reunión con cliente', 'En revisión por cliente'];
     readonly actionOwners = ['Asesor', 'Área técnica', 'Contabilidad'];
 
+    user_session: any;
 
-    constructor(private fb: FormBuilder, private route: ActivatedRoute) {
+    constructor(private fb: FormBuilder, private route: ActivatedRoute, private router: Router) {
         this.ticketForm = this.fb.group({
             origin_id: ['', Validators.required],
             type_solution_id: ['', Validators.required],
@@ -69,6 +72,7 @@ export class RegisterTicketCommercialComponent {
 
 
     ngOnInit() {
+        this.user_session = this.userService.getDataSession();
         const ticketId = this.route.snapshot.paramMap.get('ticket_glpi');
         if (ticketId) {
             this.ticketForm.patchValue({
@@ -161,7 +165,10 @@ export class RegisterTicketCommercialComponent {
     saveTicket() {
         console.log(this.ticketForm)
         if (this.ticketForm.valid) {
-            const ticketData = this.ticketForm.value;
+            const ticketData = {
+                ...this.ticketForm.value,
+                user: this.user_session?.user
+            };
             console.log('Ticket data to save:', ticketData);
             // Here you would typically send the ticketData to your backend service
             if (this.ticketIdEdit) {
@@ -171,6 +178,7 @@ export class RegisterTicketCommercialComponent {
                     next: (data: any) => {
                         console.log(data)
                         this.utilsService.onSuccess('Ticket registrado exitosamente.');
+                        this.router.navigate(['/tickets-comercial'])
                     },
                     error: (error: any) => {
                         console.log(error)
@@ -188,6 +196,7 @@ export class RegisterTicketCommercialComponent {
             next: (data: any) => {
                 console.log(data)
                 this.utilsService.onSuccess('Ticket actualizado exitosamente.');
+                this.router.navigate(['/tickets-comercial'])
             },
             error: (error: any) => {
                 console.log(error)

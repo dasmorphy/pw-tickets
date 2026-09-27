@@ -49,9 +49,10 @@
     </div>
 
     <div class="table-card">
-      <p-table #requestsTable 
-        [value]="tickets" 
-        [paginator]="true" 
+      <p-table
+        #requestsTable
+        [value]="tickets"
+        [paginator]="true"
         [totalRecords]="totalRecords"
         [rows]="5"
         [rowsPerPageOptions]="[5, 10, 25]"
@@ -59,9 +60,9 @@
         [lazy]="true"
         (onLazyLoad)="pageChange($event)"
         rowStyleClass="custom-row-height"
-        styleClass="requests-table" 
+        styleClass="requests-table"
         dataKey="ticket"
-      >
+    >
         <ng-template pTemplate="header">
             <tr>
               <th>Ticket</th>

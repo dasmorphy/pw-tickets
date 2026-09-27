@@ -32,16 +32,17 @@
 
     <div class="content-grid">
       <section class="info-card glpi-card">
-        <header><i class="pi pi-file-export"></i><h2>Información GLPI</h2></header>
+        <header><i class="pi pi-file-export"></i><h2>Información inspección</h2></header>
         <dl>
-          <div><dt>Ticket</dt><dd>{{ ticketDetails?.id }}</dd></div>
-          <!-- <div><dt>Cliente</dt><dd><a href="javascript:void(0)">TechSolutions S.A.</a></dd></div> -->
-          <div><dt>Categoría</dt><dd>{{ ticketDetails?.itilcategories_id == 0 ? 'N/A' : ticketDetails?.itilcategories_id }}</dd></div>
-          <div><dt>Descripción</dt><dd>{{ utilsService.formatTxtDetailTicket(ticketDetails?.content) }}</dd></div>
-          <div><dt>Prioridad</dt><dd><span class="priority-badge"><i></i> {{ utilsService.getTxtPriority(ticketDetails?.priority) }}</span></dd></div> 
-          <div><dt>Fecha de creación</dt><dd>{{ ticketDetails?.date_creation }}</dd></div>
-          <div><dt>Responsable GLPI</dt><dd>{{ ticketDetails?.users_id_recipient }}</dd></div>
-          <div><dt>Estado GLPI</dt><dd><span class="status-badge"><i></i> {{ utilsService.getTxtStatus(ticketDetails?.status) }}</span></dd></div>
+          <div><dt>Ticket</dt><dd>{{ ticketDetails?.id_inspection }}</dd></div>
+          <div><dt>Cliente</dt><dd> {{ticketDetails?.client_name}} </dd></div>
+          <div><dt>Ubicación</dt><dd>{{ticketDetails?.location_name}}</dd></div>
+          <!-- <div><dt>Categoría</dt><dd>Inspección</dd></div> -->
+          <div><dt>Contacto</dt><dd>{{ ticketDetails?.contact }}</dd></div>
+          <div><dt>Prioridad</dt><dd>{{ ticketDetails?.priority }}</dd></div> 
+          <div><dt>Fecha de creación</dt><dd>{{ ticketDetails?.created_at | date: 'dd/MM/yyyy' }}</dd></div>
+          <div><dt>Responsable</dt><dd>{{ ticketDetails?.responsible_name }}</dd></div>
+          <!-- <div><dt>Estado GLPI</dt><dd><span class="status-badge"><i></i> {{ utilsService.getTxtStatus(ticketDetails?.status) }}</span></dd></div> -->
         </dl>
         <!-- <footer>
           <a href="javascript:void(0)"><i class="pi pi-comment"></i> Ver comentarios (3)</a>

@@ -1,0 +1,541 @@
+:host::ng-deep
+    .p-tieredmenu
+        width: 100%
+        border: none
+
+        .p-menuitem-content .p-menuitem-link
+            padding: 0.75rem 0
+
+    .p-splitbutton-defaultbutton
+        display: none
+
+    .p-splitbutton-menubutton
+        border-top-left-radius: 7px!important
+        border-bottom-left-radius: 7px!important
+        background-color: transparent
+
+    .p-splitbutton button
+        border: none
+
+    .w-search-table
+        width: 50%
+
+        @media screen and (max-width: 600px)
+            width: 109%
+
+        @media screen and (max-width: 460px)
+            width: 110%
+
+    .w-reload
+        width: 2.5rem
+        height: 2.5rem
+
+    .new-auditing-button
+        min-height: 2.5rem
+
+        @media screen and (max-width: 600px)
+            .p-button-label
+                display: none
+
+            &.p-button
+                width: 2.5rem
+                padding: 0
+
+    .b-reload
+        border: 1px solid #b3afaf!important
+
+    .card-info
+        padding: 1rem
+        border: 1px solid #f3f3f3
+        border-radius: 0.5rem
+        background-color: #ffffff
+
+    .p-dialog-header, .p-dialog-content, .p-dialog-footer
+        background-color: #f8f6f6
+
+    .cab-label
+        color: #728196
+        font-size: 14px
+
+    .det-label
+        color: #1b1b1b
+        font-weight: 500
+
+    .w-fit
+        width: fit-content
+
+    .det-avatar
+        border-radius: 50%
+        width: 3rem
+        height: 3rem
+        background-color: #dee2e6
+        display: flex
+        justify-content: center
+        align-items: center
+
+    .i-log
+        display: flex
+        justify-content: center
+        align-items: center
+        height: 4rem
+        width: 4rem
+        padding: 1rem
+        border: 1px solid #f3f3f3
+        border-radius: .5rem
+        background-color: #e5eef7
+
+    #modalProject, #modalRecordTechnical
+        i
+            font-size: 1.3rem
+
+    // #aprobar
+    //     .p-dialog-header
+    //         padding-bottom: 0
+
+    .auditing-detail-dialog
+        overflow: hidden
+
+        .p-dialog-header
+            padding: 1.35rem 1.5rem 1rem
+            background: #ffffff
+            border-bottom: 1px solid #e8edf3
+
+        .p-dialog-content
+            padding: 1rem 1.5rem
+            max-height: 72vh
+            overflow-y: auto
+            background: #f4f6f9
+
+        .p-dialog-footer
+            padding: 0.85rem 1.5rem 1.15rem
+            background: #ffffff
+            border-top: 1px solid #e8edf3
+
+    .auditing-modal-header
+        width: 100%
+        display: grid
+        grid-template-columns: 2.5rem 1fr 2.5rem
+        align-items: center
+
+        h2
+            margin: 0
+            color: #263143
+            font-size: 1.35rem
+            font-weight: 700
+            text-align: center
+
+    .auditing-modal-header__spacer
+        width: 2.5rem
+
+    .auditing-close-button
+        width: 2.5rem
+        height: 2.5rem
+        display: grid
+        place-items: center
+        border: 0
+        border-radius: 50%
+        background: transparent
+        color: #8491a3
+        cursor: pointer
+        transition: background-color .2s ease, color .2s ease
+
+        &:hover
+            color: #263143
+            background: #eef2f6
+
+    .auditing-detail
+        display: flex
+        flex-direction: column
+        gap: .85rem
+        color: #263143
+
+    .auditing-summary-grid
+        display: grid
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+        gap: .75rem
+
+    .auditing-info-card
+        min-height: 5.25rem
+        display: flex
+        align-items: center
+        gap: .85rem
+        padding: 1rem
+        border: 1px solid #e8edf3
+        border-radius: .75rem
+        background: #ffffff
+
+        > div:last-child
+            min-width: 0
+            display: flex
+            flex-direction: column
+            align-items: flex-start
+            gap: .45rem
+
+    .auditing-info-card__icon, .auditing-meta-item__icon
+        flex: 0 0 auto
+        display: grid
+        place-items: center
+        width: 2.35rem
+        height: 2.35rem
+        border-radius: 50%
+        color: #1769c2
+        background: #eaf3fd
+
+    .auditing-percentage
+        font-size: 1.35rem
+        line-height: 1
+
+    .auditing-label
+        display: block
+        color: #65758b
+        font-size: .68rem
+        font-weight: 700
+        line-height: 1.25
+        letter-spacing: .025em
+
+    .auditing-value
+        display: block
+        color: #253044
+        font-size: .85rem
+        font-weight: 500
+        line-height: 1.4
+        overflow-wrap: anywhere
+
+    .auditing-metadata-card
+        display: grid
+        grid-template-columns: repeat(5, minmax(0, 1fr))
+        gap: .5rem
+        padding: 1rem
+        border: 1px solid #e8edf3
+        border-radius: .75rem
+        background: #ffffff
+
+    .auditing-meta-item
+        min-width: 0
+        display: flex
+        align-items: flex-start
+        gap: .65rem
+
+        > div:last-child
+            min-width: 0
+            display: flex
+            flex-direction: column
+            gap: .32rem
+
+    .auditing-meta-item__icon
+        width: 2rem
+        height: 2rem
+
+        i
+            font-size: .95rem!important
+
+    .auditing-columns
+        display: grid
+        grid-template-columns: minmax(0, .95fr) minmax(0, 1.35fr)
+        align-items: stretch
+        gap: .85rem
+
+    .auditing-section-card
+        min-width: 0
+        overflow: hidden
+        border: 1px solid #e8edf3
+        border-radius: .75rem
+        background: #ffffff
+
+    .auditing-section-title
+        display: flex
+        align-items: center
+        gap: .55rem
+        padding: .8rem 1rem
+        border-bottom: 1px solid #edf0f4
+        color: #42658d
+
+        i
+            color: #1769c2
+            font-size: 1rem!important
+
+        h3
+            margin: 0
+            font-size: .8rem
+            font-weight: 700
+            letter-spacing: .035em
+            text-transform: uppercase
+
+    .auditing-section-title--borderless
+        padding: 0
+        border-bottom: 0
+
+    .signature-list
+        display: grid
+        grid-template-columns: repeat(3, minmax(0, 1fr))
+
+    .signature-item
+        min-width: 0
+        display: flex
+        flex-direction: column
+        gap: .45rem
+        padding: .8rem
+        border-right: 1px solid #edf0f4
+
+        &:last-child
+            border-right: 0
+
+    .signature-image
+        width: 100%!important
+        max-width: 170px
+        height: 72px!important
+        object-fit: contain
+        border: 1px solid #e4e9ef
+        border-radius: .4rem
+        background: #ffffff
+
+    .image-preview-hint
+        display: flex
+        align-items: center
+        gap: .35rem
+        padding: 0 .8rem .75rem
+        color: #7c899a
+        font-size: .7rem
+
+        i
+            font-size: .75rem!important
+
+    .findings-list
+        display: flex
+        flex-direction: column
+
+    .finding-card
+        display: flex
+        flex-direction: column
+
+        & + .finding-card
+            border-top: 1px solid #e4e9ef
+
+    .finding-description
+        display: flex
+        flex-direction: column
+        gap: .35rem
+        padding: .75rem 1rem
+        border-bottom: 1px solid #edf0f4
+
+    .finding-data-grid
+        display: grid
+        grid-template-columns: repeat(3, minmax(0, 1fr))
+        border-bottom: 1px solid #edf0f4
+
+        > div
+            min-width: 0
+            display: flex
+            flex-direction: column
+            gap: .45rem
+            padding: .7rem 1rem
+            border-right: 1px solid #edf0f4
+
+            &:last-child
+                border-right: 0
+
+    .criticality-badge
+        align-self: flex-start
+        padding: .2rem .55rem
+        border-radius: .3rem
+        color: #475569
+        background: #e2e8f0
+        font-size: .72rem
+        font-weight: 700
+        text-transform: capitalize
+
+    .criticality-badge--high
+        color: #ffffff
+        background: #dc3d32
+
+    .criticality-badge--medium
+        color: #ffffff
+        background: #e99a20
+
+    .criticality-badge--low
+        color: #ffffff
+        background: #2ea44f
+
+    .finding-images
+        display: flex
+        flex-direction: column
+        gap: .55rem
+        padding: .75rem 1rem 0
+
+        .image-preview-hint
+            padding: 0 0 .75rem
+
+    .finding-images__grid
+        display: grid
+        grid-template-columns: repeat(auto-fill, minmax(135px, 1fr))
+        gap: .65rem
+
+    .finding-image
+        width: 100%!important
+        height: 105px!important
+        object-fit: cover
+        border-radius: .45rem
+        border: 1px solid #dce3eb
+
+    .auditing-empty-state
+        min-height: 7.5rem
+        display: flex
+        align-items: center
+        justify-content: center
+        gap: .5rem
+        padding: 1.25rem
+        color: #738196
+        font-size: .85rem
+        text-align: center
+
+        i
+            color: #28a745
+
+    .responses-card
+        overflow: visible
+
+    .responses-header
+        display: flex
+        justify-content: space-between
+        align-items: center
+        gap: 1rem
+        padding: .8rem 1rem
+        border-bottom: 1px solid #edf0f4
+
+    .response-legend
+        display: flex
+        align-items: center
+        gap: 1.25rem
+        color: #65758b
+        font-size: .72rem
+
+        span
+            display: flex
+            align-items: center
+            gap: .35rem
+
+    .response-dot
+        width: .55rem
+        height: .55rem
+        display: inline-block
+        border-radius: 50%
+
+    .response-dot--yes
+        background: #38b64a
+
+    .response-dot--no
+        background: #db3e32
+
+    .response-dot--na
+        background: #a7b0bc
+
+    .responses-table-wrapper
+        width: 100%
+        overflow-x: auto
+
+    .responses-table
+        width: 100%
+        border-collapse: collapse
+        table-layout: auto
+
+        th, td
+            padding: .55rem .75rem
+            border-bottom: 1px solid #edf0f4
+            color: #354052
+            font-size: .76rem
+            text-align: left
+            vertical-align: middle
+
+        th
+            color: #65758b
+            background: #f9fafc
+            font-size: .65rem
+            font-weight: 700
+            letter-spacing: .02em
+            text-transform: uppercase
+            white-space: nowrap
+
+        tbody tr:last-child td
+            border-bottom: 0
+
+        tbody tr:hover
+            background: #f8fbff
+
+    .response-badge
+        min-width: 3.25rem
+        display: inline-flex
+        justify-content: center
+        padding: .22rem .55rem
+        border-radius: .25rem
+        color: #ffffff
+        background: #a7b0bc
+        font-size: .68rem
+        font-weight: 700
+        text-transform: uppercase
+
+    .response-badge--yes
+        background: #38b64a
+
+    .response-badge--no
+        background: #db3e32
+
+    .response-badge--na
+        background: #a7b0bc
+
+    .auditing-modal-footer
+        display: flex
+        justify-content: center
+
+    .auditing-close-action
+        min-width: 7.5rem
+
+    @media screen and (max-width: 960px)
+        .auditing-detail-dialog
+            width: 92vw!important
+
+        .auditing-metadata-card
+            grid-template-columns: repeat(2, minmax(0, 1fr))
+
+        .auditing-columns
+            grid-template-columns: 1fr
+
+    @media screen and (max-width: 600px)
+        .auditing-detail-dialog
+            width: 96vw!important
+
+            .p-dialog-header, .p-dialog-content, .p-dialog-footer
+                padding-left: .85rem
+                padding-right: .85rem
+
+        .auditing-modal-header h2
+            font-size: 1.05rem
+
+        .auditing-summary-grid, .auditing-metadata-card
+            grid-template-columns: 1fr
+
+        .signature-list
+            grid-template-columns: 1fr
+
+        .signature-item
+            border-right: 0
+            border-bottom: 1px solid #edf0f4
+
+            &:last-child
+                border-bottom: 0
+
+        .finding-data-grid
+            grid-template-columns: 1fr
+
+            > div
+                border-right: 0
+                border-bottom: 1px solid #edf0f4
+
+                &:last-child
+                    border-bottom: 0
+
+        .responses-header
+            align-items: flex-start
+            flex-direction: column
+
+        .response-legend
+            gap: .85rem
