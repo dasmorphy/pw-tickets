@@ -16,6 +16,7 @@ import { UtilsService } from 'src/app/services/utils.service';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToastModule } from 'primeng/toast';
 import { UserService } from 'src/app/services/user.service';
+import { TicketDetailSidebarComponent, TicketDetailType } from 'src/app/components/modals/ticket-detail-sidebar/ticket-detail-sidebar.component';
 
 interface CommercialTicket {
   id: number | string;
@@ -57,7 +58,8 @@ interface CommercialFollowup {
     TooltipModule,
     SplitButtonModule,
     ProgressSpinnerModule,
-    ToastModule
+    ToastModule,
+    TicketDetailSidebarComponent
   ],
   templateUrl: './tickets-commercial.component.html',
   styleUrls: ['./tickets-commercial.component.sass']
@@ -91,19 +93,20 @@ export class TicketsCommercialComponent {
 
   pendingTickets: CommercialTicket[] = [];
   completedTickets: CommercialTicket[] = [];
-  pendingTotalRecords = 0;
-  completedTotalRecords = 0;
   completedLoading = false;
   private completedLoaded = false;
   area_user: string;
 
   pendingFilters = { first: 0, rows: 5 };
 
+  showDetail = false;
+  detailType: TicketDetailType = 'commercial';
+
   items: any = [
     {
         label: 'Ver detalles',
         icon: 'pi pi-eye',
-        // command: () => this.viewLogbookDetails(this.selectedLogbook)
+        command: () => this.viewDetails('commercial')
     },
     {
         label: 'Ver seguimientos',
@@ -128,7 +131,7 @@ export class TicketsCommercialComponent {
     {
         label: 'Ver detalles',
         icon: 'pi pi-eye',
-        // command: () => this.viewLogbookDetails(this.selectedLogbook)
+        command: () => this.viewDetails('inspection')
     },
     {
         label: 'Registro',
@@ -141,6 +144,7 @@ export class TicketsCommercialComponent {
   ngOnInit() {
     this.user_json = this.userService.getDataSession();
     this.area_user = this.user_json?.attributes?.area
+    this.fetchPendingTickets()
   }
 
 
@@ -154,14 +158,11 @@ export class TicketsCommercialComponent {
   }
 
   fetchPendingTickets(): void {
-    this.glpiService.getTicketsTechnical({
-      page: this.pendingFilters.first,
-      page_size: this.pendingFilters.rows,
+    this.glpiService.getInspectionTechnical({
       pending_commercial: true
     }).subscribe({
       next: (response: any) => {
-        this.pendingTickets = response?.data?.data ?? response?.data ?? [];
-        this.pendingTotalRecords = response?.pagination?.total ?? this.pendingTickets.length;
+        this.pendingTickets = response?.data ?? [];
       },
       error: () => this.utilsService.onError('Error al obtener las solicitudes pendientes.')
     });
@@ -172,9 +173,7 @@ export class TicketsCommercialComponent {
 
     this.glpiService.getTicketsCommercial().subscribe({
       next: (response: any) => {
-        const payload = response?.data ?? response?.body?.data ?? response?.body ?? response;
-        this.completedTickets = this.extractRecords(payload);
-        this.completedTotalRecords = response?.pagination?.total ?? response?.data?.pagination?.total ?? this.completedTickets.length;
+        this.completedTickets = response?.data;
         this.completedLoaded = true;
         this.completedLoading = false;
       },
@@ -196,14 +195,6 @@ export class TicketsCommercialComponent {
         this.utilsService.onError(error?.error?.message ?? 'Error al obtener los seguimientos')
       }
     })
-  }
-
-  pendingPageChange(event: { first?: number | null; rows?: number | null }): void {
-    this.pendingFilters = {
-      first: event.first ?? 0,
-      rows: event.rows ?? this.pendingFilters.rows
-    };
-    this.fetchPendingTickets();
   }
 
   applyFilters(): void {
@@ -231,6 +222,11 @@ export class TicketsCommercialComponent {
     return payload?.data ?? payload?.items ?? payload?.results ?? [];
   }
 
+  viewDetails(type: TicketDetailType) {
+    this.detailType = type;
+    this.showDetail = true;
+  }
+
   optionsTicket(ticket: any) {
     this.selectedTicket = ticket
   }
@@ -247,12 +243,12 @@ export class TicketsCommercialComponent {
 
   routeRegister() {
     this.router.navigate([
-      `/editar-ticket/${this.selectedTicket?.ticket_glpi}/${this.selectedTicket?.id_management_commercial}`
+      `/editar-ticket/${this.selectedTicket?.id_inspection}/${this.selectedTicket?.id_management_commercial}`
     ]);
   }
 
   routeNewRegister() {
-    this.router.navigate([`/registro-ticket/${this.selectedTicket?.ticket_glpi}`]);
+    this.router.navigate([`/registro-ticket/${this.selectedTicket?.id_inspection}`]);
   }
 
   saveFollowup(){
@@ -267,6 +263,7 @@ export class TicketsCommercialComponent {
     this.glpiService.saveFollowup(data).subscribe({
       next: (data: any) => {
         this.isLoading = false;
+        this.fetchCompletedTickets();
         this.utilsService.onSuccess('Seguimiento creado correctamente')
       },
       error: (error: any) => {

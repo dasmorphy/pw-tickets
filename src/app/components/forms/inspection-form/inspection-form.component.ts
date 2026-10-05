@@ -38,18 +38,18 @@ import { MultiSelectModule } from 'primeng/multiselect';
     styleUrls: ['./inspection-form.component.sass']
 })
 export class InspectionFormComponent {
-    @Input() ticketIdEdit: number;
     
     private glpiService = inject(GlpiService);
     private utilsService = inject(UtilsService);
     private userService = inject(UserService);
-
+    
     ticketForm: FormGroup;
-
+    
     clientsOptions: any[] = [];
     ubicationsOptions: any[] = [];
     user_session: any;
-
+    ticketIdEdit: number;
+    
     caseTypeOptions = ['Requiere cotización', 'Interno', 'Garantía', 'Aprobado directo'];
     priorityOptions = ['Urgente', 'Alta', 'Media', 'Baja'];
     managementStatusOptions = ['No iniciado', 'En proceso', 'Completado', 'No aplica'];
@@ -60,6 +60,7 @@ export class InspectionFormComponent {
     readonly nextActions = ['Facturar', 'Solicitar reunión con cliente', 'En revisión por cliente'];
     readonly actionOwners = ['Asesor', 'Área técnica', 'Contabilidad'];
     users_intern: any = [];
+    minDate: Date = new Date();
 
 
     constructor(private fb: FormBuilder, private route: ActivatedRoute, private router: Router) {
@@ -74,8 +75,9 @@ export class InspectionFormComponent {
             management_status: [null, Validators.required],
             status: [null, Validators.required],
             commitment_date: ['', Validators.required],
-            requires_material: [false],
+            // requires_material: [false],
             requires_monitoring: [false],
+            title_ticket: ['', Validators.required],
             responsible_id: ['', Validators.required],
             responsible_name: [''],
             observations: [''],
@@ -84,6 +86,11 @@ export class InspectionFormComponent {
     
     ngOnInit() {
         this.user_session = this.userService.getDataSession();
+        const inspectionId = this.route.snapshot.paramMap.get('id_inspection');
+        if (inspectionId) {
+            this.ticketIdEdit = Number(inspectionId);
+        }
+        // En modo edición, fetchClients carga el registro cuando ya existen los clientes
         this.fetchClients();
         this.fetchUsers();
     }
@@ -118,10 +125,14 @@ export class InspectionFormComponent {
     loadTicket(): void {
         console.log(this.ticketIdEdit)
 
-        this.glpiService.getTicketsTechnical({'ticket_technical_id': this.ticketIdEdit}).subscribe({
+        this.glpiService.getInspectionTechnical({'id_inspection': this.ticketIdEdit}).subscribe({
             next: (data: any) => {
                 console.log(data)
-                const dataTicket = data?.data?.data?.[0]
+                const dataTicket = data?.data?.[0]
+                if (!dataTicket) {
+                    this.utilsService.onError('No se encontró la inspección a editar')
+                    return;
+                }
                 this.setTicketEdit(dataTicket)
             },
             error: (error: any) => {
@@ -201,9 +212,9 @@ export class InspectionFormComponent {
 
             console.log('Ticket data to save:', ticketData);
 
-            // if (this.ticketIdEdit) {
-            //     this.updateTicket(ticketData);
-            // }else{
+            if (this.ticketIdEdit) {
+                this.updateTicket(ticketData);
+            }else{
                 this.glpiService.saveInspectionTechnical(ticketData).subscribe({
                     next: (data: any) => {
                         console.log(data)
@@ -215,7 +226,7 @@ export class InspectionFormComponent {
                         this.utilsService.onError(error?.error?.message ?? 'Error al crear el registro, por favor intente nuevamente');
                     }
                 })
-            // }
+            }
 
         } else {
             this.utilsService.onWarn('Por favor, complete todos los campos requeridos.');
@@ -223,7 +234,7 @@ export class InspectionFormComponent {
     }
 
     updateTicket(data: any) {
-        this.glpiService.updateTicketTechnical(data).subscribe({
+        this.glpiService.updateInspectionTechnical(this.ticketIdEdit, data).subscribe({
             next: (data: any) => {
                 console.log(data)
                 this.utilsService.onSuccess('Ticket actualizado exitosamente.');
@@ -243,25 +254,29 @@ export class InspectionFormComponent {
 
         this.ticketForm.patchValue({
             client_id: dataTicket?.client_id,
+            client_name: dataTicket?.client_name,
             ubication_id: dataTicket?.ubication_id,
+            ubication_name: dataTicket?.ubication_name ?? dataTicket?.location_name,
             contact: dataTicket?.contact,
+            title_ticket: dataTicket?.title_ticket,
             case_type: dataTicket?.case_type,
             priority: dataTicket?.priority,
             management_status: dataTicket?.management_status,
             status: dataTicket?.status,
-            next_action: dataTicket?.next_action,
             commitment_date: commitmentDate,
-            // ticket_glpi: dataTicket?.ticket_glpi,
-            requires_material: dataTicket?.requires_material,
-            requires_monitoring: dataTicket?.requires_monitoring,
+            responsible_id: dataTicket?.responsible_id,
+            responsible_name: dataTicket?.responsible_name,
+            // requires_material: dataTicket?.requires_material ?? false,
+            requires_monitoring: dataTicket?.requires_monitoring ?? false,
             observations: dataTicket?.observations,
         })
 
-        const client = this.clientsOptions.find( x => x.id_client === dataTicket?.client_id );
-        
-        if (client) { 
+        const client = this.clientsOptions.find(x => String(x.id_client) === String(dataTicket?.client_id));
+
+        if (client) {
+            // Carga las ubicaciones del cliente y vuelve a seleccionar ubication_id
             this.changeClient(client);
         }
     }
-        
+
 }

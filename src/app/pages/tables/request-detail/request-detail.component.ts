@@ -74,7 +74,7 @@ export class RequestDetailComponent {
   readonly utilsService = inject(UtilsService);
   
 
-  readonly ticket = `#${this.route.snapshot.paramMap.get('ticket') ?? 'INC-2024-1258'}`;
+  ticket = 'N/A';
   readonly origins = ['Cliente Actual', 'Referido', 'Visita comercial', 'Whatsapp', 'Correo', 'Web / redes', 'Licitación'];
   readonly solutionTypes = ['CCTV', 'Monitoreo', 'Control de acceso', 'Alarmas / intrusión', 'Redes / telecomunicaciones', 'Energía / fotovoltaico', 'Mantenimiento / Soporte'];
   readonly statuses = ['Por elaborar', 'Enviada', 'Seguimiento', 'Negociación', 'Aprobada', 'Rechazada', 'En pausa'];
@@ -109,6 +109,7 @@ export class RequestDetailComponent {
       next: (response: any) => {
         console.log('dadasdsa')
         this.ticketDetails = response?.data[0] || {};
+        this.ticket = this.ticketDetails?.code ?? 'N/A';
         console.log('Ticket details:', this.ticketDetails);
       },
       error: (error: any) => {
@@ -164,11 +165,6 @@ export class RequestDetailComponent {
         console.error('Error al descargar documento:', error);
       }
     });
-  }
-
-  redirectTicketGlpi() {
-    const url = `http://192.168.230.253/glpi/front/ticket.form.php?id=${this.ticketIdRouteParam}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
 }

@@ -48,6 +48,12 @@
                         </div>
 
                         <div class="field">
+                            <label for="title">Titulo</label>
+                            <input pInputText inputId="title" formControlName="title_ticket" styleClass="w-full"
+                                class="w-full">
+                        </div>
+
+                        <div class="field">
                             <label for="case_type">Ruta del caso</label>
                             <p-dropdown inputId="case_type" name="case_type" [options]="caseTypeOptions"
                                 formControlName="case_type" placeholder="Seleccione una opción" styleClass="w-full"
@@ -77,7 +83,7 @@
 
                         <div class="field">
                             <label for="commitment_date">Fecha compomiso</label>
-                            <p-calendar inputId="commitment_date" name="commitment_date"
+                            <p-calendar inputId="commitment_date" name="commitment_date" [minDate]="minDate"
                                 formControlName="commitment_date" dateFormat="dd/mm/yy" [showIcon]="true"
                                 [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
                         </div>
@@ -91,13 +97,13 @@
                     </div>
 
                     <div class="checks-grid">
-                        <label class="check-field" for="requires_material">
+                        <!-- <label class="check-field" for="requires_material">
                             <p-checkbox inputId="requires_material" name="requires_material"
                                 formControlName="requires_material" [binary]="true"></p-checkbox>
                             <span><strong>Requiere materiales</strong><small>{{
                                     ticketForm.get('requires_material')?.value ? 'Sí' : 'No'
                                     }}</small></span>
-                        </label>
+                        </label> -->
 
                         <label class="check-field" for="requires_monitoring">
                             <p-checkbox inputId="requires_monitoring" name="requires_monitoring"

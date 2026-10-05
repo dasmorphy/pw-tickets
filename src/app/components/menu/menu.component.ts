@@ -78,6 +78,13 @@ export class MenuComponent implements OnInit {
             // visible: this.user_permissions_signal()?.includes('NUEVA_INSPECCION'),
             routerLink: ['nueva-inspeccion'],
             command: () => { this.clickHiddenToggle() }
+          },
+          {
+            label: 'Por aprobar',
+            icon: 'pi pi-list-check',
+            // visible: this.user_permissions_signal()?.includes('NUEVA_INSPECCION'),
+            routerLink: ['inspecciones-por-aprobar'],
+            command: () => { this.clickHiddenToggle() }
           }
         ]
         

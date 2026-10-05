@@ -1,117 +1,213 @@
-<section class="info-card commercial-card">
-    <header><span class="commercial-icon"><i class="pi pi-cog"></i></span>
-        <h2>Gestión Técnica</h2>
-    </header>
+<p-toast></p-toast>
 
-    <form #commercialForm="ngForm" [formGroup]="ticketForm" class="commercial-form">
-        <div class="form-grid">
-            <div class="field">
-                <label for="client_id">Cliente</label>
-                <p-dropdown inputId="client_id" name="client_id" [options]="clientsOptions" [filter]="true" filterBy="name"
-                    placeholder="Seleccione un cliente" styleClass="w-full" appendTo="body" optionLabel="name"
-                    optionValue="id_client" formControlName="client_id" (onChange)="changeClient($event.value)">
-                </p-dropdown>
-            </div>
+<main class="detail-page">
+  <div class="detail-shell">
+    <nav class="breadcrumb" aria-label="Navegación">
+      <a routerLink="/tickets-tecnicos">Tickets</a>
+      <i class="pi pi-chevron-right"></i>
+      <span>Inspección {{ ticket }}</span>
+    </nav>
 
-            <div class="field">
-                <label for="ubication_id">Ubicación</label>
-                <p-dropdown inputId="ubication_id" name="ubication_id" [options]="ubicationsOptions"
-                    [filter]="true" filterBy="name" (onChange)="changeUbication($event.value)" optionLabel="name"
-                    optionValue="id_location" formControlName="ubication_id" placeholder="Seleccione una ubicación" styleClass="w-full"
-                    appendTo="body"></p-dropdown>
-            </div>
-
-            <div class="field">
-                <label for="client_id">Responsable</label>
-                <p-multiSelect 
-                    [style]="{ boxShadow: 'none' }"
-                    styleClass="border-round w-full text-xs"
-                    id="optionSector"
-                    [filter]="true" filterBy="fullname"
-                    [options]="users_intern"
-                    optionLabel="fullname"
-                    optionValue="id_user"
-                    formControlName="responsible"
-                    placeholder="Seleccione una opción"
-                ></p-multiSelect>
-            </div>
-
-            <div class="field">
-                <label for="contact">Contacto</label>
-                <input pInputText inputId="contact" formControlName="contact"
-                    styleClass="w-full" class="w-full">
-            </div>
-
-            <div class="field">
-                <label for="case_type">Ruta del caso</label>
-                <p-dropdown inputId="case_type" name="case_type" [options]="caseTypeOptions"
-                    formControlName="case_type" placeholder="Seleccione una opción" styleClass="w-full"
-                    appendTo="body"></p-dropdown>
-            </div>
-
-            <div class="field">
-                <label for="priority">Prioridad</label>
-                <p-dropdown inputId="priority" name="priority" [options]="priorityOptions"
-                    formControlName="priority" placeholder="Seleccione una opción" styleClass="w-full"
-                    appendTo="body"></p-dropdown>
-            </div>
-
-            <div class="field">
-                <label for="management_status">Estado del levantamiento</label>
-                <p-dropdown inputId="management_status" name="management_status" [options]="managementStatusOptions"
-                    formControlName="management_status" placeholder="Seleccione una opción" styleClass="w-full"
-                    appendTo="body"></p-dropdown>
-            </div>
-
-            <!-- <div class="field">
-                <label for="next_action">Próxima acción</label>
-                <p-dropdown inputId="next_action" name="next_action" [options]="nextActionsOptions"
-                    formControlName="next_action" placeholder="Seleccione una opción" styleClass="w-full"
-                    appendTo="body"></p-dropdown>
-            </div> -->
-
-            <div class="field">
-                <label for="commitment_date">Fecha compomiso</label>
-                <p-calendar inputId="commitment_date" name="commitment_date"
-                    formControlName="commitment_date" dateFormat="dd/mm/yy" [showIcon]="true"
-                    [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
-            </div>
-
-            <div class="field">
-                <label for="status">Estado</label>
-                <p-dropdown inputId="status" name="status" [options]="statusOptions"
-                    formControlName="status" placeholder="Seleccione una opción" styleClass="w-full"
-                    appendTo="body"></p-dropdown>
-            </div>
+    <section class="ticket-summary">
+      <div class="ticket-identity">
+        <div class="ticket-icon"><i class="pi pi-file"></i></div>
+        <div>
+          <div class="title-line">
+            <h1>{{ ticketDetails?.title_ticket }}</h1>
+          </div>
+          <div class="ticket-meta">
+            <span>Creado el {{ ticketDetails?.created_at | date: 'dd/MM/yyyy HH:mm':'UTC' }} por {{ ticketDetails?.created_by }}</span>
+          </div>
         </div>
+      </div>
+    </section>
 
-        <div class="checks-grid">
-            <label class="check-field" for="requires_material">
-                <p-checkbox inputId="requires_material" name="requires_material"
-                    formControlName="requires_material" [binary]="true"></p-checkbox>
-                <span><strong>Requiere materiales</strong><small>{{ ticketForm.get('requires_material')?.value ? 'Sí' : 'No'
-                        }}</small></span>
-            </label>
+    <div class="content-grid">
+      <section class="info-card glpi-card">
+        <header><i class="pi pi-file-export"></i><h2>Información inspección</h2></header>
+        <dl>
+          <div><dt>Solicitud</dt><dd>{{ ticketDetails?.code }}</dd></div>
+          <div><dt>Cliente</dt><dd> {{ticketDetails?.client_name}} </dd></div>
+          <div><dt>Ubicación</dt><dd>{{ticketDetails?.location_name}}</dd></div>
+          <div><dt>Contacto</dt><dd>{{ ticketDetails?.contact }}</dd></div>
+          <div><dt>Prioridad</dt><dd>{{ ticketDetails?.priority }}</dd></div>
+          <div><dt>Fecha de creación</dt><dd>{{ ticketDetails?.created_at | date: 'dd/MM/yyyy' }}</dd></div>
+          <div><dt>Responsable</dt><dd>{{ ticketDetails?.responsible_name }}</dd></div>
+        </dl>
+    </section>
+    <section class="info-card commercial-card">
+        <header><span class="commercial-icon"><i class="pi pi-cog"></i></span>
+            <h2>{{ ticketIdEdit ? 'Editar registro' : 'Registro' }}</h2>
+            @if (ticketIdEdit && codeManagement) {
+                <span class="count-badge">{{ codeManagement }}</span>
+            }
+            @if (loadingTicket) {
+                <span class="loading-hint"><i class="pi pi-spin pi-spinner"></i> Cargando registro...</span>
+            }
+        </header>
 
-            <label class="check-field" for="requires_monitoring">
-                <p-checkbox inputId="requires_monitoring" name="requires_monitoring"
-                    formControlName="requires_monitoring" [binary]="true"></p-checkbox>
-                <span><strong>Requiere monitoreo</strong><small>{{ ticketForm.get('requires_monitoring')?.value ? 'Sí' : 'No'
-                        }}</small></span>
-            </label>
-        </div>
+        <form [formGroup]="ticketForm" class="commercial-form" (ngSubmit)="saveTicket()">
+            <div class="form-section">
+                <div class="section-title">
+                    <div>
+                        <h3>Materiales</h3>
+                        <p>Seleccione un material, indique la cantidad y agréguelo a la lista.</p>
+                    </div>
+                    @if (selectedMaterials.length) {
+                        <span class="count-badge">{{ selectedMaterials.length }} {{ selectedMaterials.length === 1 ? 'material' : 'materiales' }}</span>
+                    }
+                </div>
 
-        <div class="field full-field">
-            <label for="observations">Observaciones</label>
-            <textarea pInputTextarea id="observations" name="observations" formControlName="observations"
-                rows="3" [autoResize]="true"></textarea>
-        </div>
+                <div class="mode-switch" role="tablist" aria-label="Origen del material">
+                    <button type="button" role="tab" [class.active]="!isNewMaterial"
+                        [attr.aria-selected]="!isNewMaterial" (click)="isNewMaterial = false">
+                        <i class="pi pi-list"></i> Del catálogo
+                    </button>
+                    <button type="button" role="tab" [class.active]="isNewMaterial"
+                        [attr.aria-selected]="isNewMaterial" (click)="isNewMaterial = true">
+                        <i class="pi pi-plus-circle"></i> Nuevo producto
+                    </button>
+                </div>
 
-        <div class="form-actions">
-            <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
-                routerLink="/solicitudes"></p-button>
-            <p-button type="submit" label="Guardar" icon="pi pi-save"
-               (click)="saveTicket()" styleClass="save-button"></p-button>
-        </div>
-    </form>
-</section>
+                <div class="material-picker" [class.new-material]="isNewMaterial">
+                    @if (isNewMaterial) {
+                    <div class="field">
+                        <label for="new_material_name">Nombre</label>
+                        <input pInputText id="new_material_name" type="text" class="w-full" maxlength="150"
+                            [(ngModel)]="newMaterialName" [ngModelOptions]="{standalone: true}"
+                            placeholder="Nombre del producto"
+                            (keydown.enter)="$event.preventDefault(); addMaterial()" />
+                    </div>
+
+                    <div class="field">
+                        <label for="new_material_description">Descripción <small>(opcional)</small></label>
+                        <input pInputText id="new_material_description" type="text" class="w-full" maxlength="250"
+                            [(ngModel)]="newMaterialDescription" [ngModelOptions]="{standalone: true}"
+                            placeholder="Marca, medidas, detalle..."
+                            (keydown.enter)="$event.preventDefault(); addMaterial()" />
+                    </div>
+                    } @else {
+                    <div class="field">
+                        <label for="material">Material</label>
+                        <p-dropdown inputId="material" [options]="materialsOptions" [(ngModel)]="materialSelected"
+                            [ngModelOptions]="{standalone: true}" optionLabel="product" [filter]="true"
+                            filterBy="product,provider,code" [showClear]="true" placeholder="Buscar material"
+                            emptyMessage="Sin materiales" emptyFilterMessage="Sin resultados" styleClass="w-full"
+                            appendTo="body">
+                            <ng-template let-material pTemplate="item">
+                                <div class="material-option">
+                                    <strong>{{ material.product }}</strong>
+                                    <small>{{ material.provider || 'Sin proveedor' }} · {{ material.unit || 'Unid.' }}</small>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+                    }
+
+                    <div class="field quantity-field">
+                        <label for="material_quantity">Cantidad</label>
+                        <p-inputNumber inputId="material_quantity" [(ngModel)]="materialQuantity"
+                            [ngModelOptions]="{standalone: true}" [min]="0" [maxFractionDigits]="2"
+                            placeholder="0" (keydown.enter)="$event.preventDefault(); addMaterial()"></p-inputNumber>
+                    </div>
+                    
+                    <div class="flex justify-content-center align-items-center mb-3">
+                        <p-button type="button" label="Agregar" icon="pi pi-plus" styleClass="add-button"
+                            (click)="addMaterial()"></p-button>
+                    </div>
+                </div>
+
+                @if (selectedMaterials.length) {
+                    <ul class="materials-list">
+                        @for (item of selectedMaterials; track item; let i = $index) {
+                            <li class="material-row">
+                                <span class="material-icon" [class.new-icon]="item.is_new">
+                                    <i class="pi" [ngClass]="item.is_new ? 'pi-plus-circle' : 'pi-box'"></i>
+                                </span>
+                                <div class="material-info">
+                                    <strong [title]="item.product">
+                                        {{ item.product }}
+                                        @if (item.is_new) {
+                                            <span class="new-badge">Nuevo</span>
+                                        }
+                                    </strong>
+                                    @if (item.is_new) {
+                                        <small [title]="item.description || ''">{{ item.description || 'Sin descripción' }}</small>
+                                    } @else {
+                                        <small>{{ item.provider || 'Sin proveedor' }}</small>
+                                    }
+                                </div>
+                                <div class="material-quantity">
+                                    <p-inputNumber [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}"
+                                        [min]="0" [maxFractionDigits]="2" ariaLabel="Cantidad"></p-inputNumber>
+                                    <span>{{ item.unit || 'Unid.' }}</span>
+                                </div>
+                                <button pButton type="button" icon="pi pi-trash"
+                                    class="p-button-text p-button-rounded p-button-danger remove-button"
+                                    aria-label="Quitar material" (click)="removeMaterial(i)"></button>
+                            </li>
+                        }
+                    </ul>
+                } @else {
+                    <div class="materials-empty">
+                        <i class="pi pi-box"></i>
+                        <span>Aún no se han agregado materiales.</span>
+                    </div>
+                }
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">
+                    <div>
+                        <h3>Descripción</h3>
+                        <p>Detalle el trabajo a realizar.</p>
+                    </div>
+                </div>
+
+                <p-editor formControlName="description" placeholder="Escriba la descripción..."
+                    [style]="{ height: '220px' }">
+                    <ng-template pTemplate="header">
+                        <span class="ql-formats">
+                            <select class="ql-header" aria-label="Tamaño de título">
+                                <option value="1">Título</option>
+                                <option value="2">Subtítulo</option>
+                                <option selected>Normal</option>
+                            </select>
+                        </span>
+                        <span class="ql-formats">
+                            <button type="button" class="ql-bold" aria-label="Negrita"></button>
+                            <button type="button" class="ql-italic" aria-label="Cursiva"></button>
+                            <button type="button" class="ql-underline" aria-label="Subrayado"></button>
+                            <button type="button" class="ql-strike" aria-label="Tachado"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button type="button" class="ql-list" value="ordered" aria-label="Lista numerada"></button>
+                            <button type="button" class="ql-list" value="bullet" aria-label="Lista con viñetas"></button>
+                            <button type="button" class="ql-indent" value="-1" aria-label="Reducir sangría"></button>
+                            <button type="button" class="ql-indent" value="+1" aria-label="Aumentar sangría"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select class="ql-color" aria-label="Color de texto"></select>
+                            <select class="ql-background" aria-label="Color de fondo"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button type="button" class="ql-link" aria-label="Enlace"></button>
+                            <button type="button" class="ql-clean" aria-label="Quitar formato"></button>
+                        </span>
+                    </ng-template>
+                </p-editor>
+            </div>
+
+            <div class="form-actions">
+                <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
+                    [routerLink]="ticketIdEdit ? '/tickets-tecnicos' : '/solicitudes'"></p-button>
+                <p-button type="submit" [label]="ticketIdEdit ? 'Guardar cambios' : 'Guardar'" icon="pi pi-save"
+                    styleClass="save-button" [disabled]="loadingTicket"></p-button>
+            </div>
+        </form>
+    </section>
+
+
+    </div>
+  </div>
+</main>

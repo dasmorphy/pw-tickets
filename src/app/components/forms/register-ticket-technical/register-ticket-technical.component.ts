@@ -2,19 +2,17 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
-import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
+import { EditorModule } from 'primeng/editor';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
+import { catchError, forkJoin, of } from 'rxjs';
 import { GlpiService } from 'src/app/services/glpi.service';
 import { UtilsService } from 'src/app/services/utils.service';
-import { InputTextModule } from "primeng/inputtext";
 import { UserService } from 'src/app/services/user.service';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { ProjectTechnicalService } from 'src/app/services/project-technical.service';
 
 @Component({
     selector: 'app-register-ticket-technical',
@@ -23,244 +21,259 @@ import { MultiSelectModule } from 'primeng/multiselect';
         CommonModule,
         RouterModule,
         ButtonModule,
-        CalendarModule,
-        CheckboxModule,
         DropdownModule,
+        EditorModule,
         InputNumberModule,
-        InputTextareaModule,
+        InputTextModule,
         ToastModule,
         FormsModule,
-        ReactiveFormsModule,
-        InputTextModule,
-        MultiSelectModule
+        ReactiveFormsModule
     ],
     templateUrl: './register-ticket-technical.component.html',
     styleUrls: ['./register-ticket-technical.component.sass']
 })
 export class RegisterTicketTechnicalComponent {
     @Input() ticketIdEdit: number;
-    
+
     private glpiService = inject(GlpiService);
     private utilsService = inject(UtilsService);
     private userService = inject(UserService);
+    private readonly projectTechnicalService = inject(ProjectTechnicalService);
 
     ticketForm: FormGroup;
 
-    clientsOptions: any[] = [];
-    ubicationsOptions: any[] = [];
     user_session: any;
 
-    caseTypeOptions = ['Requiere cotización', 'Interno', 'Garantía', 'Aprobado directo'];
-    priorityOptions = ['Urgente', 'Alta', 'Media', 'Baja'];
-    managementStatusOptions = ['No iniciado', 'En proceso', 'Completado', 'No aplica'];
-    statusOptions = ['Nuevo', 'En levantamiento', 'Pendiente de información', 'Listo para cotizar', 'En cotización',
-        'Listo para ejecutar', 'En ejecución', 'Cerrado', 'Cancelado'
-    ];
-    nextActionsOptions = ['Cotización', 'Inspección'];
-    readonly nextActions = ['Facturar', 'Solicitar reunión con cliente', 'En revisión por cliente'];
-    readonly actionOwners = ['Asesor', 'Área técnica', 'Contabilidad'];
-    users_intern: any = [];
+    materialsOptions: any[] = [];
+    selectedMaterials: any[] = [];
+    materialSelected: any = null;
+    materialQuantity: number | null = null;
+    isNewMaterial = false;
+    newMaterialName = '';
+    newMaterialDescription = '';
+
+    ticketDetails: any = null;
+    codeManagement: string | null = null;
+    loadingTicket = false;
+
+    readonly ticket = `#${this.route.snapshot.paramMap.get('inspection_id') ?? 'N/A'}`;
 
 
     constructor(private fb: FormBuilder, private route: ActivatedRoute, private router: Router) {
         this.ticketForm = this.fb.group({
-            client_id: ['', Validators.required],
-            client_name: ['', Validators.required],
-            ubication_name: ['', Validators.required],
-            ubication_id: ['', Validators.required],
-            contact: ['', Validators.required],
-            case_type: ['', Validators.required],
-            priority: [null, Validators.required],
-            management_status: [null, Validators.required],
-            status: [null, Validators.required],
-            next_action: [null, Validators.required],
-            commitment_date: ['', Validators.required],
-            ticket_glpi: [null, Validators.required],
-            requires_material: [false],
-            requires_monitoring: [false],
-            responsible: ['', Validators.required],
-            observations: [''],
+            inspection_id: [null, Validators.required],
+            description: [''],
         });
     }
-    
+
     ngOnInit() {
-        console.log(this.ticketIdEdit)
         this.user_session = this.userService.getDataSession();
-        const ticketId = this.route.snapshot.paramMap.get('ticket_glpi');
-        if (ticketId) {
-            this.ticketForm.patchValue({
-                ticket_glpi: parseInt(ticketId, 10),
-            })
-        }
 
-        this.fetchClients();
-        this.fetchUsers();
+        const inspectionId = this.route.snapshot.paramMap.get('inspection_id');
+        if (inspectionId) {
+            const ticketIdRouteParam = parseInt(inspectionId, 10);
+            this.ticketForm.patchValue({
+                inspection_id: ticketIdRouteParam,
+            })
+            this.getDetailTicket(ticketIdRouteParam);
+        }
     }
 
-    fetchUsers() {
-        const filters = {
-            roles: ['asesor_comercial', 'tecnico']
-        }
-        this.userService.getUsers(filters).subscribe({
-            next: (data: any) => {
-                this.users_intern = (data?.data ?? []).map((user: any) => ({
-                ...user,
-                fullname: user.attributes?.fullname
-                }));
+    // Busca la inspección de la ruta; si ya tiene registro técnico (technical_id) se carga para editarlo.
+    // El catálogo se carga a la par para mostrar el nombre de cada material.
+    getDetailTicket(inspectionId: number): void {
+        this.loadingTicket = true;
+        forkJoin({
+            materials: this.projectTechnicalService.getMaterials().pipe(
+                catchError((error: any) => {
+                    console.error('Error fetching materials:', error);
+                    this.utilsService.onError('Error al obtener los materiales. Por favor, inténtelo de nuevo más tarde.');
+                    return of({ data: [] });
+                })
+            ),
+            inspection: this.glpiService.getInspectionTechnical({ id_inspection: inspectionId }),
+        }).subscribe({
+            next: ({ materials, inspection }: any) => {
+                this.materialsOptions = materials?.data ?? [];
+                this.ticketDetails = inspection?.data?.[0] || {};
+
+                const technicalId = this.ticketDetails?.technical_id;
+                if (!technicalId) {
+                    this.loadingTicket = false;
+                    return;
+                }
+
+                this.ticketIdEdit = technicalId;
+                this.loadTechnicalRegister(technicalId);
             },
             error: (error: any) => {
-                console.log(error);
+                console.error('Error fetching ticket details:', error);
+                this.loadingTicket = false;
+                this.utilsService.onError('Error al obtener los detalles del ticket, por favor inténtelo de nuevo más tarde.');
             }
         });
     }
 
-    loadTicket(): void {
-        console.log(this.ticketIdEdit)
+    loadTechnicalRegister(technicalId: number): void {
+        this.glpiService.getTicketsTechnical({ ticket_technical_id: technicalId }).subscribe({
+            next: (response: any) => {
+                this.loadingTicket = false;
+                const register = response?.data?.[0];
 
-        this.glpiService.getTicketsTechnical({'ticket_technical_id': this.ticketIdEdit}).subscribe({
-            next: (data: any) => {
-                console.log(data)
-                const dataTicket = data?.data?.data?.[0]
-                this.setTicketEdit(dataTicket)
-            },
-            error: (error: any) => {
-                console.log(error)
-                this.utilsService.onError('No se pudo obtener la información del ticket técnico')
-            }
-        })
-
-
-    }
-
-    fetchClients() {
-        this.glpiService.getClients().subscribe({
-            next: (data: any) => {
-                this.clientsOptions = data?.data;
-                if (this.ticketIdEdit) {
-                    console.log('modo edit')
-                    this.loadTicket()
-                }else{
-                    console.log('modo new')
+                if (!register) {
+                    this.utilsService.onError('No se encontró el registro técnico');
+                    return;
                 }
+
+                this.setTicketEdit(register);
             },
             error: (error: any) => {
-                console.error('Error fetching clients:', error);
-                this.utilsService.onError('Error al obtener los clientes. Por favor, inténtelo de nuevo más tarde.');
+                console.error('Error fetching technical register:', error);
+                this.loadingTicket = false;
+                this.utilsService.onError('No se pudo obtener la información del registro técnico');
             }
         });
     }
 
-    changeClient(value: any) {
-        this.ubicationsOptions = [];
-        const client = typeof value === 'object'
-            ? value
-            : this.clientsOptions.find(x => String(x.id_client) === String(value));
+    addMaterial() {
+        const newName = this.newMaterialName.trim();
 
-        if (client?.id_client) {
-            this.ticketForm.patchValue({
-                client_id: client.id_client,
-                client_name: client.name
-            })
-            this.glpiService.getLocationsClient(client.id_client).subscribe({
-                next: (data: any) => {
-                    this.ubicationsOptions = data?.data;
-                    const currentUbicationId = this.ticketForm.get('ubication_id')?.value;                    
-                    if (currentUbicationId) {
-                        const ubication = this.ubicationsOptions.find(x => String(x.id_location) === String(currentUbicationId));
-                        if (ubication) {
-                            this.changeUbication(ubication);
-                        }
-                    }
-                },
-                error: (error: any) => {
-                    console.error('Error fetching locations:', error);
-                    this.utilsService.onError('Error al obtener las ubicaciones. Por favor, inténtelo de nuevo más tarde.');
-                }
+        if (this.isNewMaterial ? !newName : !this.materialSelected) {
+            this.utilsService.onWarn(this.isNewMaterial ? 'Ingrese el nombre del producto.' : 'Seleccione un material.');
+            return;
+        }
+
+        if (!this.materialQuantity || this.materialQuantity <= 0) {
+            this.utilsService.onWarn('Ingrese una cantidad mayor a 0.');
+            return;
+        }
+
+        if (this.isNewMaterial) {
+            this.selectedMaterials.push({
+                is_new: true,
+                product: newName,
+                description: this.newMaterialDescription.trim(),
+                quantity: this.materialQuantity
+            });
+
+            this.newMaterialName = '';
+            this.newMaterialDescription = '';
+            this.materialQuantity = null;
+            return;
+        }
+
+        const existing = this.selectedMaterials.find(x => !x.is_new && x.id_equipment === this.materialSelected.id_equipment);
+
+        if (existing) {
+            existing.quantity = (existing.quantity ?? 0) + this.materialQuantity;
+        } else {
+            this.selectedMaterials.push({
+                id_equipment: this.materialSelected.id_equipment,
+                product: this.materialSelected.product,
+                provider: this.materialSelected.provider,
+                unit: this.materialSelected.unit,
+                quantity: this.materialQuantity
             });
         }
+
+        this.materialSelected = null;
+        this.materialQuantity = null;
     }
 
-    changeUbication(value: any) {
-        const ubication = typeof value === 'object'
-            ? value
-            : this.ubicationsOptions.find(x => String(x.id_location) === String(value));
-
-        this.ticketForm.patchValue({
-            ubication_id: ubication?.id_location,
-            ubication_name: ubication?.name
-        })
+    removeMaterial(index: number) {
+        this.selectedMaterials.splice(index, 1);
     }
 
     saveTicket() {
-        if (this.ticketForm.valid) {
-            const ticketData = {
-                ...this.ticketForm.value,
-                user: this.user_session?.user
-            };
-
-            console.log('Ticket data to save:', ticketData);
-
-            if (this.ticketIdEdit) {
-                this.updateTicket(ticketData);
-            }else{
-                this.glpiService.saveTicketTechnical(ticketData).subscribe({
-                    next: (data: any) => {
-                        console.log(data)
-                        this.utilsService.onSuccess('Ticket registrado exitosamente.');
-                        this.router.navigate(['/tickets-tecnicos'])
-                    },
-                    error: (error: any) => {
-                        console.log(error)
-                        this.utilsService.onError(error?.error?.message ?? 'Error al crear el registro, por favor intente nuevamente');
-                    }
-                })
-            }
-
-        } else {
+        if (this.ticketForm.invalid) {
             this.utilsService.onWarn('Por favor, complete todos los campos requeridos.');
-        }   
+            return;
+        }
+
+        if (!this.selectedMaterials.length && !this.ticketForm.value.description) {
+            this.utilsService.onWarn('Agregue al menos un material o una descripción.');
+            return;
+        }
+
+        if (this.selectedMaterials.some(x => !x.quantity || x.quantity <= 0)) {
+            this.utilsService.onWarn('La cantidad de cada material debe ser mayor a 0.');
+            return;
+        }
+
+        const ticketData = {
+            ...this.ticketForm.value,
+            materials: this.selectedMaterials.map(x => x.is_new
+                ? {
+                    material_id: null,
+                    other: x.product,
+                    material_description: x.description || null,
+                    quantity: x.quantity
+                }
+                : {
+                    material_id: x.id_equipment,
+                    other: null,
+                    material_description: null,
+                    quantity: x.quantity
+                }),
+            user: this.user_session?.user
+        };
+
+        if (this.ticketIdEdit) {
+            this.updateTicket({ ...ticketData, id_management_technical: this.ticketIdEdit });
+        } else {
+            this.glpiService.saveTicketTechnical(ticketData).subscribe({
+                next: () => {
+                    this.utilsService.onSuccess('Ticket registrado exitosamente.');
+                    this.router.navigate(['/tickets-tecnicos'])
+                },
+                error: (error: any) => {
+                    console.log(error)
+                    this.utilsService.onError(error?.error?.message ?? 'Error al crear el registro, por favor intente nuevamente');
+                }
+            })
+        }
     }
 
     updateTicket(data: any) {
         this.glpiService.updateTicketTechnical(data).subscribe({
-            next: (data: any) => {
-                console.log(data)
+            next: () => {
                 this.utilsService.onSuccess('Ticket actualizado exitosamente.');
                 this.router.navigate(['/tickets-tecnicos'])
             },
             error: (error: any) => {
                 console.log(error)
-                this.utilsService.onError(error?.error?.message ?? 'Error al crear el registro, por favor intente nuevamente');
+                this.utilsService.onError(error?.error?.message ?? 'Error al actualizar el registro, por favor intente nuevamente');
             }
         })
     }
 
     setTicketEdit(dataTicket: any) {
-        const commitmentDate = dataTicket?.commitment_date
-            ? new Date(dataTicket.commitment_date)
-            : null;
-
         this.ticketForm.patchValue({
-            client_id: dataTicket?.client_id,
-            ubication_id: dataTicket?.ubication_id,
-            contact: dataTicket?.contact,
-            case_type: dataTicket?.case_type,
-            priority: dataTicket?.priority,
-            management_status: dataTicket?.management_status,
-            status: dataTicket?.status,
-            next_action: dataTicket?.next_action,
-            commitment_date: commitmentDate,
-            // ticket_glpi: dataTicket?.ticket_glpi,
-            requires_material: dataTicket?.requires_material,
-            requires_monitoring: dataTicket?.requires_monitoring,
-            observations: dataTicket?.observations,
+            inspection_id: dataTicket?.id_inspection ?? this.ticketForm.value.inspection_id,
+            description: dataTicket?.description ?? '',
         })
 
-        const client = this.clientsOptions.find( x => x.id_client === dataTicket?.client_id );
-        
-        if (client) { 
-            this.changeClient(client);
-        }
+        this.codeManagement = dataTicket?.code_management ?? null;
+
+        this.selectedMaterials = (dataTicket?.materials ?? []).map((x: any) => {
+            if (!x.material_id) {
+                return {
+                    is_new: true,
+                    product: x.other ?? '',
+                    description: x.material_description ?? '',
+                    quantity: x.quantity
+                };
+            }
+
+            const material = this.materialsOptions.find(m => m.id_equipment === x.material_id);
+            return {
+                id_equipment: x.material_id,
+                product: material?.product ?? `Material #${x.material_id}`,
+                provider: material?.provider,
+                unit: material?.unit,
+                quantity: x.quantity
+            };
+        });
     }
-        
+
 }

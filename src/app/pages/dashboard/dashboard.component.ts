@@ -22,6 +22,7 @@ import { LogbookService } from 'src/app/services/logbook.service';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { BalancedFuelComponent } from 'src/app/components/dashboards/expalsa-options/balanced-fuel/balanced-fuel.component';
 import { TechnicalDashboardComponent } from 'src/app/components/dashboards/technical/technical-dashboard.component';
+import { TicketsDashboardComponent } from 'src/app/components/dashboards/tickets/tickets-dashboard.component';
 
 @Component({
     selector: 'app-dashboard',
@@ -46,7 +47,8 @@ import { TechnicalDashboardComponent } from 'src/app/components/dashboards/techn
         CalendarModule,
         MultiSelectModule,
         BalancedFuelComponent,
-        TechnicalDashboardComponent
+        TechnicalDashboardComponent,
+        TicketsDashboardComponent
     ],
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.sass'],
@@ -82,8 +84,6 @@ export class DashboardComponent {
         if (this.user_session.role === "admin_tlsg") {
             this.optionDashboardSelected = "Expalsa";
         }
-        this.logbookService.getAllDestinyIntern({business: "2"});
-
     }
     
     onChangeDahboard(option: string) {

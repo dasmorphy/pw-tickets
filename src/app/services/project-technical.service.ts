@@ -38,6 +38,10 @@ export class ProjectTechnicalService {
             params = params.set('status', filter.status);
         }
 
+        if (filter?.tech_assignments) {
+            params = params.set('tech_assignments', filter.tech_assignments.join(','));
+        }
+
         return this.http.get(`${environment.apiTechnical}/rest/technical-control-api/v1.0/project`,
             { headers, params }
         )
@@ -74,6 +78,13 @@ export class ProjectTechnicalService {
         return this.http.get(`${environment.apiTechnical}/rest/technical-control-api/v1.0/auditing`,
             { headers, params }
         )
+    }
+
+    postProject(data: any) {
+        return this.http.post(
+            `${environment.apiTechnical}/rest/technical-control-api/v1.0/project`,
+            {technical_data: data}
+        );
     }
 
     getAuditingSections() {
@@ -123,5 +134,14 @@ export class ProjectTechnicalService {
 
     deleteTechnicalProject(id_task: number) {
         return this.http.delete(`${environment.apiTechnical}/rest/technical-control-api/v1.0/project/${id_task}`)
+    }
+
+    getMaterials(filter?: any) {
+        let params = new HttpParams();
+        let headers = new HttpHeaders();
+
+        return this.http.get(`${environment.apiTechnical}/rest/technical-control-api/v1.0/tech-materials`,
+            { headers, params }
+        )
     }
 }

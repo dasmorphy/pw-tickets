@@ -1,0 +1,116 @@
+
+
+register-technical
+
+{
+      "case_type": "Interno",
+      "client_id": 4,
+      "client_name": "OMARSA",
+      "code": "INS-2026-0024",
+      "code_management": "SOL-2026-0028",
+      "commitment_date": "2026-10-06T05:00:00Z",
+      "contact": "test",
+      "created_at": "2026-10-05T11:29:45.181862Z",
+      "created_by": "jefe_tecnico",
+      "description": "<p>prueba</p>",
+      "id_inspection": 24,
+      "id_management_technical": 28,
+      "location_name": "OCEANPRODUCT ARENILLAS",
+      "management_area": "Comercial",
+      "materials": [
+        {
+          "created_at": "2026-10-05T11:29:45.181862Z",
+          "id_material": 3,
+          "material_description": null,
+          "material_id": 202,
+          "other": null,
+          "quantity": 2
+        }
+      ],
+      "next_area": "Proyectos",
+      "priority": "Alta",
+      "responsible_id": "4cc33865-1bad-4af4-9f18-3ce5dfb744b5",
+      "responsible_name": "Ronald Chiquito",
+      "status": "Aprobado",
+      "title_ticket": "INSPECCION",
+      "ubication_id": 6,
+      "updated_at": "2026-10-05T11:50:19.089347Z",
+      "updated_by": "jefe_tecnico"
+    },
+
+
+inspeccion 
+
+{
+      "case_type": "Interno",
+      "client_id": 4,
+      "client_name": "OMARSA",
+      "code": "INS-2026-0024",
+      "commercial_status": null,
+      "commercial_status_id": null,
+      "commitment_date": "2026-10-06T05:00:00Z",
+      "contact": "test",
+      "created_at": "2026-10-05T11:29:30.411506Z",
+      "created_by": "jefe_tecnico",
+      "id_inspection": 24,
+      "location_name": "OCEANPRODUCT ARENILLAS",
+      "management_area": "Comercial",
+      "next_area": "Proyectos",
+      "priority": "Alta",
+      "project_id": null,
+      "ready_for_project": false,
+      "responsible_id": "4cc33865-1bad-4af4-9f18-3ce5dfb744b5",
+      "responsible_name": "Ronald Chiquito",
+      "status": "Listo para cotizar",
+      "technical_id": 28,
+      "title_ticket": "INSPECCION",
+      "ubication_id": 6,
+      "updated_at": "2026-10-05T11:50:19.089347Z",
+      "updated_by": "jefe_tecnico"
+    }
+
+register-commercial
+{
+      "assigned_user": null,
+      "case_type": "Requiere cotizaci\u00f3n",
+      "client_id": 24,
+      "client_name": "IMPALA",
+      "closing_date": "2026-10-06T05:00:00Z",
+      "code": "INS-2026-001",
+      "code_management": "COT-2026-0018",
+      "commitment_date": "2026-10-07T05:00:00Z",
+      "contact": "TEST 1",
+      "contract_received": true,
+      "created_at": "2026-10-01T09:24:47.567082Z",
+      "created_by": "jefe_tecnico",
+      "date_finish": null,
+      "id_inspection": 22,
+      "id_management_commercial": 18,
+      "last_followup_at": "2026-10-01T09:27:33.612304Z",
+      "location_name": "Machala",
+      "management_area": "Proyectos",
+      "next_action": "Solicitar reuni\u00f3n con cliente",
+      "next_area": "Financiera",
+      "observations": null,
+      "origin_id": 3,
+      "origin_name": "Visita comercial",
+      "priority": "Urgente",
+      "probability_closing": 2,
+      "quoted_amount": null,
+      "reason_loss": null,
+      "requires_material": null,
+      "requires_technical": null,
+      "responsible_id": "4cc33865-1bad-4af4-9f18-3ce5dfb744b5",
+      "responsible_name": "Ronald Chiquito",
+      "responsible_next_action": null,
+      "scheduled_start_date": "2026-10-02T05:00:00Z",
+      "status": "Listo para cotizar",
+      "status_id": 5,
+      "status_name": "Aprobada",
+      "title_ticket": "INSPECCION DE CAMARONERA",
+      "type_solution_id": 4,
+      "type_solution_name": "Alarmas / instrusi\u00f3n",
+      "ubication_id": 115,
+      "updated_at": "2026-10-01T09:28:59.486775Z",
+      "updated_by": "jefe_tecnico"
+    }

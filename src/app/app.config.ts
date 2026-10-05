@@ -8,6 +8,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { httpInterceptorResponse } from './interceptors/response.interceptor';
 import { httpInterceptorRequest } from './interceptors/request.interceptor';
 import { environment } from "src/environments/environment.development";
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,6 +20,7 @@ export const appConfig: ApplicationConfig = {
       provide: MessageService,
       useClass: MessageService
     },
+    provideFirebaseApp(() => initializeApp(environment.firebaseConfg)),
     provideMessaging(() => getMessaging()),
   ]
 };

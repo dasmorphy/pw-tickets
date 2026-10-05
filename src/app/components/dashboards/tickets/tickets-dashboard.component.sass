@@ -1,0 +1,411 @@
+:host
+  display: block
+  width: 100%
+
+.tickets-dashboard
+  display: grid
+  gap: 1rem
+  width: 100%
+  max-width: 1480px
+  margin: 0 auto
+  color: #17233d
+
+.dashboard-heading
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: 1rem
+
+  h1
+    margin: 0 0 .2rem
+    color: #10254b
+    font-size: 1.65rem
+    line-height: 1.2
+
+  p
+    margin: 0
+    color: #6f7d95
+    font-size: .88rem
+
+:host::ng-deep .refresh-button
+  height: 2.5rem
+  border-color: #d7e0ec
+  color: #50617c
+  font-size: .8rem
+
+// KPIs
+.kpi-grid
+  display: grid
+  grid-template-columns: repeat(4, minmax(0, 1fr))
+  gap: 1rem
+
+.kpi-card
+  display: flex
+  align-items: center
+  gap: .9rem
+  padding: 1.1rem 1.2rem
+  border: 1px solid var(--area-soft)
+  border-radius: .85rem
+  background: var(--area-soft)
+
+  > div
+    display: grid
+    gap: .15rem
+    min-width: 0
+
+.kpi-icon
+  display: grid
+  flex: 0 0 auto
+  width: 2.9rem
+  height: 2.9rem
+  place-items: center
+  border-radius: 50%
+  background: var(--area-color)
+  color: #fff
+  font-size: 1.1rem
+
+.kpi-label
+  color: #34425c
+  font-size: .76rem
+  font-weight: 700
+
+.kpi-value
+  color: #10254b
+  font-size: 1.6rem
+  line-height: 1.15
+
+.kpi-caption
+  color: #6f7d95
+  font-size: .72rem
+
+  b
+    color: var(--area-color)
+
+// Cards
+.dashboard-row
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: 1rem
+
+  &.wide-right
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr)
+
+.dashboard-card
+  display: flex
+  flex-direction: column
+  min-width: 0
+  padding: 1.1rem 1.2rem
+  border: 1px solid #e0e7f0
+  border-radius: .85rem
+  background: #fff
+  box-shadow: 0 3px 14px rgba(22, 45, 82, .04)
+
+.card-heading
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: .75rem
+  margin-bottom: 1rem
+
+  h2
+    margin: 0
+    color: #10254b
+    font-size: .95rem
+
+.card-hint
+  display: inline-flex
+  align-items: center
+  gap: .35rem
+  color: #7c899e
+  font-size: .72rem
+
+.card-empty
+  grid-column: 1 / -1
+  margin: auto
+  padding: 2rem 1rem
+  color: #8793a7
+  font-size: .82rem
+  text-align: center
+
+// Donas
+.doughnut-layout
+  display: grid
+  grid-template-columns: 190px minmax(0, 1fr)
+  align-items: center
+  gap: 1.5rem
+  flex: 1
+
+.doughnut-wrapper
+  position: relative
+  width: 190px
+  height: 190px
+
+.doughnut-center
+  position: absolute
+  inset: 0
+  display: grid
+  place-content: center
+  text-align: center
+  pointer-events: none
+
+  strong
+    color: #10254b
+    font-size: 1.6rem
+    line-height: 1
+
+  span
+    color: #7c899e
+    font-size: .72rem
+
+.chart-legend
+  display: grid
+  margin: 0
+  padding: 0
+  list-style: none
+
+  li
+    display: grid
+    grid-template-columns: .7rem minmax(0, 1fr) auto 4rem
+    align-items: center
+    gap: .6rem
+    padding: .55rem 0
+    border-bottom: 1px solid #edf1f5
+    font-size: .8rem
+
+    &:last-child
+      border-bottom: 0
+
+  strong
+    color: #10254b
+
+.legend-dot
+  width: .7rem
+  height: .7rem
+  border-radius: 50%
+
+  &.approved
+    background: #22b573
+
+  &.rejected
+    background: #eb5757
+
+.legend-label
+  color: #34425c
+
+.legend-percentage
+  color: #7c899e
+  text-align: right
+
+// Facturas
+.invoices-layout
+  display: grid
+  justify-items: center
+  flex: 1
+  align-content: center
+
+.knob-caption
+  margin-top: -.4rem
+  color: #7c899e
+  font-size: .8rem
+
+.invoice-stats
+  display: grid
+  grid-template-columns: 1fr 1fr
+  gap: .75rem
+  width: 100%
+  max-width: 22rem
+  margin-top: 1rem
+
+  div
+    display: grid
+    gap: .15rem
+    padding: .7rem .85rem
+    border: 1px solid #e4eaf2
+    border-radius: .65rem
+    background: #f8fafc
+    text-align: center
+
+  span
+    color: #77859a
+    font-size: .72rem
+
+  strong
+    color: #10254b
+    font-size: 1.1rem
+
+// Tablas
+.table-scroll
+  max-height: 22rem
+  overflow: auto
+
+.dashboard-table
+  width: 100%
+  border-collapse: collapse
+
+  th
+    position: sticky
+    top: 0
+    padding: .6rem .7rem
+    border-bottom: 1px solid #dfe6ef
+    background: #f8fafc
+    color: #25334b
+    font-size: .72rem
+    font-weight: 700
+    text-align: left
+
+  td
+    padding: .65rem .7rem
+    border-bottom: 1px solid #edf1f5
+    color: #2d3950
+    font-size: .78rem
+    vertical-align: middle
+
+  tr:last-child td
+    border-bottom: 0
+
+  .text-right
+    text-align: right
+
+.title-cell
+  max-width: 12rem
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
+
+.rank
+  display: inline-grid
+  width: 1.6rem
+  height: 1.6rem
+  place-items: center
+  border-radius: 50%
+  background: #eef2f7
+  color: #50617c
+  font-size: .72rem
+  font-weight: 700
+
+  &.best
+    background: #22b573
+    color: #fff
+
+.area-pill
+  display: inline-block
+  padding: .22rem .6rem
+  border-radius: 1rem
+  background: var(--area-soft)
+  color: var(--area-color)
+  font-size: .72rem
+  font-weight: 700
+  white-space: nowrap
+
+.area-heading
+  display: inline-flex
+  align-items: center
+  gap: .35rem
+  white-space: nowrap
+
+  &::before
+    width: .5rem
+    height: .5rem
+    border-radius: 50%
+    background: var(--area-color)
+    content: ''
+
+.no-time
+  color: #b3bccb
+
+.area-time
+  display: inline-flex
+  align-items: center
+  gap: .3rem
+  padding: .2rem .5rem
+  border: 1px solid #e2e9f2
+  border-left: 3px solid var(--area-color)
+  border-radius: .35rem
+  background: #fff
+  color: #53627a
+  font-size: .7rem
+  white-space: nowrap
+
+  &.in-progress
+    border-color: var(--area-color)
+    background: #f4f8ff
+
+    &::after
+      width: .45rem
+      height: .45rem
+      border-radius: 50%
+      background: var(--area-color)
+      content: ''
+      animation: pulse 1.6s ease-in-out infinite
+
+.in-progress-dot
+  display: inline-block
+  width: .45rem
+  height: .45rem
+  border-radius: 50%
+  background: #2f80ed
+
+// Actividades por proyecto
+.activity-list
+  display: grid
+  gap: .7rem
+  max-height: 22rem
+  overflow-y: auto
+
+.activity-item
+  display: grid
+  grid-template-columns: 7.5rem minmax(0, 1fr) 2.5rem
+  align-items: center
+  gap: .75rem
+  font-size: .78rem
+
+  strong
+    color: #10254b
+    text-align: right
+
+.activity-code
+  color: #34425c
+  font-weight: 600
+
+.activity-track
+  height: .7rem
+  border-radius: 1rem
+  background: #eef2f7
+  overflow: hidden
+
+.activity-bar
+  display: block
+  height: 100%
+  min-width: 0
+  border-radius: 1rem
+  background: #2f80ed
+  transition: width .4s ease
+
+@keyframes pulse
+  0%, 100%
+    opacity: 1
+  50%
+    opacity: .3
+
+@media screen and (max-width: 1180px)
+  .kpi-grid
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+
+  .dashboard-row,
+  .dashboard-row.wide-right
+    grid-template-columns: minmax(0, 1fr)
+
+@media screen and (max-width: 600px)
+  .kpi-grid
+    grid-template-columns: minmax(0, 1fr)
+
+  .doughnut-layout
+    grid-template-columns: minmax(0, 1fr)
+    justify-items: center
+
+  .chart-legend
+    width: 100%
+
+  .dashboard-heading
+    align-items: flex-start
+    flex-direction: column

@@ -114,7 +114,7 @@ export class ProjectTechnicalComponent {
         {
             label: 'Aprobar finalización',
             icon: 'pi pi-check',
-            visible: () => this.user_permissions_signal().includes('APROBAR_FINALIZACION') && this.selectedProject?.status === 'Pendiente aprobación',
+            // visible: () => this.user_permissions_signal().includes('APROBAR_FINALIZACION') && this.selectedProject?.status === 'Pendiente aprobación',
             command: () => {
                 this.showUpdate = true
                 this.typeRequest = 'Aprobar solicitud'
@@ -139,11 +139,17 @@ export class ProjectTechnicalComponent {
 
     ngOnInit() {
         this.user_json = this.userService.getDataSession();
+        if (this.user_json?.role == 'tecnico') {
+            this.filters.tech_assignments = [this.user_json?.user]
+        }
         this.fetchProjectsTechnical();
     }
 
     fetchProjectsTechnical() {
         this.isLoading = true;
+        if (this.user_json?.role == 'tecnico') {
+            this.filters.tech_assignments = [this.user_json?.user]
+        }
         const filters = { ...this.filters };
 
         this.projectTechnicalService.getProjectsTechnical(filters).subscribe({
@@ -278,11 +284,14 @@ export class ProjectTechnicalComponent {
 
     optionDeleteRecord(record: any) {
         this.selectedRecord = record;
+        console.log(78878787)
+
         this.showDeleteRecord = true;
     }
 
     deleteTechRecord(tech_record: any) {
         this.isLoading = true;
+        console.log(78878787)
         this.showDeleteRecord = false;
         this.projectTechnicalService.deleteTechnicalRecord(tech_record?.id_record).subscribe({
             next: (response: any) => {
@@ -300,7 +309,7 @@ export class ProjectTechnicalComponent {
     deleteTechProject(tech_record: any) {
         this.isLoading = true;
         this.showDeleteProject = false;
-        this.projectTechnicalService.deleteTechnicalProject(tech_record?.id_record).subscribe({
+        this.projectTechnicalService.deleteTechnicalProject(tech_record?.id_task).subscribe({
             next: (response: any) => {
                 this.isLoading = false;
                 this.utilsService.onSuccess('Registro eliminado');

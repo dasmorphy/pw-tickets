@@ -18,6 +18,8 @@ import { ProjectTechnicalComponent } from './pages/tables/project-technical/proj
 import { AuditingTechnicalComponent } from './pages/tables/auditing-technical/auditing-technical.component';
 import { InspectionFormComponent } from './components/forms/inspection-form/inspection-form.component';
 import { InspectionsTechnicalComponent } from './pages/tables/inspections-technical/inspections-technical.component';
+import { InspectionsApprovalComponent } from './pages/tables/inspections-approval/inspections-approval.component';
+import { RegisterTicketTechnicalComponent } from './components/forms/register-ticket-technical/register-ticket-technical.component';
 
 export const routes: Routes = [
     {
@@ -63,6 +65,11 @@ export const routes: Routes = [
                 // }
             },
             {
+                path: "editar-inspeccion/:id_inspection",
+                loadComponent: () => InspectionFormComponent,
+                canActivate: [AuthGuard]
+            },
+            {
                 path: "nueva-inspeccion",
                 loadComponent: () => InspectionFormComponent,
                 canActivate: [AuthGuard],
@@ -71,12 +78,30 @@ export const routes: Routes = [
                 // }
             },
             {
+                path: "inspecciones-por-aprobar",
+                loadComponent: () => InspectionsApprovalComponent,
+                canActivate: [AuthGuard]
+            },
+            {
                 path: "tickets-tecnicos",
                 loadComponent: () => TicketsTechnicalComponent,
                 canActivate: [AuthGuard],
                 // data: {
                 //     permission: 'VER_TICKETS_TECNICOS'
                 // }
+            },
+            {
+                path: "registro-inspeccion-tecnica/:inspection_id",
+                loadComponent: () => RegisterTicketTechnicalComponent,
+                canActivate: [AuthGuard],
+                // data: {
+                //     permission: 'VER_TICKETS_TECNICOS'
+                // }
+            },
+            {
+                path: "editar-registro-tecnico/:inspection_id/:id_management_technical",
+                loadComponent: () => RegisterTicketTechnicalComponent,
+                canActivate: [AuthGuard],
             },
             {
                 path: "tickets-comercial",

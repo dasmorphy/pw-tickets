@@ -1,0 +1,202 @@
+<section class="tickets-dashboard" aria-labelledby="dashboard-title">
+  <header class="dashboard-heading">
+    <div>
+      <h1 id="dashboard-title">Dashboard</h1>
+      <p>Resumen de tickets y gestión técnica</p>
+    </div>
+    <p-button label="Actualizar" icon="pi pi-refresh" [outlined]="true" [loading]="isLoading"
+      styleClass="refresh-button" (onClick)="fetchDashboard()"></p-button>
+  </header>
+
+  <!-- Pendientes por área -->
+  <div class="kpi-grid" aria-label="Tickets pendientes por área">
+    <article class="kpi-card" *ngFor="let item of pendingByArea"
+      [style.--area-color]="getAreaStyle(item.area).color" [style.--area-soft]="getAreaStyle(item.area).soft">
+      <span class="kpi-icon"><i [class]="getAreaStyle(item.area).icon"></i></span>
+      <div>
+        <span class="kpi-label">Pendientes {{ item.area }}</span>
+        <strong class="kpi-value">{{ item.count }}</strong>
+        <span class="kpi-caption"><b>{{ getPendingPercentage(item.count) | number:'1.0-1' }}%</b> del total pendiente</span>
+      </div>
+    </article>
+    <p class="card-empty" *ngIf="!isLoading && !pendingByArea.length">No hay tickets pendientes.</p>
+  </div>
+
+  <div class="dashboard-row">
+    <!-- Finalizados por área -->
+    <article class="dashboard-card">
+      <header class="card-heading">
+        <h2>Tickets finalizados por área</h2>
+      </header>
+      <div class="doughnut-layout" *ngIf="finishedTotal; else emptyFinished">
+        <div class="doughnut-wrapper">
+          <p-chart type="doughnut" [data]="finishedChartData" [options]="doughnutOptions" height="190px"></p-chart>
+          <div class="doughnut-center">
+            <strong>{{ finishedTotal }}</strong>
+            <span>Total</span>
+          </div>
+        </div>
+        <ul class="chart-legend">
+          <li *ngFor="let item of finishedByArea">
+            <span class="legend-dot" [style.background]="getAreaStyle(item.area).color"></span>
+            <span class="legend-label">{{ item.area }}</span>
+            <strong>{{ item.count }}</strong>
+            <span class="legend-percentage">{{ item.percentage | number:'1.0-2' }}%</span>
+          </li>
+        </ul>
+      </div>
+      <ng-template #emptyFinished>
+        <p class="card-empty">Aún no hay tickets finalizados.</p>
+      </ng-template>
+    </article>
+
+    <!-- Cotizaciones -->
+    <article class="dashboard-card">
+      <header class="card-heading">
+        <h2>Cotizaciones aprobadas vs rechazadas</h2>
+      </header>
+      <div class="doughnut-layout" *ngIf="quotations.total; else emptyQuotations">
+        <div class="doughnut-wrapper">
+          <p-chart type="doughnut" [data]="quotationsChartData" [options]="doughnutOptions" height="190px"></p-chart>
+          <div class="doughnut-center">
+            <strong>{{ quotations.total }}</strong>
+            <span>Cotizaciones</span>
+          </div>
+        </div>
+        <ul class="chart-legend">
+          <li>
+            <span class="legend-dot approved"></span>
+            <span class="legend-label">Aprobadas</span>
+            <strong>{{ quotations.approved.count }}</strong>
+            <span class="legend-percentage">{{ quotations.approved.percentage | number:'1.0-2' }}%</span>
+          </li>
+          <li>
+            <span class="legend-dot rejected"></span>
+            <span class="legend-label">Rechazadas</span>
+            <strong>{{ quotations.rejected.count }}</strong>
+            <span class="legend-percentage">{{ quotations.rejected.percentage | number:'1.0-2' }}%</span>
+          </li>
+        </ul>
+      </div>
+      <ng-template #emptyQuotations>
+        <p class="card-empty">Aún no hay cotizaciones aprobadas o rechazadas.</p>
+      </ng-template>
+    </article>
+  </div>
+
+  <div class="dashboard-row">
+    <!-- Facturas -->
+    <article class="dashboard-card">
+      <header class="card-heading">
+        <h2>Facturas cobradas vs emitidas</h2>
+      </header>
+      <div class="invoices-layout">
+        <p-knob [(ngModel)]="collectedKnobValue" [readonly]="true" [size]="190" [strokeWidth]="12"
+          valueTemplate="{value}%" valueColor="#2f80ed" rangeColor="#e6ecf4" textColor="#10254b"></p-knob>
+        <span class="knob-caption">cobrado</span>
+        <div class="invoice-stats">
+          <div>
+            <span>Emitidas</span>
+            <strong>{{ invoices.issued }}</strong>
+          </div>
+          <div>
+            <span>Cobradas</span>
+            <strong>{{ invoices.collected }}</strong>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- SLA por área -->
+    <article class="dashboard-card">
+      <header class="card-heading">
+        <h2>Áreas con mejores tiempos de SLA</h2>
+        <span class="card-hint">Tiempo promedio por área</span>
+      </header>
+      <table class="dashboard-table" *ngIf="slaByArea.length; else emptySla">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Área</th>
+            <th>Tiempo promedio</th>
+            <th class="text-right">Transiciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of slaByArea; let i = index">
+            <td><span class="rank" [class.best]="i === 0">{{ i + 1 }}</span></td>
+            <td>
+              <span class="area-pill" [style.--area-color]="getAreaStyle(item.area).color" [style.--area-soft]="getAreaStyle(item.area).soft">
+                {{ item.area }}
+              </span>
+            </td>
+            <td><strong>{{ item.average_duration }}</strong></td>
+            <td class="text-right">{{ item.transitions }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #emptySla>
+        <p class="card-empty">Aún no hay tiempos registrados.</p>
+      </ng-template>
+    </article>
+  </div>
+
+  <div class="dashboard-row wide-right">
+    <!-- Actividades por proyecto -->
+    <article class="dashboard-card">
+      <header class="card-heading">
+        <h2>Actividades registradas por proyecto</h2>
+      </header>
+      <div class="activity-list" *ngIf="projectActivities.length; else emptyActivities">
+        <div class="activity-item" *ngFor="let item of projectActivities">
+          <span class="activity-code">{{ item.code }}</span>
+          <div class="activity-track">
+            <span class="activity-bar" [style.width.%]="getActivityWidth(item.total_records)"></span>
+          </div>
+          <strong>{{ item.total_records }}</strong>
+        </div>
+      </div>
+      <ng-template #emptyActivities>
+        <p class="card-empty">Aún no hay actividades registradas.</p>
+      </ng-template>
+    </article>
+
+    <!-- Tiempos por inspección -->
+    <article class="dashboard-card">
+      <header class="card-heading">
+        <h2>Tiempos en área por inspección</h2>
+        <span class="card-hint"><i class="in-progress-dot"></i> Área actual</span>
+      </header>
+      <div class="table-scroll" *ngIf="inspectionAreaTimes.length; else emptyInspections">
+        <table class="dashboard-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Inspección</th>
+              <th *ngFor="let area of inspectionAreaColumns">
+                <span class="area-heading" [style.--area-color]="getAreaStyle(area).color">{{ area }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let inspection of inspectionAreaTimes">
+              <td>#{{ inspection.id_inspection }}</td>
+              <td class="title-cell">{{ inspection.title_ticket ?? 'Sin título' }}</td>
+              <td *ngFor="let area of inspectionAreaColumns">
+                <span *ngIf="inspection.timesByArea[area] as time; else noTime" class="area-time"
+                  [class.in-progress]="time.in_progress" [style.--area-color]="getAreaStyle(area).color"
+                  [pTooltip]="time.in_progress ? 'Área actual · en curso' : 'Gestión finalizada'" tooltipPosition="top">
+                  {{ time.duration }}
+                </span>
+                <ng-template #noTime><span class="no-time">—</span></ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #emptyInspections>
+        <p class="card-empty">Aún no hay inspecciones con historial.</p>
+      </ng-template>
+    </article>
+  </div>
+</section>

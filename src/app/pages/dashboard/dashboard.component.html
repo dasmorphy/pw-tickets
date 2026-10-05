@@ -3,7 +3,7 @@
 <div [class]="{ 'w-calc': toggle(), 'w-screen-dashboard': !toggle() }"
   class="container xl:justify-content-evenly p-3-responsive border-box bg-white mt-dashboard flex-column">
   <div class="flex w-full justify-content-between align-items-center mb-3 px-5 column-responsive">
-    <h2>¡Hola {{user_session?.attributes?.fullname ?? 'Desconocido'}}!</h2>
+    <app-tickets-dashboard class="w-full"></app-tickets-dashboard>
     <!-- <div class="flex gap-2">
       @if (optionDashboardSelected == 'Biomar') {
         <i class="flex justify-content-center align-items-center pi pi-filter cursor-pointer" (click)="op.toggle($event)"></i>      

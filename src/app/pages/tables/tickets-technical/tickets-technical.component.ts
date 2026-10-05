@@ -13,6 +13,8 @@ import { PanelMenuModule } from "primeng/panelmenu";
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TabViewModule } from 'primeng/tabview';
 import { TooltipModule } from 'primeng/tooltip';
+import { UserService } from 'src/app/services/user.service';
+import { TicketDetailSidebarComponent, TicketDetailType } from 'src/app/components/modals/ticket-detail-sidebar/ticket-detail-sidebar.component';
 
 type RequestArea = 'Técnica' | 'Comercial' | 'Proyectos' | 'Contabilidad';
 type RequestStatus = 'En proceso' | 'Pendiente' | 'Resuelto' | 'Aprobado';
@@ -33,7 +35,7 @@ interface ServiceRequest {
   selector: 'app-tickets-technical',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, ButtonModule, CalendarModule, DropdownModule, TableModule,
-    TagModule, PanelMenuModule, SplitButtonModule, TabViewModule, TooltipModule],
+    TagModule, PanelMenuModule, SplitButtonModule, TabViewModule, TooltipModule, TicketDetailSidebarComponent],
   templateUrl: './tickets-technical.component.html',
   styleUrls: ['./tickets-technical.component.sass']
 })
@@ -43,6 +45,7 @@ export class TicketsTechnicalComponent {
   private readonly glpiService = inject(GlpiService)
   private readonly router = inject(Router);
   readonly utilsService = inject(UtilsService);
+  readonly userService = inject(UserService);
 
   readonly areas: RequestArea[] = ['Técnica', 'Comercial', 'Proyectos', 'Contabilidad'];
   readonly statuses: RequestStatus[] = ['En proceso', 'Pendiente', 'Resuelto', 'Aprobado'];
@@ -56,36 +59,23 @@ export class TicketsTechnicalComponent {
   activeMenu: number | null = null;
   selectedTicket: any;
 
-  filters: any = {
-    first: 0,
-    rows: 5
-  };
+  filters: any = {};
 
-
+  user_session: any;
   activeIndex = 0;
   pendingTickets: any[] = [];
   registeredTickets: any[] = [];
   registeredLoading = false;
   private registeredLoaded = false;
 
-  items: any = [
-    {
-        label: 'Ver detalles',
-        icon: 'pi pi-eye',
-        // command: () => this.viewLogbookDetails(this.selectedLogbook)
-    },
-    {
-        label: 'Editar',
-        icon: 'pi pi-play-circle',
-        visible: () => this.selectedTicket?.status != 'Listo para cotizar',
-        command: () => this.routeRegister()
-    },
-  ];
+  showDetail = false;
+  detailType: TicketDetailType = 'inspection';
 
   itemsPending: any = [
     {
         label: 'Ver detalles',
         icon: 'pi pi-eye',
+        command: () => this.viewDetails('inspection')
     },
     {
         label: 'Registro',
@@ -95,11 +85,17 @@ export class TicketsTechnicalComponent {
   ];
 
   ngOnInit() {
+    this.user_session = this.userService.getDataSession();
+    if (this.user_session?.role == 'tecnico') {
+      this.filters.responsible_id = this.user_session?.id_user
+      this.filters.user = this.user_session?.user
+    }
+    
     this.fetchInspection();
   }
 
   fetchInspection() {
-    this.glpiService.getInspectionTechnical({pending_technical: true}).subscribe({
+    this.glpiService.getInspectionTechnical({...this.filters, pending_technical: true}).subscribe({
       next: (response: any) => {
         console.log(response);
         this.pendingTickets = this.extractRecords(response?.data);
@@ -113,10 +109,10 @@ export class TicketsTechnicalComponent {
 
   fetchTicketsTechnical() {
     this.registeredLoading = true;
-    this.glpiService.getTicketsTechnical().subscribe({
+    this.glpiService.getTicketsTechnical(this.filters).subscribe({
       next: (response: any) => {
         console.log(response);
-        this.registeredTickets = this.extractRecords(response?.data);
+        this.registeredTickets = response?.data;
         this.registeredLoaded = true;
         this.registeredLoading = false;
       },
@@ -209,11 +205,16 @@ export class TicketsTechnicalComponent {
 
   routeRegister() {
     this.router.navigate([
-      `/editar-ticket/${this.selectedTicket?.id_inspection}/${this.selectedTicket?.id_management_technical}`
+      `/editar-registro-tecnico/${this.selectedTicket?.id_inspection}/${this.selectedTicket?.id_management_technical}`
     ]);
   }
 
   routeNewRegister() {
-    this.router.navigate([`/registro-ticket/${this.selectedTicket?.id_inspection}`]);
+    this.router.navigate([`/registro-inspeccion-tecnica/${this.selectedTicket?.id_inspection}`]);
+  }
+
+  viewDetails(type: TicketDetailType) {
+    this.detailType = type;
+    this.showDetail = true;
   }
 }

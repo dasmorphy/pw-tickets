@@ -130,6 +130,8 @@
   </section>
 </main>
 
+<app-ticket-detail-sidebar [(visible)]="showDetail" [data]="selectedTicket" type="commercial"></app-ticket-detail-sidebar>
+
 <div class="overlay" *ngIf="isLoading">
   <p-progressSpinner
     class="center-spinner"

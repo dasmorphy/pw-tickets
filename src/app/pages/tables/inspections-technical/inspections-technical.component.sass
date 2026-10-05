@@ -20,19 +20,6 @@
   .p-splitbutton button
     border: none
 
-
-  .area-history-dialog
-  .p-dialog-header
-    padding: 1.2rem 1.35rem 0
-    border: 0
-
-  .p-dialog-content
-    padding-bottom: 0!important
-
-  .p-dialog-footer
-    padding: 0 1.35rem 1.35rem
-    border: 0
-
 .inspections-page
   min-height: calc(100vh - 6rem)
   margin-top: 6rem
@@ -91,10 +78,57 @@
 
 .table-tools
   display: flex
+  flex-wrap: wrap
   align-items: center
   justify-content: space-between
   gap: 1rem
   padding: .8rem 1rem
+
+.view-filter
+  display: inline-flex
+  gap: .25rem
+  margin-right: auto
+  padding: .2rem
+  border: 1px solid #e0e7f0
+  border-radius: .6rem
+  background: #f8fafc
+
+  button
+    display: inline-flex
+    align-items: center
+    gap: .4rem
+    padding: .45rem .75rem
+    border: 0
+    border-radius: .45rem
+    background: transparent
+    color: #64738b
+    font: inherit
+    font-size: .76rem
+    font-weight: 600
+    white-space: nowrap
+    cursor: pointer
+
+    &.active
+      background: #fff
+      box-shadow: 0 1px 4px rgba(22, 45, 82, .1)
+      color: #0b326b
+
+    &:focus-visible
+      outline: 2px solid #0b326b
+      outline-offset: 1px
+
+.view-count
+  min-width: 1.35rem
+  padding: .05rem .35rem
+  border-radius: 1rem
+  background: #e6ecf4
+  color: #50617c
+  font-size: .68rem
+  text-align: center
+
+  &.highlight
+    background: #83378f
+    color: #fff
 
 .search-field
   position: relative
@@ -581,6 +615,69 @@ tbody tr
   i
     color: #2462a7
     font-size: 1.15rem
+
+.project-form
+  display: grid
+  gap: 1rem
+
+.project-context
+  display: grid
+  grid-template-columns: 1fr 1fr
+  gap: .75rem
+  padding: .75rem .85rem
+  border: 1px solid #e4eaf2
+  border-radius: .65rem
+  background: #f8fafc
+
+  div
+    display: grid
+    gap: .1rem
+    min-width: 0
+
+  span
+    color: #77859a
+    font-size: .69rem
+
+  strong
+    overflow: hidden
+    color: #223c63
+    font-size: .82rem
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.project-field
+  display: grid
+  gap: .4rem
+
+  label
+    color: #253b5f
+    font-size: .82rem
+    font-weight: 700
+
+    span
+      margin-left: .3rem
+      color: #8793a7
+      font-size: .72rem
+      font-weight: 500
+
+  input, textarea
+    width: 100%
+
+  textarea
+    resize: vertical
+
+.field-error
+  color: #d14343
+  font-size: .72rem
+
+.dialog-actions
+  display: flex
+  justify-content: flex-end
+  gap: .55rem
+
+@media screen and (max-width: 700px)
+  .project-context
+    grid-template-columns: 1fr
 
 .area-timeline
   display: grid

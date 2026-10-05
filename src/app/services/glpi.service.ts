@@ -60,6 +60,10 @@ export class GlpiService {
         return this.http.put(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-technical`, {data})
     }
 
+    updateInspectionTechnical(id_inspection: number, data: any) {
+        return this.http.put(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection/${id_inspection}`, {data})
+    }
+
     saveTicketCommercial(data: any) {
         return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-commercial`, {data})
     }
@@ -83,9 +87,23 @@ export class GlpiService {
             params = params.set('ticket_technical_id', filters.ticket_technical_id);
         }
 
+        if (filters?.user) {
+            params = params.set('user', filters.user);
+        }
+
+        if (filters?.status) {
+            params = params.set('status', filters.status);
+        }
+
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-technical`, 
             {params}
         );
+    }
+
+    getInspectionMaterials(inspection_id: number) {
+        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection-materials`, {
+            params: new HttpParams().set('inspection_id', inspection_id)
+        });
     }
 
     getTicketsCommercial(filters?: any) {
@@ -139,6 +157,14 @@ export class GlpiService {
             params = params.set('pending_technical', filters.pending_technical);
         }
 
+        if (filters?.responsible_id) {
+            params = params.set('responsible_id', filters.responsible_id);
+        }
+
+        if (filters?.pending_commercial) {
+            params = params.set('pending_commercial', filters.pending_commercial);
+        }
+
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection`, {params});
     }
 
@@ -160,6 +186,10 @@ export class GlpiService {
 
     approveCommercialTicket(data: any) {
         return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/approve-commercial-ticket`, {data});
+    }
+
+    approveTechnicalInspection(data: any) {
+        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/approve-technical-inspection`, {data});
     }
 
     saveFollowup(data: any) {
@@ -184,6 +214,14 @@ export class GlpiService {
 
     getAreaTicketHistory(ticketId: number | string) {
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/history-area-ticket/${ticketId}`);
+    }
+
+    getDashboard() {
+        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/dashboard`);
+    }
+
+    getProjectActivities() {
+        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/dashboard/project-activities`);
     }
     
 }

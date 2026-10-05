@@ -8,7 +8,6 @@
         <h1 id="commercial-requests-title">Solicitudes comercial</h1>
         <p>Consulta y gestiona las solicitudes comerciales por estado.</p>
       </div>
-      <span class="request-count"><strong>{{ activeIndex === 0 ? pendingTotalRecords : completedTotalRecords }}</strong> tickets</span>
     </header>
     
     <p-tabView styleClass="commercial-tab-view" [(activeIndex)]="activeIndex" (onChange)="onTabChange($event)">
@@ -42,7 +41,7 @@
           </div>
         </div>
 
-        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: pendingTickets, tableRef: 'pendingTable', totalRecords: pendingTotalRecords, lazy: true }"></ng-container>
+        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: pendingTickets, tableRef: 'pendingTable' }"></ng-container>
       </p-tabPanel>
 
       <p-tabPanel header="Registrados" leftIcon="pi pi-check-circle">
@@ -54,19 +53,19 @@
           <p-button label="Actualizar" icon="pi pi-refresh" [loading]="completedLoading" [outlined]="true" styleClass="clear-button" (onClick)="fetchCompletedTickets()"></p-button>
         </div>
 
-        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: completedTickets, tableRef: 'completedTable', totalRecords: completedTotalRecords, lazy: false }"></ng-container>
+        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: completedTickets, tableRef: 'completedTable'}"></ng-container>
       </p-tabPanel>
     </p-tabView>
 
     <ng-template #ticketsTable let-tickets let-tableRef="tableRef" let-totalRecords="totalRecords" let-lazy="lazy">
       <div class="table-card">
         <p-table #pendingTable [value]="tickets" [paginator]="true" [totalRecords]="totalRecords" [rows]="5"
-          [rowsPerPageOptions]="[5, 10, 25]" [lazy]="lazy" (onLazyLoad)="lazy && pendingPageChange($event)"
+          [rowsPerPageOptions]="[5, 10, 25]"
           rowStyleClass="custom-row-height" styleClass="requests-table" dataKey="id">
           <ng-template pTemplate="header">
             <tr>
               <th>Solicitud</th>
-              <th>Ticket Glpi</th>
+              <th>Título</th>
               <th>Fecha</th>
               <th>Cliente</th>
               <th>Ubicación</th>
@@ -80,8 +79,8 @@
           </ng-template>
           <ng-template pTemplate="body" let-request>
             <tr>
-              <td>{{ request.code_management ?? 'N/A' }}</td>
-              <td>{{ request.ticket_glpi ?? 'N/A' }}</td>
+              <td>{{ request.code ?? 'N/A' }}</td>
+              <td>{{ request.title_ticket ?? 'N/A' }}</td>
               <td><span class="date" [pTooltip]="request.created_at ? 'Hora de registro: ' + (request.created_at | date:'HH:mm':'UTC') : ''" tooltipPosition="top">{{ request.created_at ? (request.created_at | date:'dd/MM/yyyy':'UTC') : 'N/A' }}</span></td>
               <td><span class="date">{{ request.client_name ?? 'N/A' }}</span></td>
               <td class="subject-cell">{{ request.location_name ?? 'N/A' }}</td>
@@ -187,6 +186,8 @@
     </div>
   </ng-template>
 </p-dialog>
+
+<app-ticket-detail-sidebar [(visible)]="showDetail" [data]="selectedTicket" [type]="detailType"></app-ticket-detail-sidebar>
 
 <div class="overlay" *ngIf="isLoading">
   <p-progressSpinner

@@ -39,14 +39,51 @@
 
 .ticket-summary
   display: flex
-  justify-content: space-between
-  align-items: center
-  min-height: 7.35rem
+  flex-direction: column
+  gap: 1.1rem
   padding: 1.15rem 1.4rem
   border: 1px solid #dfe6ef
   border-radius: .85rem
   background: #fff
   box-shadow: 0 3px 14px rgba(22, 45, 82, .035)
+
+.inspection-info
+  display: grid
+  grid-template-columns: repeat(5, minmax(0, 1fr))
+  margin: 0
+  padding-top: 1rem
+  border-top: 1px solid #e7edf4
+
+  > div
+    min-width: 0
+    padding: 0 1rem
+    border-left: 1px solid #e7edf4
+
+    &:first-child
+      padding-left: 0
+      border-left: 0
+
+  dt
+    display: flex
+    align-items: center
+    gap: .4rem
+    margin-bottom: .35rem
+    color: #65748d
+    font-size: .68rem
+    font-weight: 600
+
+    i
+      color: #124e98
+      font-size: .7rem
+
+  dd
+    overflow: hidden
+    margin: 0
+    color: #14233f
+    font-size: .76rem
+    font-weight: 600
+    text-overflow: ellipsis
+    white-space: nowrap
 
 .ticket-identity
   display: flex
@@ -146,6 +183,10 @@
   gap: 1.2rem
   align-items: start
   margin-top: 1.2rem
+
+  &.no-documents
+    grid-template-columns: minmax(0, 1fr)
+    grid-template-areas: none
 
 .info-card
   border: 1px solid #dfe6ef
@@ -513,6 +554,14 @@
   .checks-grid
     grid-template-columns: 1fr
 
+  .inspection-info
+    grid-template-columns: repeat(3, minmax(0, 1fr))
+    row-gap: .9rem
+
+    > div:nth-child(3n + 1)
+      padding-left: 0
+      border-left: 0
+
 @media screen and (max-width: 900px)
   .detail-page
     padding: 1rem
@@ -558,6 +607,16 @@
 
   .form-grid
     grid-template-columns: 1fr
+
+  .inspection-info
+    grid-template-columns: 1fr
+
+    > div
+      padding: 0
+      border-left: 0
+
+    dd
+      white-space: normal
 
   .glpi-card dl > div
     grid-template-columns: 6.5rem 1fr

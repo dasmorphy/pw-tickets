@@ -50,7 +50,7 @@
           </div>
         </div>
 
-        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: pendingTickets, menu: itemsPending }"></ng-container>
+        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: pendingTickets }"></ng-container>
       </p-tabPanel>
 
       <p-tabPanel header="Registrados" leftIcon="pi pi-check-circle">
@@ -63,7 +63,7 @@
             styleClass="clear-button" (onClick)="fetchTicketsTechnical()"></p-button>
         </div>
 
-        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: registeredTickets, menu: items }"></ng-container>
+        <ng-container *ngTemplateOutlet="ticketsTable; context: { $implicit: registeredTickets }"></ng-container>
       </p-tabPanel>
     </p-tabView>
 
@@ -107,11 +107,18 @@
               <td><span>{{ request.status ?? request.management_area ?? 'N/A' }}</span></td>
               <td><span>{{ request.created_by ?? request.responsible_name ?? 'N/A' }}</span></td>
               <td class="row-actions">
-                <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(request)" [model]="menu">
-                  <ng-template pTemplate="dropdownicon">
-                    <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
-                  </ng-template>
-                </p-splitButton>
+                @if (activeIndex === 1) {
+                  <i class="pi pi-eye cursor-pointer" style="color: #83378f;" pTooltip="Ver detalles" tooltipPosition="top"
+                    role="button" tabindex="0" aria-label="Ver detalles"
+                    (click)="optionsTicket(request); viewDetails('technical')"
+                    (keydown.enter)="optionsTicket(request); viewDetails('technical')"></i>
+                }@else {
+                  <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(request)" [model]="itemsPending">
+                    <ng-template pTemplate="dropdownicon">
+                      <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                    </ng-template>
+                  </p-splitButton>
+                }
               </td>
             </tr>
           </ng-template>
@@ -124,4 +131,6 @@
       </div>
     </ng-template>
   </section>
+
+  <app-ticket-detail-sidebar [(visible)]="showDetail" [data]="selectedTicket" [type]="detailType"></app-ticket-detail-sidebar>
 </main>

@@ -5,7 +5,7 @@
     <nav class="breadcrumb" aria-label="Navegación">
       <a routerLink="/tickets-glpi">Tickets</a>
       <i class="pi pi-chevron-right"></i>
-      <span>Ticket {{ ticket }}</span>
+      <span>Inspección {{ ticket }}</span>
     </nav>
 
     <section class="ticket-summary">
@@ -13,43 +13,50 @@
         <div class="ticket-icon"><i class="pi pi-file"></i></div>
         <div>
           <div class="title-line">
-            <h1>{{ ticketDetails?.name }}</h1>
+            <h1>{{ ticketDetails?.title_ticket }}</h1>
           </div>
           <div class="ticket-meta">
             <!-- <span><i class="pi pi-briefcase"></i> TechSolutions S.A.</span> -->
-            <span>Creado el {{ ticketDetails?.date_creation }} por {{ ticketDetails?.users_id_recipient }}</span>
+            <span>Creado el {{ ticketDetails?.created_at | date: 'dd/MM/yyyy HH:mm':'UTC' }} por {{ ticketDetails?.created_by }}</span>
           </div>
         </div>
       </div>
 
-      <div class="summary-actions">
-        <p-button label="Ver en GLPI" icon="pi pi-external-link" 
-          [outlined]="true" styleClass="glpi-button" (click)="redirectTicketGlpi()">
-        </p-button>
-      </div>
-
+      <dl class="inspection-info" aria-label="Información inspección">
+        <!-- <div><dt>N. Inspección</dt><dd>{{ ticketDetails?.code }}</dd></div> -->
+        <div>
+          <dt><i class="pi pi-briefcase"></i> Cliente</dt>
+          <dd [title]="ticketDetails?.client_name ?? ''">{{ ticketDetails?.client_name || '—' }}</dd>
+        </div>
+        <div>
+          <dt><i class="pi pi-map-marker"></i> Ubicación</dt>
+          <dd [title]="ticketDetails?.location_name ?? ''">{{ ticketDetails?.location_name || '—' }}</dd>
+        </div>
+        <div>
+          <dt><i class="pi pi-phone"></i> Contacto</dt>
+          <dd [title]="ticketDetails?.contact ?? ''">{{ ticketDetails?.contact || '—' }}</dd>
+        </div>
+        <div>
+          <dt><i class="pi pi-flag"></i> Prioridad</dt>
+          <dd>
+            @if (ticketDetails?.priority) {
+              <span class="priority-badge"><i></i> {{ ticketDetails?.priority }}</span>
+            } @else {
+              —
+            }
+          </dd>
+        </div>
+        <div>
+          <dt><i class="pi pi-user"></i> Responsable</dt>
+          <dd [title]="ticketDetails?.responsible_name ?? ''">{{ ticketDetails?.responsible_name || '—' }}</dd>
+        </div>
+      </dl>
     </section>
 
-    <div class="content-grid">
+    <div class="content-grid" [class.no-documents]="!ticketDetails?._documents?.length">
+      @if (ticketDetails?._documents?.length) {
       <section class="info-card glpi-card">
-        <header><i class="pi pi-file-export"></i><h2>Información inspección</h2></header>
-        <dl>
-          <div><dt>Ticket</dt><dd>{{ ticketDetails?.id_inspection }}</dd></div>
-          <div><dt>Cliente</dt><dd> {{ticketDetails?.client_name}} </dd></div>
-          <div><dt>Ubicación</dt><dd>{{ticketDetails?.location_name}}</dd></div>
-          <!-- <div><dt>Categoría</dt><dd>Inspección</dd></div> -->
-          <div><dt>Contacto</dt><dd>{{ ticketDetails?.contact }}</dd></div>
-          <div><dt>Prioridad</dt><dd>{{ ticketDetails?.priority }}</dd></div> 
-          <div><dt>Fecha de creación</dt><dd>{{ ticketDetails?.created_at | date: 'dd/MM/yyyy' }}</dd></div>
-          <div><dt>Responsable</dt><dd>{{ ticketDetails?.responsible_name }}</dd></div>
-          <!-- <div><dt>Estado GLPI</dt><dd><span class="status-badge"><i></i> {{ utilsService.getTxtStatus(ticketDetails?.status) }}</span></dd></div> -->
-        </dl>
-        <!-- <footer>
-          <a href="javascript:void(0)"><i class="pi pi-comment"></i> Ver comentarios (3)</a>
-          <a href="javascript:void(0)"><i class="pi pi-paperclip"></i> Ver adjuntos ({{ ticketDetails?._documents?.length ?? 0 }})</a>
-        </footer> -->
-        @if (ticketDetails?._documents?.length) {
-          <header class="pt-2"><i class="pi pi-paperclip"></i><h2>Archivos adjuntos</h2></header>
+          <header><i class="pi pi-paperclip"></i><h2>Archivos adjuntos</h2></header>
           <div class="documents-grid">
             @for (document of ticketDetails._documents; track document.id) {
               <article class="document-card">
@@ -82,17 +89,16 @@
               </article>
             }
           </div>
-        }
-
       </section>
-
-      @if (area_user == 'tecnico') {
-        <app-register-ticket-technical [ticketIdEdit]=ticketIdEdit></app-register-ticket-technical>
       }
 
-      @if (area_user == 'comercial') {
+      <!-- @if (area_user == 'tecnico') {
+        } -->
+        <!-- <app-register-ticket-technical [ticketIdEdit]=ticketIdEdit></app-register-ticket-technical> -->
+
+      <!-- @if (area_user == 'comercial') { -->
         <app-register-ticket-commercial [ticketIdEdit]=ticketIdEdit></app-register-ticket-commercial>
-      }
+      <!-- } -->
 
       @if (area_user == 'financiera') {
         <app-register-ticket-financial></app-register-ticket-financial>

@@ -70,7 +70,7 @@ export class RegisterTicketFinancialComponent {
 
     ngOnInit() {
         this.user_session = this.userService.getDataSession();
-        const ticketId = this.route.snapshot.paramMap.get('ticket');
+        const ticketId = this.route.snapshot.paramMap.get('inspection_id');
         if (ticketId) {
             this.ticketForm.patchValue({
                 ticket_id: parseInt(ticketId, 10),

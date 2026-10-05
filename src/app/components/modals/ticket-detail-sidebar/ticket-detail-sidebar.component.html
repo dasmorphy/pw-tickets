@@ -1,0 +1,132 @@
+<p-sidebar [visible]="visible" (visibleChange)="visibleChange.emit($event)" position="right"
+    styleClass="ticket-detail-sidebar" [showCloseIcon]="false" [blockScroll]="true">
+    <ng-template pTemplate="header">
+        <div class="detail-header">
+            <span class="type-icon"><i [class]="typeInfo.icon"></i></span>
+            <div class="header-text">
+                <span class="eyebrow">{{ typeInfo.label }}</span>
+                <h2>{{ headerCode }}</h2>
+                @if (data?.title_ticket) {
+                    <p [title]="data.title_ticket">{{ data.title_ticket }}</p>
+                }
+            </div>
+            <button type="button" class="close-button" aria-label="Cerrar detalle" (click)="close()">
+                <i class="pi pi-times"></i>
+            </button>
+        </div>
+    </ng-template>
+
+    @if (data) {
+        <div class="badges">
+            @if (statusLabel) {
+                <span class="badge status"><i></i>{{ statusLabel }}</span>
+            }
+            @if (data.priority) {
+                <span class="badge priority"><i class="pi pi-flag"></i>{{ data.priority }}</span>
+            }
+            @if (data.management_area) {
+                <span class="badge area">
+                    {{ data.management_area }}
+                    @if (data.next_area) {
+                        <i class="pi pi-arrow-right"></i>{{ data.next_area }}
+                    }
+                </span>
+            }
+        </div>
+
+        @for (section of sections; track section.title) {
+            <section class="detail-section">
+                <h3><i [class]="section.icon"></i>{{ section.title }}</h3>
+                <dl>
+                    @for (field of section.fields; track field.label) {
+                        <div [class.full]="field.format === 'longtext'">
+                            <dt>{{ field.label }}</dt>
+                            <dd [class.muted]="isEmpty(field.value)">
+                                @if (isEmpty(field.value)) {
+                                    —
+                                } @else {
+                                    @switch (field.format) {
+                                        @case ('date') { {{ field.value | date: 'dd/MM/yyyy':'UTC' }} }
+                                        @case ('datetime') { {{ field.value | date: 'dd/MM/yyyy HH:mm':'UTC' }} }
+                                        @case ('currency') { {{ field.value | currency: 'USD' }} }
+                                        @case ('percent') { {{ field.value }} % }
+                                        @case ('bool') {
+                                            <span class="bool" [class.yes]="field.value">
+                                                <i class="pi" [ngClass]="field.value ? 'pi-check-circle' : 'pi-minus-circle'"></i>
+                                                {{ field.value ? 'Sí' : 'No' }}
+                                            </span>
+                                        }
+                                        @default { {{ field.value }} }
+                                    }
+                                }
+                            </dd>
+                        </div>
+                    }
+                </dl>
+            </section>
+        }
+
+        @if (type === 'technical') {
+            <section class="detail-section">
+                <h3><i class="pi pi-align-left"></i>Descripción general</h3>
+                @if (data.description) {
+                    <div class="rich-text" [innerHTML]="data.description"></div>
+                } @else {
+                    <p class="empty">Sin descripción.</p>
+                }
+            </section>
+
+            <section class="detail-section">
+                <h3>
+                    <i class="pi pi-box"></i>Materiales
+                    <span class="count">{{ materials.length }}</span>
+                </h3>
+                @if (materials.length) {
+                    <ul class="materials">
+                        @for (material of materials; track $index) {
+                            <li>
+                                <span class="material-icon" [class.new]="material.is_new">
+                                    <i class="pi" [ngClass]="material.is_new ? 'pi-plus-circle' : 'pi-box'"></i>
+                                </span>
+                                <div class="material-info">
+                                    <strong [title]="material.name">
+                                        {{ material.name }}
+                                        @if (material.is_new) {
+                                            <span class="new-badge">Nuevo</span>
+                                        }
+                                    </strong>
+                                    @if (material.detail) {
+                                        <small [title]="material.detail">{{ material.detail }}</small>
+                                    }
+                                </div>
+                                <span class="quantity">{{ material.quantity ?? 0 }} <small>{{ material.unit || 'Unid.' }}</small></span>
+                            </li>
+                        }
+                    </ul>
+                } @else {
+                    <p class="empty">Sin materiales registrados.</p>
+                }
+            </section>
+        }
+
+        <section class="detail-section audit">
+            <h3><i class="pi pi-history"></i>Auditoría</h3>
+            <dl>
+                @for (field of auditFields; track field.label) {
+                    <div>
+                        <dt>{{ field.label }}</dt>
+                        <dd [class.muted]="isEmpty(field.value)">
+                            @if (isEmpty(field.value)) {
+                                —
+                            } @else if (field.format === 'datetime') {
+                                {{ field.value | date: 'dd/MM/yyyy HH:mm':'UTC' }}
+                            } @else {
+                                {{ field.value }}
+                            }
+                        </dd>
+                    </div>
+                }
+            </dl>
+        </section>
+    }
+</p-sidebar>

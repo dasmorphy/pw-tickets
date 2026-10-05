@@ -416,6 +416,205 @@
     line-height: 1.5
     resize: vertical
 
+.form-section
+  padding: 1rem
+  border: 1px solid #e1e7ef
+  border-radius: .6rem
+  background: #fafbfd
+
+  & + .form-section
+    margin-top: 1rem
+
+  .check-field
+    background: #fff
+
+.section-title
+  display: flex
+  align-items: flex-start
+  justify-content: space-between
+  gap: 1rem
+  margin-bottom: .9rem
+
+  h3
+    margin: 0
+    color: #14233f
+    font-size: .82rem
+
+  p
+    margin: .25rem 0 0
+    color: #6f7d94
+    font-size: .68rem
+    line-height: 1.4
+
+.count-badge
+  padding: .3rem .6rem
+  border-radius: 1rem
+  background: #e8f2ff
+  color: #156bd7
+  font-size: .66rem
+  font-weight: 600
+  white-space: nowrap
+
+.span-2
+  grid-column: 1 / -1
+
+.readonly-value
+  display: flex
+  align-items: center
+  height: 2.45rem
+  padding: 0 .72rem
+  border: 1px solid #e1e7ef
+  border-radius: .45rem
+  background: #f3f6fa
+  color: #4f5f78
+  font-size: .72rem
+
+.field-error
+  display: block
+  margin-top: .3rem
+  color: #d6362f
+  font-size: .64rem
+
+.items-header
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: 1rem
+  margin: 1.1rem 0 .6rem
+
+  h4
+    margin: 0
+    color: #14233f
+    font-size: .76rem
+
+.items-scroll
+  overflow-x: auto
+  border: 1px solid #dfe6ef
+  border-radius: .5rem
+  background: #fff
+
+.items-table
+  width: 100%
+  min-width: 40rem
+  border-collapse: collapse
+  font-size: .7rem
+
+  th
+    padding: .6rem .5rem
+    background: #092f68
+    color: #fff
+    font-size: .66rem
+    font-weight: 600
+    text-align: left
+    white-space: nowrap
+
+  td
+    padding: .4rem .5rem
+    border-top: 1px solid #e7edf4
+    color: #33445f
+    vertical-align: top
+
+  tbody tr:first-child td
+    border-top: 0
+
+  textarea
+    display: block
+    min-height: 2.2rem
+    padding: .5rem .6rem
+    border: 1px solid #dbe3ee
+    border-radius: .45rem
+    color: #2d3e59
+    font-size: .7rem
+    line-height: 1.4
+    resize: none
+
+  .col-item
+    width: 2.6rem
+    text-align: center
+
+  td.col-item
+    padding-top: .95rem
+    color: #65748d
+    font-weight: 600
+
+  .col-model
+    width: 8rem
+
+  .col-quantity
+    width: 4.6rem
+
+  .col-pvp
+    width: 6.6rem
+
+  .col-total
+    width: 6rem
+    text-align: right
+    white-space: nowrap
+
+  td.col-total
+    padding-top: .95rem
+    color: #14233f
+    font-weight: 600
+    font-variant-numeric: tabular-nums
+
+  .col-actions
+    width: 2.6rem
+    text-align: center
+
+.items-empty
+  padding: 1.4rem 1rem !important
+  color: #7c899d
+  text-align: center
+
+  i
+    margin-right: .4rem
+
+.totals
+  display: flex
+  flex-direction: column
+  gap: .35rem
+  width: 16rem
+  max-width: 100%
+  margin: .9rem 0 0 auto
+
+  > div
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 1rem
+    padding: .2rem .7rem
+
+  dt
+    color: #65748d
+    font-size: .7rem
+
+  dd
+    margin: 0
+    color: #24344f
+    font-size: .74rem
+    font-weight: 600
+    font-variant-numeric: tabular-nums
+
+  .grand-total
+    margin-top: .2rem
+    padding: .6rem .7rem
+    border-radius: .45rem
+    background: #092f68
+
+    dt, dd
+      color: #fff
+
+    dd
+      font-size: .88rem
+
+.sr-only
+  position: absolute
+  width: 1px
+  height: 1px
+  overflow: hidden
+  clip: rect(0, 0, 0, 0)
+  white-space: nowrap
+
 .loss-field
   padding: .8rem
   border: 1px solid #f3d5d2
@@ -431,18 +630,21 @@
   border-top: 1px solid #e8edf3
 
 :host::ng-deep
-  .glpi-button, .more-button, .cancel-button, .save-button
+  .glpi-button, .more-button, .cancel-button, .save-button, .add-button
     height: 2.45rem
     border-radius: .45rem
     box-shadow: none
     font-size: .72rem
+
+  .add-button
+    height: 2.1rem
 
   .glpi-button, .cancel-button
     border-color: #d5deea
     background: #fff
     color: #314461
 
-  .more-button, .save-button
+  .more-button, .save-button, .add-button
     border-color: #092f68
     background: #092f68
     color: #fff
@@ -488,6 +690,30 @@
       &.p-highlight
         border-color: #0b64ca
         background: #0b64ca
+
+  .commercial-form
+    .p-inputtext.ng-invalid.ng-dirty
+      border-color: #e7443e
+
+    .items-table
+      .p-inputtext
+        height: 2.2rem
+        font-size: .7rem
+
+      .p-inputnumber-input
+        width: 100%
+        padding: .5rem .55rem
+        text-align: right
+
+      .pending-price .p-inputnumber-input
+        border-color: #f0b44c
+        background: #fffaf0
+
+      .remove-button
+        width: 2rem
+        height: 2rem
+        padding: 0
+        box-shadow: none
 
   .document-actions .p-button
     width: 1.7rem

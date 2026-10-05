@@ -1,0 +1,108 @@
+<p-toast></p-toast>
+
+<p-dialog header="Header" [closable]="false" [(visible)]="showConfirm" [draggable]="false" [modal]="true"
+  [style]="{ width: 'min(26rem, calc(100vw - 2rem))', 'border-radius': '32px' }">
+  <ng-template pTemplate="header">
+    <div class="w-full" style="display: grid; place-items: center;">
+      <i class="pi pi-exclamation-circle mt-4" style="color: #EB6506; font-size: 40px;"></i>
+      <h1 style="margin: 0; font-size: 22px;" class="text-center mt-3">
+        ¿Está seguro de aprobar la inspección?
+      </h1>
+    </div>
+  </ng-template>
+
+  <p class="text-center m-0" style="color: #6f7d95; font-size: .85rem;">
+    {{ selectedTicket?.code_management ?? selectedTicket?.title_ticket ?? 'Inspección' }}
+    · {{ selectedTicket?.client_name ?? 'N/A' }}
+  </p>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
+      <p-button label="Aceptar" [loading]="isApproving" (onClick)="approveInspection()"
+        styleClass="bg-btn-primary w-full">
+      </p-button>
+      <p-button label="Cancelar" [disabled]="isApproving" (onClick)="showConfirm = false"
+        styleClass="bg-btn-cancel w-full">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<main class="requests-page">
+  <section class="requests-panel" aria-labelledby="approval-title">
+    <header class="panel-heading">
+      <div>
+        <span class="eyebrow">Gestión técnica</span>
+        <h1 id="approval-title">Inspecciones por aprobar</h1>
+        <p>Consulta y gestiona las solicitudes técnicas registradas.</p>
+      </div>
+      <span class="request-count"><strong>{{ registeredTickets.length }}</strong> tickets</span>
+    </header>
+
+    <div class="completed-heading">
+      <div>
+        <h2>Solicitudes registradas</h2>
+        <p>Registros obtenidos desde el servicio técnico.</p>
+      </div>
+      <p-button label="Actualizar" icon="pi pi-refresh" [loading]="registeredLoading" [outlined]="true"
+        styleClass="clear-button" (onClick)="fetchTicketsTechnical()"></p-button>
+    </div>
+
+    <div class="table-card">
+      <p-table
+        [value]="registeredTickets"
+        [paginator]="true"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 25]"
+        [showCurrentPageReport]="false"
+        rowStyleClass="custom-row-height"
+        styleClass="requests-table"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Solicitud</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Ubicación</th>
+            <th>Contacto</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Usuario</th>
+            <th class="actions-heading"><span class="sr-only">Acciones</span></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-request>
+          <tr>
+            <td>{{ request.code_management ?? request.title_ticket ?? 'N/A' }}</td>
+            <td>
+              <span class="date" tooltipPosition="top"
+                [pTooltip]="(request.created_at ?? request.ticket_created_at) ? 'Hora de registro: ' + ((request.created_at ?? request.ticket_created_at) | date:'HH:mm':'UTC') : ''">
+                {{ (request.created_at ?? request.ticket_created_at) ? ((request.created_at ?? request.ticket_created_at) | date:'dd/MM/yyyy':'UTC') : 'N/A' }}
+              </span>
+            </td>
+            <td><span class="date">{{ request.client_name ?? 'N/A' }}</span></td>
+            <td class="subject-cell">{{ request.location_name ?? 'N/A' }}</td>
+            <td class="subject-cell">{{ request.contact ?? 'N/A' }}</td>
+            <td><span>{{ request.priority ?? 'N/A' }}</span></td>
+            <td><span>{{ request.status ?? request.management_area ?? 'N/A' }}</span></td>
+            <td><span>{{ request.created_by ?? request.responsible_name ?? 'N/A' }}</span></td>
+            <td class="row-actions">
+              <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(request)" [model]="items">
+                <ng-template pTemplate="dropdownicon">
+                  <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                </ng-template>
+              </p-splitButton>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="9" class="empty-state"><i class="pi pi-inbox"></i><strong>No hay solicitudes</strong><span>Intenta actualizar la información.</span></td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </section>
+
+  <app-ticket-detail-sidebar [(visible)]="showDetail" [data]="selectedTicket" type="technical"></app-ticket-detail-sidebar>
+</main>

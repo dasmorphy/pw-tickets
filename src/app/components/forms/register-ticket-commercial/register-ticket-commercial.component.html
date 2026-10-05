@@ -3,90 +3,189 @@
         <h2>Gestión Comercial</h2>
     </header>
 
-    <form #commercialForm="ngForm" [formGroup]="ticketForm" class="commercial-form">
-        <div class="form-grid">
-            <div class="field">
-                <label for="origin">Origen</label>
-                <p-dropdown inputId="origin" name="origin" [options]="origins" formControlName="origin_id" optionLabel="name" optionValue="id_origin"
-                    placeholder="Seleccione un origen" styleClass="w-full" appendTo="body"></p-dropdown>
+    <form [formGroup]="ticketForm" class="commercial-form" (ngSubmit)="saveTicket()">
+        <div class="form-section">
+            <div class="section-title">
+                <div>
+                    <h3>Datos de la gestión</h3>
+                    <p>Información comercial de la oportunidad.</p>
+                </div>
             </div>
 
-            <div class="field">
-                <label for="solutionType">Tipo de solución</label>
-                <p-dropdown inputId="solutionType" name="solutionType" [options]="solutionTypes" optionLabel="name" optionValue="id_solution"
-                    formControlName="type_solution_id" placeholder="Seleccione una solución" styleClass="w-full"
-                    appendTo="body"></p-dropdown>
-            </div>
+            <div class="form-grid">
+                <div class="field">
+                    <label for="origin">Origen</label>
+                    <p-dropdown inputId="origin" name="origin" [options]="origins" formControlName="origin_id" optionLabel="name" optionValue="id_origin"
+                        placeholder="Seleccione un origen" styleClass="w-full" appendTo="body"></p-dropdown>
+                </div>
 
-            <div class="field">
-                <label for="quotedValue">Valor cotizado</label>
-                <p-inputNumber inputId="quotedValue" name="quotedValue" formControlName="quotedValue"
-                    mode="currency" currency="USD" locale="en-US" [minFractionDigits]="2" [maxFractionDigits]="2"
-                    styleClass="w-full"></p-inputNumber>
-            </div>
+                <div class="field">
+                    <label for="solutionType">Tipo de solución</label>
+                    <p-dropdown inputId="solutionType" name="solutionType" [options]="solutionTypes" optionLabel="name" optionValue="id_solution"
+                        formControlName="type_solution_id" placeholder="Seleccione una solución" styleClass="w-full"
+                        appendTo="body"></p-dropdown>
+                </div>
 
-            <div class="field">
-                <label for="commercialStatus">Estado</label>
-                <p-dropdown inputId="commercialStatus" name="commercialStatus" [options]="status" optionLabel="name" optionValue="id_status"
-                    formControlName="status_id" placeholder="Seleccione un estado" styleClass="w-full"
-                    appendTo="body"></p-dropdown>
-            </div>
+                <div class="field">
+                    <label for="commercialStatus">Estado</label>
+                    <p-dropdown inputId="commercialStatus" name="commercialStatus" [options]="status" optionLabel="name" optionValue="id_status"
+                        formControlName="status_id" placeholder="Seleccione un estado" styleClass="w-full"
+                        appendTo="body"></p-dropdown>
+                </div>
 
-            <div class="field">
-                <label for="closeProbability">Probabilidad de cierre</label>
-                <p-inputNumber inputId="closeProbability" name="closeProbability"
-                    formControlName="probability_closing" suffix=" %" [min]="0" [max]="100" [minFractionDigits]="0"
-                    [maxFractionDigits]="0" styleClass="w-full"></p-inputNumber>
-            </div>
+                <div class="field">
+                    <label for="closeProbability">Probabilidad de cierre</label>
+                    <p-inputNumber inputId="closeProbability" name="closeProbability"
+                        formControlName="probability_closing" suffix=" %" [min]="0" [max]="100" [minFractionDigits]="0"
+                        [maxFractionDigits]="0" styleClass="w-full"></p-inputNumber>
+                </div>
 
-            <div class="field">
-                <label for="estimatedCloseDate">Fecha estimada de cierre</label>
-                <p-calendar inputId="estimatedCloseDate" name="estimatedCloseDate"
-                    formControlName="closing_date" dateFormat="dd/mm/yy" [showIcon]="true"
-                    [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
-            </div>
+                <div class="field">
+                    <label for="estimatedCloseDate">Fecha estimada de cierre</label>
+                    <p-calendar inputId="estimatedCloseDate" name="estimatedCloseDate"
+                        formControlName="closing_date" dateFormat="dd/mm/yy" [showIcon]="true"
+                        [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+                </div>
 
-            <div class="field">
-                <label for="nextAction">Próxima acción</label>
-                <p-dropdown inputId="nextAction" name="nextAction" [options]="nextActions"
-                    formControlName="next_action" placeholder="Seleccione una acción" styleClass="w-full"
-                    appendTo="body"></p-dropdown>
-            </div>
+                <div class="field">
+                    <label for="expectedStartDate">Fecha prevista de inicio</label>
+                    <p-calendar inputId="expectedStartDate" name="expectedStartDate"
+                        formControlName="scheduled_start_date" dateFormat="dd/mm/yy" [showIcon]="true"
+                        [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+                </div>
 
-            <!-- <div class="field">
-                <label for="actionOwner">Responsable próxima acción</label>
-                <p-dropdown inputId="actionOwner" name="actionOwner" [options]="actionOwners"
-                    formControlName="nextActionOwner" placeholder="Seleccione un responsable" styleClass="w-full"
-                    appendTo="body"></p-dropdown>
-            </div> -->
+                <div class="field">
+                    <label for="nextAction">Próxima acción</label>
+                    <p-dropdown inputId="nextAction" name="nextAction" [options]="nextActions"
+                        formControlName="next_action" placeholder="Seleccione una acción" styleClass="w-full"
+                        appendTo="body"></p-dropdown>
+                </div>
 
-            <div class="field">
-                <label for="expectedStartDate">Fecha prevista de inicio</label>
-                <p-calendar inputId="expectedStartDate" name="expectedStartDate"
-                    formControlName="scheduled_start_date" dateFormat="dd/mm/yy" [showIcon]="true"
-                    [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+                <label class="check-field" for="contractReceived">
+                    <p-checkbox inputId="contractReceived" name="contractReceived" formControlName="contract_received"
+                        [binary]="true"></p-checkbox>
+                    <span><strong>OC / contrato recibido</strong><small>{{ ticketForm.get('contract_received')?.value ? 'Sí' : 'No'
+                            }}</small></span>
+                </label>
             </div>
         </div>
 
-        <div class="checks-grid">
-            <label class="check-field" for="technicalSupport">
-                <p-checkbox inputId="technicalSupport" name="technicalSupport"
-                    formControlName="requires_technical" [binary]="true"></p-checkbox>
-                <span><strong>Requiere apoyo técnico</strong><small>{{ ticketForm.get('requires_technical')?.value ? 'Sí' : 'No'
-                        }}</small></span>
-            </label>
-            <label class="check-field" for="requiresMaterials">
-                <p-checkbox inputId="requiresMaterials" name="requiresMaterials"
-                    formControlName="requires_material" [binary]="true"></p-checkbox>
-                <span><strong>Requiere compra / materiales</strong><small>{{ ticketForm.get('requires_material')?.value ? 'Sí' : 'No'
-                        }}</small></span>
-            </label>
-            <label class="check-field" for="contractReceived">
-                <p-checkbox inputId="contractReceived" name="contractReceived" formControlName="contract_received"
-                    [binary]="true"></p-checkbox>
-                <span><strong>OC / contrato recibido</strong><small>{{ ticketForm.get('contract_received')?.value ? 'Sí' : 'No'
-                        }}</small></span>
-            </label>
+        <div class="form-section" formGroupName="proforma">
+            <div class="section-title">
+                <div>
+                    <h3>Proforma</h3>
+                    <p>Los materiales se cargan del registro técnico de la inspección. El total es el valor cotizado.</p>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label for="proformaClient">Cliente</label>
+                    <input pInputText id="proformaClient" type="text" class="w-full" formControlName="client"
+                        [class.ng-invalid]="isInvalid('proforma.client')" [class.ng-dirty]="isInvalid('proforma.client')" />
+                </div>
+
+                <div class="field">
+                    <label for="proformaRuc">RUC</label>
+                    <input pInputText id="proformaRuc" type="text" class="w-full" formControlName="ruc"
+                        inputmode="numeric" maxlength="13" placeholder="13 dígitos" autocomplete="off"
+                        (input)="onRucInput($event)"
+                        [class.ng-invalid]="isInvalid('proforma.ruc')" [class.ng-dirty]="isInvalid('proforma.ruc')" />
+                    @if (isInvalid('proforma.ruc')) {
+                        <small class="field-error">El RUC debe tener 13 dígitos numéricos.</small>
+                    }
+                </div>
+
+                <div class="field">
+                    <label for="proformaRequestedBy">Solicita</label>
+                    <input pInputText id="proformaRequestedBy" type="text" class="w-full" formControlName="requested_by"
+                        maxlength="150" placeholder="Persona que solicita"
+                        [class.ng-invalid]="isInvalid('proforma.requested_by')" [class.ng-dirty]="isInvalid('proforma.requested_by')" />
+                </div>
+
+                <div class="field">
+                    <label>Fecha</label>
+                    <div class="readonly-value">{{ proformaDate | date: 'dd/MM/yyyy' }}</div>
+                </div>
+
+                <div class="field span-2">
+                    <label for="proformaProject">Proyecto</label>
+                    <input pInputText id="proformaProject" type="text" class="w-full" formControlName="project"
+                        [class.ng-invalid]="isInvalid('proforma.project')" [class.ng-dirty]="isInvalid('proforma.project')" />
+                </div>
+            </div>
+
+            <div class="items-header">
+                <h4>Ítems</h4>
+                <p-button type="button" label="Agregar ítem" icon="pi pi-plus" styleClass="add-button"
+                    (click)="addProformaItem()"></p-button>
+            </div>
+
+            <div class="items-scroll">
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th class="col-item">Ítem</th>
+                            <th class="col-model">Modelo</th>
+                            <th>Descripción</th>
+                            <th class="col-quantity">Cant.</th>
+                            <th class="col-pvp">PVP</th>
+                            <th class="col-total">Total</th>
+                            <th class="col-actions"><span class="sr-only">Acciones</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (item of proformaItems; track item; let i = $index) {
+                            <tr>
+                                <td class="col-item">{{ i + 1 }}</td>
+                                <td class="col-model">
+                                    <input pInputText type="text" class="w-full" [(ngModel)]="item.model"
+                                        [ngModelOptions]="{standalone: true}" placeholder="Modelo"
+                                        [attr.aria-label]="'Modelo del ítem ' + (i + 1)" />
+                                </td>
+                                <td>
+                                    <textarea pInputTextarea rows="1" [autoResize]="true" class="w-full"
+                                        [(ngModel)]="item.description" [ngModelOptions]="{standalone: true}"
+                                        placeholder="Descripción"
+                                        [attr.aria-label]="'Descripción del ítem ' + (i + 1)"></textarea>
+                                </td>
+                                <td class="col-quantity">
+                                    <p-inputNumber [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}"
+                                        [min]="0" [maxFractionDigits]="2" placeholder="0"
+                                        [ariaLabel]="'Cantidad del ítem ' + (i + 1)"></p-inputNumber>
+                                </td>
+                                <td class="col-pvp">
+                                    <p-inputNumber [(ngModel)]="item.pvp" [ngModelOptions]="{standalone: true}"
+                                        mode="currency" currency="USD" locale="en-US" [min]="0"
+                                        [minFractionDigits]="2" [maxFractionDigits]="2" placeholder="$0.00"
+                                        [styleClass]="item.pvp === null ? 'pending-price' : ''"
+                                        [ariaLabel]="'PVP del ítem ' + (i + 1)"></p-inputNumber>
+                                </td>
+                                <td class="col-total">{{ itemTotal(item) | currency: 'USD' }}</td>
+                                <td class="col-actions">
+                                    <button pButton type="button" icon="pi pi-trash"
+                                        class="p-button-text p-button-rounded p-button-danger remove-button"
+                                        [attr.aria-label]="'Quitar ítem ' + (i + 1)"
+                                        (click)="removeProformaItem(i)"></button>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="7" class="items-empty">
+                                    <i class="pi" [ngClass]="loadingMaterials ? 'pi-spin pi-spinner' : 'pi-box'"></i>
+                                    {{ loadingMaterials ? 'Cargando materiales...' : 'No hay ítems. El registro técnico no tiene materiales; agregue uno manualmente.' }}
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <dl class="totals">
+                <div><dt>Subtotal</dt><dd>{{ subtotal | currency: 'USD' }}</dd></div>
+                <div><dt>IVA ({{ ivaRate * 100 }}%)</dt><dd>{{ iva | currency: 'USD' }}</dd></div>
+                <div class="grand-total"><dt>Total</dt><dd>{{ total | currency: 'USD' }}</dd></div>
+            </dl>
         </div>
 
         <div class="field full-field">
@@ -104,8 +203,7 @@
         <div class="form-actions">
             <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
                 routerLink="/solicitudes"></p-button>
-            <p-button type="submit" label="Guardar" icon="pi pi-save"
-                styleClass="save-button" (click)="saveTicket()"></p-button>
+            <p-button type="submit" label="Guardar" icon="pi pi-save" styleClass="save-button"></p-button>
         </div>
     </form>
 </section>

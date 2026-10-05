@@ -11,6 +11,7 @@ import { TabViewModule } from 'primeng/tabview';
 import { TooltipModule } from 'primeng/tooltip';
 import { GlpiService } from 'src/app/services/glpi.service';
 import { UtilsService } from 'src/app/services/utils.service';
+import { TicketDetailSidebarComponent, TicketDetailType } from 'src/app/components/modals/ticket-detail-sidebar/ticket-detail-sidebar.component';
 
 interface CommercialTicket {
   id: number | string;
@@ -38,7 +39,8 @@ interface CommercialTicket {
     TableModule,
     TabViewModule,
     TooltipModule,
-    SplitButtonModule
+    SplitButtonModule,
+    TicketDetailSidebarComponent
   ],
   templateUrl: './tickets-financial.component.html',
   styleUrls: ['./tickets-financial.component.sass']
@@ -72,11 +74,18 @@ export class TicketsFinancialComponent {
 
   pendingFilters = { first: 0, rows: 5 };
 
+  showDetail = false;
+  detailType: TicketDetailType = 'commercial';
+
   items: any = [
     {
         label: 'Ver detalles',
         icon: 'pi pi-eye',
-        // command: () => this.viewLogbookDetails(this.selectedLogbook)
+        // Pendientes lista gestiones comerciales; Registrados, gestiones financieras
+        command: () => {
+          this.detailType = this.activeIndex === 0 ? 'commercial' : 'financial';
+          this.showDetail = true;
+        }
     },
     {
         label: 'Registro',
@@ -161,6 +170,6 @@ export class TicketsFinancialComponent {
 
   routeRegister() {
     console.log(this.selectedTicket);
-    this.router.navigate([`/registro-ticket/${this.selectedTicket?.ticket_glpi}`]);
+    this.router.navigate([`/registro-ticket/${this.selectedTicket?.inspection_id}`]);
   }
 }

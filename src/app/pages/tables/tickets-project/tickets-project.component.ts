@@ -15,6 +15,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToastModule } from 'primeng/toast';
 import { UserService } from 'src/app/services/user.service';
+import { TicketDetailSidebarComponent } from 'src/app/components/modals/ticket-detail-sidebar/ticket-detail-sidebar.component';
 
 type RequestArea = 'Técnica' | 'Comercial' | 'Proyectos' | 'Contabilidad';
 type RequestStatus = 'En proceso' | 'Pendiente' | 'Resuelto' | 'Aprobado';
@@ -47,7 +48,8 @@ interface ServiceRequest {
     SplitButtonModule,
     DialogModule,
     ProgressSpinnerModule,
-    ToastModule
+    ToastModule,
+    TicketDetailSidebarComponent
   ],
   templateUrl: './tickets-project.component.html',
   styleUrls: ['./tickets-project.component.sass']
@@ -73,6 +75,7 @@ export class TicketsProjectComponent {
   selectedTicket: any;
   tickets:any = [];
   showConfirm: boolean = false;
+  showDetail = false;
   user_json: any;
 
   isLoading: boolean = false;
@@ -82,7 +85,7 @@ export class TicketsProjectComponent {
     {
         label: 'Ver detalles',
         icon: 'pi pi-eye',
-        // command: () => this.viewLogbookDetails(this.selectedLogbook)
+        command: () => this.showDetail = true
     },
     {
         label: 'Confirmar',
