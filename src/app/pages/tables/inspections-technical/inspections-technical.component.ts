@@ -19,6 +19,8 @@ import { UserService } from 'src/app/services/user.service';
 import { ProjectTechnicalService } from 'src/app/services/project-technical.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { TicketDetailSidebarComponent } from 'src/app/components/modals/ticket-detail-sidebar/ticket-detail-sidebar.component';
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
 
 interface TechnicalInspection {
   ticket_id: number;
@@ -71,7 +73,9 @@ interface AreaTicketHistory {
     ToastModule,
     InputTextareaModule,
     MultiSelectModule,
-    TicketDetailSidebarComponent
+    TicketDetailSidebarComponent,
+    DropdownModule,
+    CalendarModule
   ],
   templateUrl: './inspections-technical.component.html',
   styleUrls: ['./inspections-technical.component.sass']
@@ -103,7 +107,13 @@ export class InspectionsTechnicalComponent {
   projectVisible = false;
   projectSaving = false;
   projectSubmitted = false;
-  projectForm = { name: '', description: '', assigned_technicians: [] as string[] };
+  projectForm = {
+    name: '',
+    description: '',
+    assigned_technicians: [] as string[],
+    responsible: null as string | null,
+    dates: null as (Date | null)[] | null,
+  };
   users_intern: any[] = [];
   user_session: any;
 
@@ -157,8 +167,22 @@ export class InspectionsTechnicalComponent {
     });
   }
 
+  // El responsable solo puede ser uno de los técnicos seleccionados
+  get responsibleOptions(): any[] {
+    return this.users_intern.filter(user => this.projectForm.assigned_technicians.includes(user.id_user));
+  }
+
+  onTechniciansChange(): void {
+    const options = this.responsibleOptions;
+    if (options.length === 1) {
+      this.projectForm.responsible = options[0].user;
+    } else if (!options.some(user => user.user === this.projectForm.responsible)) {
+      this.projectForm.responsible = null;
+    }
+  }
+
   openProjectDialog(): void {
-    this.projectForm = { name: '', description: '', assigned_technicians: [] };
+    this.projectForm = { name: this.selectedInspection?.title_ticket || '', description: '', assigned_technicians: [], responsible: null, dates: null };
     this.projectSubmitted = false;
     this.projectVisible = true;
   }
@@ -175,15 +199,37 @@ export class InspectionsTechnicalComponent {
     return !this.projectForm.assigned_technicians.length;
   }
 
+  get projectResponsibleInvalid(): boolean {
+    return !this.projectForm.responsible;
+  }
+
+  get projectDatesInvalid(): boolean {
+    return !this.projectForm.dates?.[0] || !this.projectForm.dates?.[1];
+  }
+
+  get waitingEndDate(): boolean {
+    return !!this.projectForm.dates?.[0] && !this.projectForm.dates?.[1];
+  }
+
+  // Formato date-time del API sin zona horaria: 2025-01-21T00:00:00
+  private toApiDateTime(date: Date, endOfDay = false): string {
+    const value = new Date(date);
+    value.setHours(endOfDay ? 23 : 0, endOfDay ? 59 : 0, endOfDay ? 59 : 0, 0);
+    return this.utilsService.formatLocalDate(value).replace(' ', 'T');
+  }
+
   saveProject(): void {
     this.projectSubmitted = true;
-    if (this.projectNameInvalid || this.projectTechniciansInvalid) {
+    if (this.projectNameInvalid || this.projectDatesInvalid || this.projectTechniciansInvalid || this.projectResponsibleInvalid) {
       this.utilsService.onWarn('Por favor, complete todos los campos requeridos.');
       return;
     }
 
     const data = {
       assigned_technicians: this.projectForm.assigned_technicians,
+      responsible: this.projectForm.responsible,
+      start_date: this.toApiDateTime(this.projectForm.dates![0]!),
+      end_date: this.toApiDateTime(this.projectForm.dates![1]!, true),
       description: this.projectForm.description.trim() || 'N/A',
       is_support: false,
       location_id: this.selectedInspection?.ubication_id,

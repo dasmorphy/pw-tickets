@@ -73,20 +73,54 @@
 
     <div class="project-field">
       <label for="project-name">Nombre del proyecto</label>
-      <input pInputText id="project-name" [(ngModel)]="projectForm.name" maxlength="150"
+      <input readonly tabindex="-1" class="readonly-input" pInputText id="project-name" [(ngModel)]="projectForm.name" maxlength="150"
         placeholder="Ej. Tarea instalación" [class.ng-invalid]="projectSubmitted && projectNameInvalid"
         [class.ng-dirty]="projectSubmitted && projectNameInvalid">
       <small class="field-error" *ngIf="projectSubmitted && projectNameInvalid">El nombre es obligatorio.</small>
     </div>
 
     <div class="project-field">
-      <label for="project-technicians">Técnicos asignados</label>
+      <label for="project-dates">Fecha de inicio y fin <span class="m-0" style="color: red;">*</span></label>
+      <p-calendar inputId="project-dates" [(ngModel)]="projectForm.dates" selectionMode="range" dateFormat="dd/mm/yy"
+        [showIcon]="true" [readonlyInput]="true" [showButtonBar]="true" placeholder="Seleccione el rango de fechas"
+        styleClass="w-full" appendTo="body" clearButtonStyleClass="p-button-text" todayButtonStyleClass="p-button-text"
+        [class.ng-invalid]="projectSubmitted && projectDatesInvalid"
+        [class.ng-dirty]="projectSubmitted && projectDatesInvalid"></p-calendar>
+      @if (projectSubmitted && projectDatesInvalid) {
+        <small class="field-error">Seleccione la fecha de inicio y la de fin.</small>
+      } @else if (waitingEndDate) {
+        <small class="field-hint">Ahora seleccione la fecha de fin.</small>
+      }
+    </div>
+
+    <div class="project-field">
+      <label for="project-technicians">Personal técnico <span class="m-0" style="color: red;">*</span></label>
       <p-multiSelect inputId="project-technicians" [options]="users_intern" [(ngModel)]="projectForm.assigned_technicians"
+        (ngModelChange)="onTechniciansChange()"
         optionLabel="fullname" optionValue="id_user" [filter]="true" filterBy="fullname" display="chip"
         placeholder="Seleccione uno o más técnicos" styleClass="w-full" appendTo="body"
         [class.ng-invalid]="projectSubmitted && projectTechniciansInvalid"
         [class.ng-dirty]="projectSubmitted && projectTechniciansInvalid"></p-multiSelect>
       <small class="field-error" *ngIf="projectSubmitted && projectTechniciansInvalid">Seleccione al menos un técnico.</small>
+    </div>
+
+    <div class="project-field">
+      <label for="project-responsible">Técnico responsable <span class="m-0" style="color: red;">*</span></label>
+      <p-dropdown inputId="project-responsible" [options]="responsibleOptions" [(ngModel)]="projectForm.responsible"
+        optionLabel="fullname" optionValue="user" [disabled]="!responsibleOptions.length"
+        [placeholder]="responsibleOptions.length ? 'Seleccione el responsable' : 'Primero seleccione el personal técnico'"
+        styleClass="w-full" appendTo="body"
+        [class.ng-invalid]="projectSubmitted && projectResponsibleInvalid"
+        [class.ng-dirty]="projectSubmitted && projectResponsibleInvalid">
+        <ng-template let-technician pTemplate="item">
+          <span class="responsible-option"><i class="pi pi-user"></i>{{ technician.fullname }}</span>
+        </ng-template>
+      </p-dropdown>
+      @if (projectSubmitted && projectResponsibleInvalid) {
+        <small class="field-error">Seleccione el técnico responsable.</small>
+      } @else {
+        <small class="field-hint">Se elige entre el personal técnico seleccionado.</small>
+      }
     </div>
 
     <div class="project-field">

@@ -13,7 +13,7 @@
 
     <ng-template pTemplate="footer">
         <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
-            <p-button label="Guardar" (onClick)="deleteTechProject(selectedProject)"
+            <p-button label="Eliminar" (onClick)="deleteTechProject(selectedProject)"
                 styleClass="bg-btn-primary w-full">
             </p-button>
             <p-button label="Cancelar" (onClick)="showDeleteProject = false"
@@ -36,7 +36,7 @@
 
     <ng-template pTemplate="footer">
         <div class="flex justify-content-center gap-3 mt-3" style="font-size: 15px;">
-            <p-button label="Guardar" (onClick)="deleteTechRecord(selectedRecord)"
+            <p-button label="Eliminar" (onClick)="deleteTechRecord(selectedRecord)"
                 styleClass="bg-btn-primary w-full">
             </p-button>
             <p-button label="Cancelar" (onClick)="showDeleteRecord = false"
@@ -158,6 +158,12 @@
                 <label class="det-label" htmlFor="description">{{ selectedProject?.description || 'N/A' }}</label>
             </div>
 
+            <div class="flex flex-column w-full card-info">
+                <i class="pi pi-map-marker mb-3" style="color: #0056b3;"></i>
+                <label class="font-bold cab-label" htmlFor="location">RESPONSABLE: </label>
+                <label class="det-label" htmlFor="location">{{ selectedProject?.name_responsible ?? 'N/A' }}</label>
+            </div>
+
             @if (selectedProject?.technicals_assignments && selectedProject.technicals_assignments.length > 0) {
                 <div class="flex flex-column w-full card-info">
                     <i class="pi pi-users mb-3" style="color: #0056b3;"></i>
@@ -172,6 +178,15 @@
     
                 </div>
             }
+
+            <div class="flex flex-column w-full card-info">
+                <i class="pi pi-map-marker mb-3" style="color: #0056b3;"></i>
+                <label class="font-bold cab-label" htmlFor="location">FECHA INICIO - FIN: </label>
+                <label class="det-label" htmlFor="location">
+                    {{ selectedProject?.start_date | date:'dd/MM/yyyy' }} 
+                    - {{ selectedProject?.end_date | date:'dd/MM/yyyy' }}
+                </label>
+            </div>
         </div>
 
         <div class="flex flex-column card-info mt-2 gap-3">

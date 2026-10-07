@@ -136,6 +136,14 @@ export class ProjectTechnicalService {
         return this.http.delete(`${environment.apiTechnical}/rest/technical-control-api/v1.0/project/${id_task}`)
     }
 
+    saveMaterial(formData: FormData) {
+        return this.http.post(`${environment.apiTechnical}/rest/technical-control-api/v1.0/tech-materials`, formData);
+    }
+
+    updateMaterial(id_equipment: number, formData: FormData) {
+        return this.http.put(`${environment.apiTechnical}/rest/technical-control-api/v1.0/tech-materials/${id_equipment}`, formData);
+    }
+
     getMaterials(filter?: any) {
         let params = new HttpParams();
         let headers = new HttpHeaders();

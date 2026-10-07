@@ -100,6 +100,10 @@ export class GlpiService {
         );
     }
 
+    getProviders() {
+        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/providers`);
+    }
+
     getInspectionMaterials(inspection_id: number) {
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection-materials`, {
             params: new HttpParams().set('inspection_id', inspection_id)

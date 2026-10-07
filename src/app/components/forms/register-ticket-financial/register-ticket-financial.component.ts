@@ -62,7 +62,7 @@ export class RegisterTicketFinancialComponent {
             invoice_price: [null],
             date_document: [null],
             number_document: [null],
-            ticket_id: [null, Validators.required],
+            inspection_id: [null, Validators.required],
             observations: [null],
         });
     }
@@ -70,10 +70,10 @@ export class RegisterTicketFinancialComponent {
 
     ngOnInit() {
         this.user_session = this.userService.getDataSession();
-        const ticketId = this.route.snapshot.paramMap.get('inspection_id');
-        if (ticketId) {
+        const inspectionId = this.route.snapshot.paramMap.get('inspection_id');
+        if (inspectionId) {
             this.ticketForm.patchValue({
-                ticket_id: parseInt(ticketId, 10),
+                inspection_id: parseInt(inspectionId, 10),
                 // responsible
             })
         }

@@ -12,7 +12,6 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ToastModule } from 'primeng/toast';
 import { RegisterTicketCommercialComponent } from 'src/app/components/forms/register-ticket-commercial/register-ticket-commercial.component';
 import { RegisterTicketFinancialComponent } from 'src/app/components/forms/register-ticket-financial/register-ticket-financial.component';
-import { RegisterTicketTechnicalComponent } from 'src/app/components/forms/register-ticket-technical/register-ticket-technical.component';
 import { GlpiService } from 'src/app/services/glpi.service';
 import { UserService } from 'src/app/services/user.service';
 import { UtilsService } from 'src/app/services/utils.service';
@@ -59,7 +58,6 @@ interface GlpiDocument {
     InputTextareaModule,
     ToastModule,
     RegisterTicketCommercialComponent,
-    RegisterTicketTechnicalComponent,
     RegisterTicketFinancialComponent
   ],
   templateUrl: './request-detail.component.html',
@@ -87,10 +85,13 @@ export class RequestDetailComponent {
   ticketIdRouteParam: number | null = null;
   ticketDetails: any = null;
   ticketIdEdit: number;
+  // Formulario a mostrar según la ruta: registro-ticket/:inspection_id/:form_type
+  formType: 'comercial' | 'financiero' = 'comercial';
 
   ngOnInit() {
     this.user_json = this.userService.getDataSession();
     this.area_user = this.user_json?.attributes?.area
+    this.formType = this.route.snapshot.paramMap.get('form_type') === 'financiero' ? 'financiero' : 'comercial';
     const ticketId = this.route.snapshot.paramMap.get('inspection_id');
     if (ticketId) {
       this.ticketIdRouteParam = Number(ticketId);

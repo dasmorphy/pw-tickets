@@ -90,6 +90,20 @@ export class MenuComponent implements OnInit {
         
       },
       {
+        label: 'Logística',
+        icon: 'pi pi-cart-plus',
+        command: () => { this.clickHiddenToggle(true) },
+        items: [
+          {
+            label: 'Productos',
+            icon: 'pi pi-box',
+            // visible: this.user_permissions_signal()?.includes('VER_INSPECCION'),
+            routerLink: ['productos'],
+            command: () => { this.clickHiddenToggle() }
+          }
+        ]
+      },
+      {
         label: 'Solicitudes Tecnico',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-tecnicos'],

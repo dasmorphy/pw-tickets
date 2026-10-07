@@ -1,0 +1,411 @@
+<p-toast></p-toast>
+
+<p-dialog [(visible)]="showCreate" [modal]="true" [draggable]="false" [resizable]="false" [closable]="false"
+  [closeOnEscape]="!isSaving" styleClass="material-dialog" [style]="{ width: 'min(48rem, calc(100vw - 2rem))' }">
+  <ng-template pTemplate="header">
+    <div class="dialog-title">
+      <span class="type-icon"><i class="pi" [ngClass]="editingMaterial ? 'pi-pencil' : 'pi-box'"></i></span>
+      <div>
+        <h2>{{ editingMaterial ? 'Editar material' : 'Nuevo material' }}</h2>
+        <p>
+          @if (editingMaterial) {
+            {{ editingMaterial.code ? editingMaterial.code + ' · ' : '' }}Actualiza los datos y las imágenes del material.
+          } @else {
+            Registra un material en el inventario de logística.
+          }
+        </p>
+      </div>
+    </div>
+  </ng-template>
+
+  <form [formGroup]="materialForm" class="material-form" (ngSubmit)="saveMaterial()" id="material-form">
+    <div class="form-block">
+      <h3>Datos del producto</h3>
+      <div class="form-grid">
+        <div class="field span-2">
+          <label for="mat-product">Producto <span class="required">*</span></label>
+          <input pInputText id="mat-product" formControlName="product" class="w-full" maxlength="250"
+            placeholder="Ej. Cable UTP Cat6" />
+          @if (isInvalid('product')) {
+            <small class="field-error">El nombre del producto es obligatorio.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="mat-code">Código</label>
+          <input pInputText id="mat-code" formControlName="code" class="w-full" placeholder="Ej. ANT-002" />
+        </div>
+
+        <div class="field">
+          <label for="mat-model">Modelo</label>
+          <input pInputText id="mat-model" formControlName="model" class="w-full" placeholder="Ej. LBE-5AC-GEN2" />
+        </div>
+
+        <div class="field">
+          <label for="mat-provider">Proveedor <span class="required">*</span></label>
+          <p-dropdown inputId="mat-provider" formControlName="provider_id" [options]="providers"
+            optionLabel="name" optionValue="id_provider" [filter]="true" filterBy="name,ruc,seller"
+            [showClear]="true" [loading]="loadingProviders" placeholder="Seleccione un proveedor"
+            emptyMessage="Sin proveedores" emptyFilterMessage="Sin resultados" styleClass="w-full" appendTo="body">
+            <ng-template let-provider pTemplate="item">
+              <div class="provider-option">
+                <strong>{{ provider.name }}</strong>
+                <small>{{ provider.ruc || 'Sin RUC' }}{{ provider.seller ? ' · ' + provider.seller : '' }}</small>
+              </div>
+            </ng-template>
+          </p-dropdown>
+          @if (isInvalid('provider_id')) {
+            <small class="field-error">Seleccione un proveedor.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="mat-unit">Unidad</label>
+          <input pInputText id="mat-unit" formControlName="unit" class="w-full" placeholder="Ej. Unid., m, rollo" />
+        </div>
+
+        <div class="field span-2">
+          <label for="mat-description">Descripción</label>
+          <textarea pInputTextarea id="mat-description" formControlName="description" rows="3" [autoResize]="true"
+            class="h-auto w-full" placeholder="Características, especificaciones, uso..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <h3>Stock y precios</h3>
+      <div class="form-grid three">
+        <div class="field">
+          <label for="mat-stock">Stock <span class="required">*</span></label>
+          <p-inputNumber inputId="mat-stock" formControlName="stock" [min]="0" [useGrouping]="false"
+            styleClass="w-full"></p-inputNumber>
+        </div>
+
+        <div class="field">
+          <label for="mat-base-price">Precio base <span class="required">*</span></label>
+          <p-inputNumber inputId="mat-base-price" formControlName="base_price" mode="currency" currency="USD"
+            locale="en-US" [min]="0" [minFractionDigits]="2" [maxFractionDigits]="2" placeholder="$0.00"
+            styleClass="w-full"></p-inputNumber>
+          @if (isInvalid('base_price')) {
+            <small class="field-error">Ingrese el precio base.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="mat-margin">Margen de ganancia <span class="required">*</span></label>
+          <p-inputNumber inputId="mat-margin" formControlName="profit_margin_percent" suffix=" %" [min]="0"
+            [maxFractionDigits]="2" placeholder="0 %" styleClass="w-full"></p-inputNumber>
+          @if (isInvalid('profit_margin_percent')) {
+            <small class="field-error">Ingrese el margen.</small>
+          }
+        </div>
+      </div>
+
+      <div class="price-panel">
+        <div>
+          <span>Precio base</span>
+          <strong>{{ (materialForm.value.base_price ?? 0) | currency: 'USD' }}</strong>
+        </div>
+        <i class="pi pi-plus"></i>
+        <div>
+          <span>Ganancia ({{ materialForm.value.profit_margin_percent ?? 0 }} %)</span>
+          <strong>{{ profitDollar | currency: 'USD' }}</strong>
+        </div>
+        <i class="pi pi-arrow-right"></i>
+        <div class="final">
+          <span>PVP</span>
+          <strong>{{ finalPrice | currency: 'USD' }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <h3>Imágenes <small>(opcional, máximo {{ maxImages }} por material)</small></h3>
+
+      @if (existingImages.length) {
+        <p class="images-hint">
+          Imágenes actuales: marque las que desea eliminar. Se eliminarán al guardar.
+        </p>
+        <div class="existing-images">
+          @for (image of existingImages; track image.id_image) {
+            <figure class="existing-image" [class.marked]="isMarkedForDelete(image)">
+              <img [src]="imageUrl(image)" [alt]="'Imagen ' + image.id_image" loading="lazy" />
+              <button type="button" class="image-toggle"
+                [attr.aria-label]="isMarkedForDelete(image) ? 'Conservar imagen' : 'Eliminar imagen'"
+                [pTooltip]="isMarkedForDelete(image) ? 'Conservar' : 'Eliminar'" tooltipPosition="top"
+                (click)="toggleDeleteImage(image)">
+                <i class="pi" [ngClass]="isMarkedForDelete(image) ? 'pi-undo' : 'pi-trash'"></i>
+              </button>
+              @if (isMarkedForDelete(image)) {
+                <figcaption>Se eliminará</figcaption>
+              }
+            </figure>
+          }
+        </div>
+        <p class="images-hint">Puede agregar {{ availableImageSlots }} imágenes más.</p>
+      }
+
+      <p-fileUpload #fileUpload name="images" mode="advanced" accept="image/*" [multiple]="true"
+        [maxFileSize]="maxImageSize" [fileLimit]="availableImageSlots || 1" [showUploadButton]="false" [showCancelButton]="false"
+        (onSelect)="onSelectImages($event)" (onRemove)="onRemoveImage($event)" (onClear)="onClearImages()"
+        chooseLabel="Seleccionar imágenes" chooseIcon="pi pi-images" styleClass="w-full"
+        invalidFileSizeMessageSummary="{0}: archivo muy grande."
+        invalidFileSizeMessageDetail="El tamaño máximo es 5 MB."
+        invalidFileTypeMessageSummary="{0}: tipo no permitido."
+        invalidFileTypeMessageDetail="Solo se permiten imágenes."
+        invalidFileLimitMessageSummary="Máximo de archivos excedido."
+        invalidFileLimitMessageDetail="Puede subir hasta {0} imágenes.">
+        <ng-template pTemplate="content">
+          @if (!images.length) {
+            <div class="upload-empty">
+              <i class="pi pi-cloud-upload"></i>
+              <span>Arrastre las imágenes aquí o use «Seleccionar imágenes».</span>
+            </div>
+          }
+        </ng-template>
+      </p-fileUpload>
+      @if (imagesError) {
+        <small class="field-error">{{ imagesError }}</small>
+      }
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-actions">
+      <p-button label="Cancelar" [outlined]="true" styleClass="clear-button" [disabled]="isSaving"
+        (onClick)="showCreate = false"></p-button>
+      <p-button [label]="editingMaterial ? 'Guardar cambios' : 'Guardar material'" icon="pi pi-save" styleClass="filter-button" [loading]="isSaving"
+        (onClick)="saveMaterial()"></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<main class="requests-page">
+  <section class="requests-panel" aria-labelledby="logistics-title">
+    <header class="panel-heading">
+      <div>
+        <span class="eyebrow">Logística</span>
+        <h1 id="logistics-title">Inventario de materiales</h1>
+        <p>Consulta el stock, precios y proveedores de los materiales técnicos.</p>
+      </div>
+      <div class="heading-actions">
+        <span class="request-count"><strong>{{ filteredMaterials.length }}</strong> materiales</span>
+        <p-button label="Nuevo material" icon="pi pi-plus" styleClass="create-button" (onClick)="openCreate()"></p-button>
+      </div>
+    </header>
+
+    <div class="summary-grid" aria-label="Resumen del inventario">
+      <article class="summary-tile">
+        <span class="tile-icon"><i class="pi pi-box"></i></span>
+        <div>
+          <span class="tile-label">Materiales</span>
+          <strong class="tile-value">{{ materials.length | number }}</strong>
+          <small>{{ providerOptions.length }} proveedores</small>
+        </div>
+      </article>
+
+      <article class="summary-tile">
+        <span class="tile-icon"><i class="pi pi-database"></i></span>
+        <div>
+          <span class="tile-label">Unidades en stock</span>
+          <strong class="tile-value">{{ totalStock | number }}</strong>
+          <small>Suma del stock disponible</small>
+        </div>
+      </article>
+
+      <article class="summary-tile">
+        <span class="tile-icon"><i class="pi pi-dollar"></i></span>
+        <div>
+          <span class="tile-label">Valor del inventario</span>
+          <strong class="tile-value">{{ inventoryValue | currency: 'USD' }}</strong>
+          <small>Stock × precio base</small>
+        </div>
+      </article>
+
+      <article class="summary-tile warning">
+        <span class="tile-icon"><i class="pi pi-exclamation-triangle"></i></span>
+        <div>
+          <span class="tile-label">Stock bajo / sin stock</span>
+          <strong class="tile-value">{{ lowStockCount }} <span class="tile-separator">/</span> {{ outOfStockCount }}</strong>
+          <small>Stock bajo: {{ lowStockLimit }} unidades o menos</small>
+        </div>
+      </article>
+    </div>
+
+    <div class="filters" aria-label="Filtros de materiales">
+      <div class="filter-field search-field">
+        <label for="material-search">Buscar</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input pInputText id="material-search" type="search" class="w-full" [(ngModel)]="search"
+            (ngModelChange)="applyFilters()" placeholder="Código, producto, modelo o proveedor" />
+        </span>
+      </div>
+
+      <div class="filter-field">
+        <label for="provider-filter">Proveedor</label>
+        <p-dropdown inputId="provider-filter" [options]="providerOptions" [(ngModel)]="selectedProvider"
+          (onChange)="applyFilters()" placeholder="Todos" [showClear]="true" [filter]="true"
+          filterPlaceholder="Buscar proveedor" styleClass="request-dropdown" appendTo="body">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-field">
+        <label for="stock-filter">Stock</label>
+        <p-dropdown inputId="stock-filter" [options]="stockOptions" optionLabel="label" optionValue="value"
+          [(ngModel)]="selectedStock" (onChange)="applyFilters()" styleClass="request-dropdown" appendTo="body">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-actions">
+        <p-button label="Limpiar filtros" icon="pi pi-filter-slash" [outlined]="true"
+          styleClass="clear-button" (onClick)="clearFilters()"></p-button>
+        <p-button label="Actualizar" icon="pi pi-refresh" [loading]="isLoading"
+          styleClass="filter-button" (onClick)="fetchMaterials()"></p-button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <p-table [value]="filteredMaterials" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="isLoading" sortMode="single" rowStyleClass="custom-row-height" styleClass="requests-table"
+        dataKey="id_equipment">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="id_equipment"># <p-sortIcon field="id_equipment"></p-sortIcon></th>
+            <th pSortableColumn="code">Código <p-sortIcon field="code"></p-sortIcon></th>
+            <th pSortableColumn="product">Producto <p-sortIcon field="product"></p-sortIcon></th>
+            <th pSortableColumn="model">Modelo <p-sortIcon field="model"></p-sortIcon></th>
+            <th pSortableColumn="provider">Proveedor <p-sortIcon field="provider"></p-sortIcon></th>
+            <th pSortableColumn="stock" class="numeric">Stock <p-sortIcon field="stock"></p-sortIcon></th>
+            <th pSortableColumn="base_price" class="numeric">Precio base <p-sortIcon field="base_price"></p-sortIcon></th>
+            <th pSortableColumn="profit_margin" class="numeric">Margen <p-sortIcon field="profit_margin"></p-sortIcon></th>
+            <th pSortableColumn="profit_margin_dollar" class="numeric">Ganancia <p-sortIcon field="profit_margin_dollar"></p-sortIcon></th>
+            <th pSortableColumn="price" class="numeric">PVP <p-sortIcon field="price"></p-sortIcon></th>
+            <th class="actions-heading"><span class="sr-only">Acciones</span></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-material>
+          <tr>
+            <td class="muted-cell">{{ material.id_equipment }}</td>
+            <td><span class="code-chip">{{ material.code || '—' }}</span></td>
+            <td class="product-cell"><span [pTooltip]="material.product" tooltipPosition="top">{{ material.product || '—' }}</span></td>
+            <td>{{ material.model || '—' }}</td>
+            <td>{{ material.provider || '—' }}</td>
+            <td class="numeric">
+              <span class="stock-badge" [ngClass]="stockState(material)" [pTooltip]="stockLabel(material)" tooltipPosition="top">
+                {{ material.stock ?? 0 }}
+              </span>
+            </td>
+            <td class="numeric">{{ material.base_price != null ? (material.base_price | currency: 'USD') : '—' }}</td>
+            <td class="numeric">{{ material.profit_margin != null ? (material.profit_margin | percent: '1.0-2') : '—' }}</td>
+            <td class="numeric">{{ material.profit_margin_dollar != null ? (material.profit_margin_dollar | currency: 'USD') : '—' }}</td>
+            <td class="numeric price-cell">{{ material.price != null ? (material.price | currency: 'USD') : '—' }}</td>
+            <td class="row-actions">
+              <button type="button" class="view-button" pTooltip="Ver detalles" tooltipPosition="top"
+                aria-label="Ver detalles" (click)="viewDetails(material)">
+                <i class="pi pi-eye"></i>
+              </button>
+              <button type="button" class="view-button" pTooltip="Editar" tooltipPosition="top"
+                aria-label="Editar material" (click)="openEdit(material)">
+                <i class="pi pi-pencil"></i>
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="11" class="empty-state"><i class="pi pi-inbox"></i><strong>No hay materiales</strong><span>Prueba con otros filtros.</span></td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </section>
+
+  <p-sidebar [(visible)]="showDetail" position="right" styleClass="material-sidebar" [showCloseIcon]="false" [blockScroll]="true">
+    <ng-template pTemplate="header">
+      <div class="detail-header">
+        <span class="type-icon"><i class="pi pi-box"></i></span>
+        <div class="header-text">
+          <span class="eyebrow">Material {{ selectedMaterial?.code ? '· ' + selectedMaterial?.code : '' }}</span>
+          <h2>{{ selectedMaterial?.product || 'Detalle del material' }}</h2>
+        </div>
+        @if (selectedMaterial) {
+          <button type="button" class="close-button" aria-label="Editar material" pTooltip="Editar" tooltipPosition="bottom"
+            (click)="openEdit(selectedMaterial)">
+            <i class="pi pi-pencil"></i>
+          </button>
+        }
+        <button type="button" class="close-button" aria-label="Cerrar detalle" (click)="showDetail = false">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+    </ng-template>
+
+    @if (selectedMaterial; as material) {
+      <div class="badges">
+        <span class="stock-badge" [ngClass]="stockState(material)">{{ stockLabel(material) }} · {{ material.stock ?? 0 }} {{ material.unit?.trim() || 'Unid.' }}</span>
+      </div>
+
+      <div class="price-panel">
+        <div>
+          <span>Precio base</span>
+          <strong>{{ material.base_price != null ? (material.base_price | currency: 'USD') : '—' }}</strong>
+        </div>
+        <i class="pi pi-plus"></i>
+        <div>
+          <span>Ganancia ({{ material.profit_margin != null ? (material.profit_margin | percent: '1.0-2') : '—' }})</span>
+          <strong>{{ material.profit_margin_dollar != null ? (material.profit_margin_dollar | currency: 'USD') : '—' }}</strong>
+        </div>
+        <i class="pi pi-arrow-right"></i>
+        <div class="final">
+          <span>PVP</span>
+          <strong>{{ material.price != null ? (material.price | currency: 'USD') : '—' }}</strong>
+        </div>
+      </div>
+
+      <section class="detail-section">
+        <h3><i class="pi pi-info-circle"></i>Información</h3>
+        <dl>
+          <div><dt>Código</dt><dd>{{ material.code || '—' }}</dd></div>
+          <div><dt>Modelo</dt><dd>{{ material.model || '—' }}</dd></div>
+          <div><dt>Proveedor</dt><dd>{{ material.provider || '—' }}</dd></div>
+          <div><dt>Unidad</dt><dd>{{ material.unit?.trim() || '—' }}</dd></div>
+          <div><dt>Stock</dt><dd>{{ material.stock ?? 0 }}</dd></div>
+        </dl>
+      </section>
+
+      @if (material.images?.length) {
+        <section class="detail-section">
+          <h3><i class="pi pi-images"></i>Imágenes</h3>
+          <div class="existing-images">
+            @for (image of material.images; track image.id_image) {
+              <a class="existing-image" [href]="imageUrl(image)" target="_blank" rel="noopener"
+                [attr.aria-label]="'Abrir imagen ' + image.id_image">
+                <img [src]="imageUrl(image)" [alt]="'Imagen ' + image.id_image" loading="lazy" />
+              </a>
+            }
+          </div>
+        </section>
+      }
+
+      <section class="detail-section">
+        <h3><i class="pi pi-align-left"></i>Descripción</h3>
+        @if (material.description) {
+          <p class="description">{{ material.description }}</p>
+        } @else {
+          <p class="empty">Sin descripción.</p>
+        }
+      </section>
+
+      <section class="detail-section">
+        <h3><i class="pi pi-history"></i>Auditoría</h3>
+        <dl>
+          <div><dt>Creado por</dt><dd>{{ material.created_by || '—' }}</dd></div>
+          <div><dt>Fecha de creación</dt><dd>{{ material.created_at ? (material.created_at | date: 'dd/MM/yyyy HH:mm':'UTC') : '—' }}</dd></div>
+          <div><dt>Actualizado por</dt><dd>{{ material.updated_by || '—' }}</dd></div>
+          <div><dt>Última actualización</dt><dd>{{ material.updated_at ? (material.updated_at | date: 'dd/MM/yyyy HH:mm':'UTC') : '—' }}</dd></div>
+        </dl>
+      </section>
+    }
+  </p-sidebar>
+</main>

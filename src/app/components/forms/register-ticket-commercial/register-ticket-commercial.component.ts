@@ -10,17 +10,30 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { GlpiService } from 'src/app/services/glpi.service';
+import { ProjectTechnicalService } from 'src/app/services/project-technical.service';
 import { UserService } from 'src/app/services/user.service';
 import { UtilsService } from 'src/app/services/utils.service';
 
+/**
+ * catalog: material del registro técnico con material_id (solo se edita la cantidad)
+ * new:     producto nuevo, del registro técnico o agregado en la proforma (modelo, descripción y precios manuales)
+ * added:   ítem agregado desde la proforma eligiendo un material del catálogo
+ */
+type ProformaItemKind = 'catalog' | 'new' | 'added';
+
 interface ProformaItem {
+    kind: ProformaItemKind;
     material_id: number | null;
     model: string;
     description: string;
     quantity: number | null;
-    pvp: number | null;
-    is_manual: boolean;
+    base_price: number | null;
+    // Fracción: 0.3 = 30 %
+    profit_margin: number | null;
+    profit_margin_dollar: number | null;
+    price: number | null;
 }
 
 @Component({
@@ -37,6 +50,7 @@ interface ProformaItem {
         InputTextModule,
         InputTextareaModule,
         ToastModule,
+        TooltipModule,
         FormsModule,
         ReactiveFormsModule,
     ],
@@ -49,6 +63,7 @@ export class RegisterTicketCommercialComponent {
     private glpiService = inject(GlpiService);
     private utilsService = inject(UtilsService);
     private userService = inject(UserService);
+    private projectTechnicalService = inject(ProjectTechnicalService);
 
     ticketForm: FormGroup;
 
@@ -62,6 +77,8 @@ export class RegisterTicketCommercialComponent {
     readonly proformaDate = new Date();
     proformaItems: ProformaItem[] = [];
     loadingMaterials = false;
+    catalogMaterials: any[] = [];
+    loadingCatalog = false;
 
     user_session: any;
 
@@ -81,12 +98,12 @@ export class RegisterTicketCommercialComponent {
             contract_received: [false],
             observations: [null],
             reason_loss: [null],
+            // Datos de solo lectura: se completan desde la inspección
             proforma: this.fb.group({
-                // Número provisional hasta definir la secuencia real de cotizaciones
-                ruc: ['', [Validators.required, Validators.pattern(/^\d{13}$/)]],
-                client: ['', Validators.required],
-                requested_by: ['', Validators.required],
-                project: ['', Validators.required],
+                ruc: [''],
+                client: [''],
+                requested_by: [''],
+                project: [''],
             })
         });
     }
@@ -107,6 +124,7 @@ export class RegisterTicketCommercialComponent {
         this.fetchOrigin();
         this.fetchStatus();
         this.fetchTypeSolution();
+        this.fetchCatalog();
 
         if (this.ticketIdEdit) {
             this.loadTicket()
@@ -130,11 +148,32 @@ export class RegisterTicketCommercialComponent {
     }
 
     itemTotal(item: ProformaItem): number {
-        return this.round((item.quantity ?? 0) * (item.pvp ?? 0));
+        return this.round((item.quantity ?? 0) * (item.price ?? 0));
     }
 
-    private round(value: number): number {
-        return Math.round((value + Number.EPSILON) * 100) / 100;
+    marginPercent(item: ProformaItem): number | null {
+        return item.profit_margin != null ? this.round(item.profit_margin * 100) : null;
+    }
+
+    // Producto nuevo: el margen se ingresa en % y se recalculan ganancia y PVP
+    onNewItemPriceChange(item: ProformaItem, marginPercent?: number | null): void {
+        if (marginPercent !== undefined) {
+            item.profit_margin = marginPercent != null ? this.round(marginPercent / 100, 4) : null;
+        }
+
+        if (item.base_price == null) {
+            item.profit_margin_dollar = null;
+            item.price = null;
+            return;
+        }
+
+        item.profit_margin_dollar = this.round(item.base_price * (item.profit_margin ?? 0));
+        item.price = this.round(item.base_price + item.profit_margin_dollar);
+    }
+
+    private round(value: number, decimals = 2): number {
+        const factor = 10 ** decimals;
+        return Math.round((value + Number.EPSILON) * factor) / factor;
     }
 
     loadTicket(): void {
@@ -210,6 +249,7 @@ export class RegisterTicketCommercialComponent {
                 this.proformaForm.patchValue({
                     client: inspection?.client_name ?? '',
                     project: inspection?.title_ticket ?? '',
+                    requested_by: inspection?.contact ?? '',
                 });
             },
             error: (error: any) => {
@@ -234,51 +274,85 @@ export class RegisterTicketCommercialComponent {
         })
     }
 
+    fetchCatalog() {
+        this.loadingCatalog = true;
+        this.projectTechnicalService.getMaterials().subscribe({
+            next: (data: any) => {
+                this.catalogMaterials = data?.data ?? [];
+                this.loadingCatalog = false;
+            },
+            error: (error: any) => {
+                console.log(error);
+                this.loadingCatalog = false;
+                this.utilsService.onError('No se pudo obtener el catálogo de materiales');
+            }
+        })
+    }
+
     private toProformaItem(material: any): ProformaItem {
         const equipment = material?.equipment;
 
-        // Los productos nuevos del registro técnico no tienen material_id: el PVP se ingresa manualmente
+        // Los productos nuevos del registro técnico no tienen material_id: los precios se ingresan manualmente
         if (!equipment) {
             return {
+                kind: 'new',
                 material_id: null,
                 model: '',
                 description: [material?.other, material?.material_description].filter(Boolean).join(' - '),
                 quantity: material?.quantity ?? null,
-                pvp: null,
-                is_manual: false,
+                base_price: null,
+                profit_margin: null,
+                profit_margin_dollar: null,
+                price: null,
             };
         }
 
         return {
+            kind: 'catalog',
             material_id: material.material_id,
-            model: equipment.model ?? '',
-            description: equipment.product ?? '',
+            ...this.pricesFromEquipment(equipment),
             quantity: material?.quantity ?? null,
-            pvp: equipment.base_price ?? null,
-            is_manual: false,
         };
     }
 
-    addProformaItem() {
+    private pricesFromEquipment(equipment: any) {
+        const basePrice = equipment?.base_price ?? null;
+        const profitDollar = equipment?.profit_margin_dollar ?? null;
+        return {
+            model: equipment?.model ?? '',
+            description: equipment?.product ?? '',
+            base_price: basePrice,
+            profit_margin: equipment?.profit_margin ?? null,
+            profit_margin_dollar: profitDollar,
+            // Si el catálogo no trae price se calcula como precio base + ganancia
+            price: equipment?.price ?? (basePrice != null ? this.round(basePrice + (profitDollar ?? 0)) : null),
+        };
+    }
+
+    addProformaItem(kind: 'added' | 'new') {
         this.proformaItems.push({
+            kind,
             material_id: null,
             model: '',
             description: '',
             quantity: 1,
-            pvp: null,
-            is_manual: true,
+            base_price: null,
+            profit_margin: null,
+            profit_margin_dollar: null,
+            price: null,
+        });
+    }
+
+    onSelectCatalogMaterial(item: ProformaItem, materialId: number | null) {
+        const equipment = this.catalogMaterials.find(material => material.id_equipment === materialId);
+        Object.assign(item, {
+            material_id: equipment?.id_equipment ?? null,
+            ...this.pricesFromEquipment(equipment),
         });
     }
 
     removeProformaItem(index: number) {
         this.proformaItems.splice(index, 1);
-    }
-
-    onRucInput(event: Event) {
-        const input = event.target as HTMLInputElement;
-        const value = input.value.replace(/\D/g, '').slice(0, 13);
-        input.value = value;
-        this.proformaForm.get('ruc')?.setValue(value);
     }
 
     isInvalid(path: string): boolean {
@@ -293,14 +367,19 @@ export class RegisterTicketCommercialComponent {
 
         for (let i = 0; i < this.proformaItems.length; i++) {
             const item = this.proformaItems[i];
+            if (item.kind === 'added' && !item.material_id) {
+                return `Seleccione el material del ítem ${i + 1}.`;
+            }
             if (!item.description?.trim()) {
                 return `Ingrese la descripción del ítem ${i + 1}.`;
             }
             if (!item.quantity || item.quantity <= 0) {
                 return `Ingrese una cantidad mayor a 0 en el ítem ${i + 1}.`;
             }
-            if (item.pvp === null || item.pvp === undefined) {
-                return `Ingrese el PVP del ítem ${i + 1}.`;
+            if (item.price == null) {
+                return item.kind === 'new'
+                    ? `Ingrese el precio base del ítem ${i + 1}.`
+                    : `El material del ítem ${i + 1} no tiene precio en el catálogo.`;
             }
         }
 
@@ -310,11 +389,7 @@ export class RegisterTicketCommercialComponent {
     saveTicket() {
         if (this.ticketForm.invalid) {
             this.ticketForm.markAllAsTouched();
-            this.utilsService.onWarn(
-                this.proformaForm.get('ruc')?.invalid && this.proformaForm.get('ruc')?.value
-                    ? 'El RUC debe tener 13 dígitos.'
-                    : 'Por favor, complete todos los campos requeridos.'
-            );
+            this.utilsService.onWarn('Por favor, complete todos los campos requeridos.');
             return;
         }
 
@@ -336,7 +411,10 @@ export class RegisterTicketCommercialComponent {
             //         model: item.model?.trim() || null,
             //         description: item.description.trim(),
             //         quantity: item.quantity,
-            //         pvp: item.pvp,
+            //         base_price: item.base_price,
+            //         profit_margin: item.profit_margin,
+            //         profit_margin_dollar: item.profit_margin_dollar,
+            //         price: item.price,
             //         total: this.itemTotal(item),
             //     })),
             //     subtotal: this.subtotal,

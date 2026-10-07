@@ -92,16 +92,10 @@
       </section>
       }
 
-      <!-- @if (area_user == 'tecnico') {
-        } -->
-        <!-- <app-register-ticket-technical [ticketIdEdit]=ticketIdEdit></app-register-ticket-technical> -->
-
-      <!-- @if (area_user == 'comercial') { -->
-        <app-register-ticket-commercial [ticketIdEdit]=ticketIdEdit></app-register-ticket-commercial>
-      <!-- } -->
-
-      @if (area_user == 'financiera') {
+      @if (formType === 'financiero') {
         <app-register-ticket-financial></app-register-ticket-financial>
+      } @else {
+        <app-register-ticket-commercial [ticketIdEdit]=ticketIdEdit></app-register-ticket-commercial>
       }
     </div>
   </div>

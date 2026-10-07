@@ -169,7 +169,6 @@ export class TicketsFinancialComponent {
   }
 
   routeRegister() {
-    console.log(this.selectedTicket);
-    this.router.navigate([`/registro-ticket/${this.selectedTicket?.inspection_id}`]);
+    this.router.navigate([`/registro-ticket/${this.selectedTicket?.id_inspection}/financiero`]);
   }
 }

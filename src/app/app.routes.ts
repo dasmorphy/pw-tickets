@@ -19,6 +19,7 @@ import { AuditingTechnicalComponent } from './pages/tables/auditing-technical/au
 import { InspectionFormComponent } from './components/forms/inspection-form/inspection-form.component';
 import { InspectionsTechnicalComponent } from './pages/tables/inspections-technical/inspections-technical.component';
 import { InspectionsApprovalComponent } from './pages/tables/inspections-approval/inspections-approval.component';
+import { LogisticsMaterialsComponent } from './pages/tables/logistics-materials/logistics-materials.component';
 import { RegisterTicketTechnicalComponent } from './components/forms/register-ticket-technical/register-ticket-technical.component';
 
 export const routes: Routes = [
@@ -47,7 +48,14 @@ export const routes: Routes = [
             //     canActivate: [AuthGuard]
             // },
             {
+                // Sin form_type se muestra el formulario comercial
                 path: "registro-ticket/:inspection_id",
+                loadComponent: () => RequestDetailComponent,
+                canActivate: [AuthGuard]
+            },
+            {
+                // form_type: comercial | financiero
+                path: "registro-ticket/:inspection_id/:form_type",
                 loadComponent: () => RequestDetailComponent,
                 canActivate: [AuthGuard]
             },
@@ -76,6 +84,11 @@ export const routes: Routes = [
                 // data: {
                 //     permission: 'NUEVA_INSPECCION'
                 // }
+            },
+            {
+                path: "productos",
+                loadComponent: () => LogisticsMaterialsComponent,
+                canActivate: [AuthGuard]
             },
             {
                 path: "inspecciones-por-aprobar",

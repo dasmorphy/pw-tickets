@@ -65,10 +65,10 @@
           <ng-template pTemplate="header">
             <tr>
               <th>Solicitud</th>
-              <th>Título</th>
               <th>Fecha</th>
               <th>Cliente</th>
               <th>Ubicación</th>
+              <th>Título</th>
               <th>Contacto</th>
               <th>Prioridad</th>
               <th>Estado</th>
@@ -80,10 +80,10 @@
           <ng-template pTemplate="body" let-request>
             <tr>
               <td>{{ request.code ?? 'N/A' }}</td>
-              <td>{{ request.title_ticket ?? 'N/A' }}</td>
               <td><span class="date" [pTooltip]="request.created_at ? 'Hora de registro: ' + (request.created_at | date:'HH:mm':'UTC') : ''" tooltipPosition="top">{{ request.created_at ? (request.created_at | date:'dd/MM/yyyy':'UTC') : 'N/A' }}</span></td>
               <td><span class="date">{{ request.client_name ?? 'N/A' }}</span></td>
               <td class="subject-cell">{{ request.location_name ?? 'N/A' }}</td>
+              <td class="subject-cell">{{ request.title_ticket ?? 'N/A' }}</td>
               <td class="subject-cell">{{ request.contact ?? 'N/A' }}</td>
               <td><span>{{ request.priority ?? 'N/A' }}</span></td>
               <td><span>{{ request.status_name ?? request.status ?? 'N/A' }}</span></td>

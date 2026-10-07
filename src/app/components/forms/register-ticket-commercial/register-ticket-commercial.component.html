@@ -81,26 +81,20 @@
             <div class="form-grid">
                 <div class="field">
                     <label for="proformaClient">Cliente</label>
-                    <input pInputText id="proformaClient" type="text" class="w-full" formControlName="client"
-                        [class.ng-invalid]="isInvalid('proforma.client')" [class.ng-dirty]="isInvalid('proforma.client')" />
+                    <input pInputText id="proformaClient" type="text" class="w-full readonly-input" formControlName="client"
+                        readonly tabindex="-1" placeholder="—" />
                 </div>
 
                 <div class="field">
                     <label for="proformaRuc">RUC</label>
-                    <input pInputText id="proformaRuc" type="text" class="w-full" formControlName="ruc"
-                        inputmode="numeric" maxlength="13" placeholder="13 dígitos" autocomplete="off"
-                        (input)="onRucInput($event)"
-                        [class.ng-invalid]="isInvalid('proforma.ruc')" [class.ng-dirty]="isInvalid('proforma.ruc')" />
-                    @if (isInvalid('proforma.ruc')) {
-                        <small class="field-error">El RUC debe tener 13 dígitos numéricos.</small>
-                    }
+                    <input pInputText id="proformaRuc" type="text" class="w-full readonly-input" formControlName="ruc"
+                        readonly tabindex="-1" placeholder="—" />
                 </div>
 
                 <div class="field">
                     <label for="proformaRequestedBy">Solicita</label>
-                    <input pInputText id="proformaRequestedBy" type="text" class="w-full" formControlName="requested_by"
-                        maxlength="150" placeholder="Persona que solicita"
-                        [class.ng-invalid]="isInvalid('proforma.requested_by')" [class.ng-dirty]="isInvalid('proforma.requested_by')" />
+                    <input pInputText id="proformaRequestedBy" type="text" class="w-full readonly-input" formControlName="requested_by"
+                        readonly tabindex="-1" placeholder="—" />
                 </div>
 
                 <div class="field">
@@ -110,15 +104,22 @@
 
                 <div class="field span-2">
                     <label for="proformaProject">Proyecto</label>
-                    <input pInputText id="proformaProject" type="text" class="w-full" formControlName="project"
-                        [class.ng-invalid]="isInvalid('proforma.project')" [class.ng-dirty]="isInvalid('proforma.project')" />
+                    <input pInputText id="proformaProject" type="text" class="w-full readonly-input" formControlName="project"
+                        readonly tabindex="-1" placeholder="—" />
                 </div>
             </div>
 
             <div class="items-header">
                 <h4>Ítems</h4>
-                <p-button type="button" label="Agregar ítem" icon="pi pi-plus" styleClass="add-button"
-                    (click)="addProformaItem()"></p-button>
+                <div class="add-actions" role="group" aria-label="Agregar ítem">
+                    <span class="add-label">Agregar:</span>
+                    <p-button type="button" label="Material existente" icon="pi pi-box" [outlined]="true"
+                        styleClass="add-button add-existing" pTooltip="Elegir un material del catálogo" tooltipPosition="top"
+                        (click)="addProformaItem('added')"></p-button>
+                    <p-button type="button" label="Producto nuevo" icon="pi pi-plus-circle"
+                        styleClass="add-button" pTooltip="Producto que no está en el catálogo" tooltipPosition="top"
+                        (click)="addProformaItem('new')"></p-button>
+                </div>
             </div>
 
             <div class="items-scroll">
@@ -129,6 +130,8 @@
                             <th class="col-model">Modelo</th>
                             <th>Descripción</th>
                             <th class="col-quantity">Cant.</th>
+                            <th class="col-pvp">Precio base</th>
+                            <th class="col-margin">Ganancia</th>
                             <th class="col-pvp">PVP</th>
                             <th class="col-total">Total</th>
                             <th class="col-actions"><span class="sr-only">Acciones</span></th>
@@ -139,15 +142,44 @@
                             <tr>
                                 <td class="col-item">{{ i + 1 }}</td>
                                 <td class="col-model">
-                                    <input pInputText type="text" class="w-full" [(ngModel)]="item.model"
-                                        [ngModelOptions]="{standalone: true}" placeholder="Modelo"
-                                        [attr.aria-label]="'Modelo del ítem ' + (i + 1)" />
+                                    @if (item.kind === 'new') {
+                                        <input pInputText type="text" class="w-full" [(ngModel)]="item.model"
+                                            [ngModelOptions]="{standalone: true}" placeholder="Modelo"
+                                            [attr.aria-label]="'Modelo del ítem ' + (i + 1)" />
+                                    } @else {
+                                        <span class="locked-value" [title]="item.model">{{ item.model || '—' }}</span>
+                                    }
                                 </td>
                                 <td>
-                                    <textarea pInputTextarea rows="1" [autoResize]="true" class="w-full"
-                                        [(ngModel)]="item.description" [ngModelOptions]="{standalone: true}"
-                                        placeholder="Descripción"
-                                        [attr.aria-label]="'Descripción del ítem ' + (i + 1)"></textarea>
+                                    @switch (item.kind) {
+                                        @case ('new') {
+                                            <textarea pInputTextarea rows="1" [autoResize]="true" class="w-full"
+                                                [(ngModel)]="item.description" [ngModelOptions]="{standalone: true}"
+                                                placeholder="Descripción"
+                                                [attr.aria-label]="'Descripción del ítem ' + (i + 1)"></textarea>
+                                            <span class="new-badge">Producto nuevo</span>
+                                        }
+                                        @case ('added') {
+                                            <p-dropdown [options]="catalogMaterials" [ngModel]="item.material_id"
+                                                [ngModelOptions]="{standalone: true}"
+                                                (ngModelChange)="onSelectCatalogMaterial(item, $event)"
+                                                optionLabel="product" optionValue="id_equipment" [filter]="true"
+                                                filterBy="product,code,model" [loading]="loadingCatalog"
+                                                placeholder="Seleccione un material" emptyMessage="Sin materiales"
+                                                emptyFilterMessage="Sin resultados" styleClass="w-full catalog-dropdown"
+                                                appendTo="body" [ariaLabel]="'Material del ítem ' + (i + 1)">
+                                                <ng-template let-material pTemplate="item">
+                                                    <div class="catalog-option">
+                                                        <strong>{{ material.product }}</strong>
+                                                        <small>{{ material.model || 'Sin modelo' }}{{ material.code ? ' · ' + material.code : '' }} · {{ material.price != null ? (material.price | currency: 'USD') : 'Sin precio' }}</small>
+                                                    </div>
+                                                </ng-template>
+                                            </p-dropdown>
+                                        }
+                                        @default {
+                                            <span class="locked-value description">{{ item.description || '—' }}</span>
+                                        }
+                                    }
                                 </td>
                                 <td class="col-quantity">
                                     <p-inputNumber [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}"
@@ -155,11 +187,33 @@
                                         [ariaLabel]="'Cantidad del ítem ' + (i + 1)"></p-inputNumber>
                                 </td>
                                 <td class="col-pvp">
-                                    <p-inputNumber [(ngModel)]="item.pvp" [ngModelOptions]="{standalone: true}"
-                                        mode="currency" currency="USD" locale="en-US" [min]="0"
-                                        [minFractionDigits]="2" [maxFractionDigits]="2" placeholder="$0.00"
-                                        [styleClass]="item.pvp === null ? 'pending-price' : ''"
-                                        [ariaLabel]="'PVP del ítem ' + (i + 1)"></p-inputNumber>
+                                    @if (item.kind === 'new') {
+                                        <p-inputNumber [(ngModel)]="item.base_price" [ngModelOptions]="{standalone: true}"
+                                            (ngModelChange)="item.base_price = $event; onNewItemPriceChange(item)"
+                                            mode="currency" currency="USD" locale="en-US" [min]="0"
+                                            [minFractionDigits]="2" [maxFractionDigits]="2" placeholder="$0.00"
+                                            [styleClass]="item.base_price == null ? 'pending-price' : ''"
+                                            [ariaLabel]="'Precio base del ítem ' + (i + 1)"></p-inputNumber>
+                                    } @else {
+                                        <span class="money">{{ item.base_price != null ? (item.base_price | currency: 'USD') : '—' }}</span>
+                                    }
+                                </td>
+                                <td class="col-margin">
+                                    @if (item.kind === 'new') {
+                                        <p-inputNumber [ngModel]="marginPercent(item)" [ngModelOptions]="{standalone: true}"
+                                            (ngModelChange)="onNewItemPriceChange(item, $event)"
+                                            suffix=" %" [min]="0" [maxFractionDigits]="2" placeholder="0 %"
+                                            [ariaLabel]="'Margen del ítem ' + (i + 1)"></p-inputNumber>
+                                        <small class="margin-value">{{ (item.profit_margin_dollar ?? 0) | currency: 'USD' }}</small>
+                                    } @else {
+                                        <span class="money">
+                                            <small>({{ marginPercent(item) ?? 0 }}%)</small>
+                                            {{ item.profit_margin_dollar != null ? (item.profit_margin_dollar | currency: 'USD') : '—' }}
+                                        </span>
+                                    }
+                                </td>
+                                <td class="col-pvp">
+                                    <span class="money strong">{{ item.price != null ? (item.price | currency: 'USD') : '—' }}</span>
                                 </td>
                                 <td class="col-total">{{ itemTotal(item) | currency: 'USD' }}</td>
                                 <td class="col-actions">
@@ -171,7 +225,7 @@
                             </tr>
                         } @empty {
                             <tr>
-                                <td colspan="7" class="items-empty">
+                                <td colspan="9" class="items-empty">
                                     <i class="pi" [ngClass]="loadingMaterials ? 'pi-spin pi-spinner' : 'pi-box'"></i>
                                     {{ loadingMaterials ? 'Cargando materiales...' : 'No hay ítems. El registro técnico no tiene materiales; agregue uno manualmente.' }}
                                 </td>

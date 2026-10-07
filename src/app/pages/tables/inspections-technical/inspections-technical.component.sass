@@ -20,6 +20,15 @@
   .p-splitbutton button
     border: none
 
+.readonly-input
+  background: #f3f6fa !important
+  color: #4f5f78 !important
+  cursor: default
+
+  &:focus
+    border-color: #dbe3ee !important
+    box-shadow: none !important
+
 .inspections-page
   min-height: calc(100vh - 6rem)
   margin-top: 6rem
@@ -669,6 +678,19 @@ tbody tr
 .field-error
   color: #d14343
   font-size: .72rem
+
+.field-hint
+  color: #7c899d
+  font-size: .7rem
+
+.responsible-option
+  display: inline-flex
+  align-items: center
+  gap: .45rem
+
+  i
+    color: #7c899d
+    font-size: .75rem
 
 .dialog-actions
   display: flex

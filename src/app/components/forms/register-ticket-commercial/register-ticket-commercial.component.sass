@@ -487,15 +487,99 @@
     color: #14233f
     font-size: .76rem
 
+.add-actions
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  justify-content: flex-end
+  gap: .5rem
+
+.add-label
+  color: #65748d
+  font-size: .7rem
+  font-weight: 600
+
 .items-scroll
   overflow-x: auto
   border: 1px solid #dfe6ef
   border-radius: .5rem
   background: #fff
 
+.readonly-input
+  background: #f3f6fa !important
+  color: #4f5f78 !important
+  cursor: default
+
+  &:focus
+    border-color: #dbe3ee !important
+    box-shadow: none !important
+
+.locked-value
+  display: block
+  overflow: hidden
+  padding: .55rem .1rem
+  color: #33445f
+  text-overflow: ellipsis
+  white-space: nowrap
+
+  &.description
+    white-space: normal
+    line-height: 1.4
+
+.new-badge
+  display: inline-block
+  margin-top: .3rem
+  padding: .1rem .45rem
+  border-radius: 1rem
+  background: #e9f8ed
+  color: #29964d
+  font-size: .6rem
+  font-weight: 600
+
+.catalog-option
+  display: flex
+  max-width: 28rem
+  flex-direction: column
+  gap: .15rem
+
+  strong
+    overflow: hidden
+    color: #24344f
+    font-size: .74rem
+    text-overflow: ellipsis
+    white-space: nowrap
+
+  small
+    color: #7c899d
+    font-size: .64rem
+
+.money
+  display: block
+  padding: .55rem 0
+  color: #33445f
+  text-align: right
+  font-variant-numeric: tabular-nums
+  white-space: nowrap
+
+  small
+    margin-right: .2rem
+    color: #7c899d
+    font-size: .62rem
+
+  &.strong
+    color: #14233f
+    font-weight: 700
+
+.margin-value
+  display: block
+  margin-top: .25rem
+  color: #65748d
+  font-size: .64rem
+  text-align: right
+
 .items-table
   width: 100%
-  min-width: 40rem
+  min-width: 56rem
   border-collapse: collapse
   font-size: .7rem
 
@@ -545,6 +629,11 @@
 
   .col-pvp
     width: 6.6rem
+    text-align: right
+
+  .col-margin
+    width: 7rem
+    text-align: right
 
   .col-total
     width: 6rem
@@ -649,6 +738,10 @@
     background: #092f68
     color: #fff
 
+  .add-button.add-existing
+    background: #fff
+    color: #092f68
+
   .more-button
     min-width: 10rem
 
@@ -708,6 +801,14 @@
       .pending-price .p-inputnumber-input
         border-color: #f0b44c
         background: #fffaf0
+
+      .catalog-dropdown
+        height: 2.2rem
+        min-width: 14rem
+
+        .p-dropdown-label
+          padding: .5rem .6rem
+          font-size: .7rem
 
       .remove-button
         width: 2rem

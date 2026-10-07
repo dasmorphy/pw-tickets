@@ -248,7 +248,7 @@ export class TicketsCommercialComponent {
   }
 
   routeNewRegister() {
-    this.router.navigate([`/registro-ticket/${this.selectedTicket?.id_inspection}`]);
+    this.router.navigate([`/registro-ticket/${this.selectedTicket?.id_inspection}/comercial`]);
   }
 
   saveFollowup(){
