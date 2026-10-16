@@ -1,0 +1,45 @@
+<div class="documents-section">
+    <div class="section-title">
+        <div>
+            <h3>Documentos <small>(opcional)</small></h3>
+            <p>Adjunte hasta {{ maxFiles }} archivos: PDF, imágenes, Word, Excel, PowerPoint, CSV o TXT. Máximo {{ maxSizeMb }} MB por archivo.</p>
+        </div>
+        <span class="count-badge">{{ files.length }} / {{ maxFiles }}</span>
+    </div>
+
+    <input #fileInput type="file" multiple hidden [accept]="accept" (change)="onFileInput($event)" />
+
+    @if (remaining > 0) {
+        <button type="button" class="drop-zone" [class.dragging]="dragging" [disabled]="disabled"
+            (click)="openPicker()" (dragover)="onDragOver($event)" (dragleave)="dragging = false"
+            (drop)="onDrop($event)">
+            <i class="pi pi-cloud-upload"></i>
+            <span><strong>Seleccione archivos</strong> o arrástrelos aquí</span>
+            <small>Puede agregar {{ remaining }} {{ remaining === 1 ? 'archivo más' : 'archivos más' }}</small>
+        </button>
+    } @else {
+        <div class="limit-reached">
+            <i class="pi pi-info-circle"></i>
+            <span>Alcanzó el límite de {{ maxFiles }} documentos. Quite uno para agregar otro.</span>
+        </div>
+    }
+
+    @if (files.length) {
+        <ul class="documents-list">
+            @for (file of files; track file; let i = $index) {
+                <li class="document-row">
+                    <span class="document-icon" [class.pdf]="extension(file.name) === 'pdf'">
+                        <i class="pi" [ngClass]="fileIcon(file.name)"></i>
+                    </span>
+                    <div class="document-info">
+                        <strong [title]="file.name">{{ file.name }}</strong>
+                        <small>{{ formatSize(file.size) }}</small>
+                    </div>
+                    <button pButton type="button" icon="pi pi-trash"
+                        class="p-button-text p-button-rounded p-button-danger remove-button"
+                        [disabled]="disabled" aria-label="Quitar documento" (click)="removeFile(i)"></button>
+                </li>
+            }
+        </ul>
+    }
+</div>

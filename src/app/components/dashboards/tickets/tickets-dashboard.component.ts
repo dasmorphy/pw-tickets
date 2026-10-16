@@ -78,7 +78,7 @@ export class TicketsDashboardComponent {
     finishedTotal = 0;
     finishedChartData: any;
 
-    quotations = { approved: { count: 0, percentage: 0 }, rejected: { count: 0, percentage: 0 }, total: 0 };
+    quotations = { approved: { count: 0, percentage: 0 }, pending: { count: 0, percentage: 0 }, rejected: { count: 0, percentage: 0 }, total: 0 };
     quotationsChartData: any;
 
     invoices = { issued: 0, collected: 0, collected_percentage: 0 };
@@ -147,13 +147,14 @@ export class TicketsDashboardComponent {
         this.quotations = {
             approved: data?.quotations?.approved ?? { count: 0, percentage: 0 },
             rejected: data?.quotations?.rejected ?? { count: 0, percentage: 0 },
+            pending: data?.quotations?.pending ?? { count: 0, percentage: 0 },
             total: data?.quotations?.total ?? 0
         };
         this.quotationsChartData = {
-            labels: ['Aprobadas', 'Rechazadas'],
+            labels: ['Aprobadas', 'Pendientes', 'Rechazadas'],
             datasets: [{
-                data: [this.quotations.approved.count, this.quotations.rejected.count],
-                backgroundColor: ['#22b573', '#eb5757'],
+                data: [this.quotations.approved.count, this.quotations.pending.count, this.quotations.rejected.count],
+                backgroundColor: ['#22b573', '#f2a93b', '#eb5757'],
                 borderWidth: 2,
                 borderColor: '#ffffff'
             }]

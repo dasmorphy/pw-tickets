@@ -65,6 +65,12 @@ export const routes: Routes = [
                 canActivate: [AuthGuard]
             },
             {
+                // form_type: comercial | financiero
+                path: "editar-ticket/:inspection_id/:ticket_intern/:form_type",
+                loadComponent: () => RequestDetailComponent,
+                canActivate: [AuthGuard]
+            },
+            {
                 path: "inspecciones",
                 loadComponent: () => InspectionsTechnicalComponent,
                 canActivate: [AuthGuard],

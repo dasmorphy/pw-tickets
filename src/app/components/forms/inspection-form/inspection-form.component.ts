@@ -15,6 +15,7 @@ import { UtilsService } from 'src/app/services/utils.service';
 import { InputTextModule } from "primeng/inputtext";
 import { UserService } from 'src/app/services/user.service';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { DocumentUploadComponent } from '../document-upload/document-upload.component';
 
 @Component({
     selector: 'app-inspection-form',
@@ -32,7 +33,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
         FormsModule,
         ReactiveFormsModule,
         InputTextModule,
-        MultiSelectModule
+        MultiSelectModule,
+        DocumentUploadComponent
     ],
     templateUrl: './inspection-form.component.html',
     styleUrls: ['./inspection-form.component.sass']
@@ -61,6 +63,7 @@ export class InspectionFormComponent {
     readonly actionOwners = ['Asesor', 'Área técnica', 'Contabilidad'];
     users_intern: any = [];
     minDate: Date = new Date();
+    documents: File[] = [];
 
 
     constructor(private fb: FormBuilder, private route: ActivatedRoute, private router: Router) {
@@ -215,7 +218,7 @@ export class InspectionFormComponent {
             if (this.ticketIdEdit) {
                 this.updateTicket(ticketData);
             }else{
-                this.glpiService.saveInspectionTechnical(ticketData).subscribe({
+                this.glpiService.saveInspectionTechnical(ticketData, this.documents).subscribe({
                     next: (data: any) => {
                         console.log(data)
                         this.utilsService.onSuccess('Inspección registrado exitosamente.');

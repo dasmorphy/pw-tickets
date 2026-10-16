@@ -29,6 +29,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ImageModule } from "primeng/image";
 import { AuthService } from "src/app/services/auth.service";
+import { MaterialDeliveryModalComponent } from "src/app/components/modals/material-delivery-modal/material-delivery-modal.component";
 
 @Component({
     selector: 'app-project-technical',
@@ -60,7 +61,8 @@ import { AuthService } from "src/app/services/auth.service";
         BadgeModule,
         ProgressBarModule,
         InputTextareaModule,
-        ImageModule
+        ImageModule,
+        MaterialDeliveryModalComponent
     ],
     templateUrl: './project-technical.component.html',
     styleUrls: ['./project-technical.component.sass']
@@ -85,7 +87,8 @@ export class ProjectTechnicalComponent {
     showUpdate: boolean = false;
     showDeleteProject: boolean = false;
     showDeleteRecord: boolean = false;
-    
+    showDelivery: boolean = false;
+
     typeRequest: string = '';
     commentaryUpdateStatus: string | null = null;
 
@@ -110,6 +113,12 @@ export class ProjectTechnicalComponent {
             label: 'Ver detalles',
             icon: 'pi pi-eye',
             command: () => this.showModal = true
+        },
+        {
+            label: 'Entrega de materiales',
+            icon: 'pi pi-box',
+            // visible: () => this.user_permissions_signal().includes('ENTREGA_MATERIALES') && this.selectedProject?.status != 'Finalizado',
+            command: () => this.showDelivery = true
         },
         {
             label: 'Aprobar finalización',

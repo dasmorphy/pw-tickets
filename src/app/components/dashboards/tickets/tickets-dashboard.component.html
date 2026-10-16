@@ -71,6 +71,12 @@
             <span class="legend-percentage">{{ quotations.approved.percentage | number:'1.0-2' }}%</span>
           </li>
           <li>
+            <span class="legend-dot" style="background-color: #f2a93b;"></span>
+            <span class="legend-label">Pendientes</span>
+            <strong>{{ quotations.pending.count }}</strong>
+            <span class="legend-percentage">{{ quotations.pending.percentage | number:'1.0-2' }}%</span>
+          </li>
+          <li>
             <span class="legend-dot rejected"></span>
             <span class="legend-label">Rechazadas</span>
             <strong>{{ quotations.rejected.count }}</strong>

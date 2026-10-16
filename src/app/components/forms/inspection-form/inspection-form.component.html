@@ -120,6 +120,10 @@
                             rows="3" [autoResize]="true"></textarea>
                     </div>
 
+                    @if (!ticketIdEdit) {
+                        <app-document-upload [(files)]="documents"></app-document-upload>
+                    }
+
                     <div class="form-actions">
                         <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
                             routerLink="/solicitudes"></p-button>

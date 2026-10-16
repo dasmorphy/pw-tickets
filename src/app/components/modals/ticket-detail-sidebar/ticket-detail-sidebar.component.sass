@@ -267,6 +267,72 @@
     font-size: .64rem
     font-weight: 400
 
+.documents
+  display: flex
+  flex-direction: column
+  gap: .5rem
+  margin: 0
+  padding: 0
+  list-style: none
+
+  li
+    display: grid
+    grid-template-columns: auto minmax(0, 1fr) auto
+    gap: .7rem
+    align-items: center
+    padding: .55rem .7rem
+    border: 1px solid #dfe6ef
+    border-radius: .5rem
+    background: #fff
+
+.document-icon
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  width: 2rem
+  height: 2rem
+  border-radius: .4rem
+  background: #edf3fa
+  color: #536985
+
+  i
+    font-size: .85rem
+
+  &.pdf
+    background: #feeceb
+    color: #df2925
+
+.document-actions
+  display: flex
+  gap: .25rem
+
+.icon-button
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  width: 1.9rem
+  height: 1.9rem
+  border: 0
+  border-radius: 50%
+  background: transparent
+  color: #1269d2
+  cursor: pointer
+  transition: background .15s ease
+
+  i
+    font-size: .78rem
+
+  &:hover:not(:disabled)
+    background: #e9f3ff
+
+  &:focus-visible
+    outline: 2px solid #7890ae
+    outline-offset: 1px
+
+  &:disabled
+    color: #a3aebe
+    cursor: wait
+
 :host ::ng-deep
   .ticket-detail-sidebar
     width: 32rem

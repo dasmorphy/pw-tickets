@@ -93,7 +93,7 @@
       }
 
       @if (formType === 'financiero') {
-        <app-register-ticket-financial></app-register-ticket-financial>
+        <app-register-ticket-financial [ticketIdEdit]=ticketIdEdit></app-register-ticket-financial>
       } @else {
         <app-register-ticket-commercial [ticketIdEdit]=ticketIdEdit></app-register-ticket-commercial>
       }

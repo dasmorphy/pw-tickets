@@ -109,6 +109,86 @@
             </section>
         }
 
+
+        @if (type == 'commercial') {
+            <section class="detail-section">
+                <h3>
+                    <i class="pi pi-paperclip"></i>Proforma comercial
+                </h3>
+            </section>
+
+            @if (data?.sale_quotation) {
+                <ul class="documents mb-4">
+                    <li>
+                        <span class="document-icon" [class.pdf]="'application/pdf'">
+                            <i class="pi pi-file-pdf"></i>
+                        </span>
+                        <div class="material-info">
+                            <strong title="proforma">Documento</strong>
+                            <!-- <small>{{ document.created_at | date: 'dd/MM/yyyy HH:mm':'UTC' }}</small> -->
+                        </div>
+                        <div class="document-actions">
+                            <button type="button" class="icon-button" title="Ver" aria-label="Ver documento"
+                                (click)="previewSaleQuote(data?.sale_quotation?.id_quote)">
+                                <i class="pi pi-eye"></i>
+                            </button>
+                            <button type="button" class="icon-button" title="Descargar" aria-label="Descargar documento"
+                                (click)="downloadSaleQuote(data?.sale_quotation?.id_quote)">
+                                <i class="pi pi-download"></i>
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            }
+            @else {
+                <p class="empty mb-4">Sin proforma registrada.</p>
+            }
+            
+        }@else {
+            <section class="detail-section">
+                <h3>
+                    <i class="pi pi-paperclip"></i>Documentos
+                    @if (!loadingDocuments) {
+                        <span class="count">{{ documents.length }}</span>
+                    }
+                </h3>
+                @if (loadingDocuments) {
+                    <p class="empty"><i class="pi pi-spin pi-spinner"></i> Cargando documentos...</p>
+                } @else if (documents.length) {
+                    <ul class="documents">
+                        @for (document of documents; track document.id_document) {
+                            <li>
+                                <span class="document-icon" [class.pdf]="document.type === 'application/pdf'">
+                                    <i class="pi" [ngClass]="documentIcon(document)"></i>
+                                </span>
+                                <div class="material-info">
+                                    <strong [title]="document.document_name">{{ document.document_name }}</strong>
+                                    <small>{{ document.created_at | date: 'dd/MM/yyyy HH:mm':'UTC' }}</small>
+                                </div>
+                                <div class="document-actions">
+                                    @if (canPreview(document)) {
+                                        <button type="button" class="icon-button" title="Ver" aria-label="Ver documento"
+                                            [disabled]="busyDocumentId === document.id_document"
+                                            (click)="previewDocument(document)">
+                                            <i class="pi pi-eye"></i>
+                                        </button>
+                                    }
+                                    <button type="button" class="icon-button" title="Descargar" aria-label="Descargar documento"
+                                        [disabled]="busyDocumentId === document.id_document"
+                                        (click)="downloadDocument(document)">
+                                        <i class="pi" [ngClass]="busyDocumentId === document.id_document ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                } @else {
+                    <p class="empty">Sin documentos adjuntos.</p>
+                }
+            </section>
+        }
+
+
         <section class="detail-section audit">
             <h3><i class="pi pi-history"></i>Auditoría</h3>
             <dl>

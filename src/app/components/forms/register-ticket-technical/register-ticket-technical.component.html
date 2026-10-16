@@ -198,6 +198,10 @@
                 </p-editor>
             </div>
 
+            @if (!ticketIdEdit) {
+                <app-document-upload [(files)]="documents" [disabled]="loadingTicket"></app-document-upload>
+            }
+
             <div class="form-actions">
                 <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
                     [routerLink]="ticketIdEdit ? '/tickets-tecnicos' : '/solicitudes'"></p-button>

@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, OnChanges, Output } from '@angular/core';
 import { SidebarModule } from 'primeng/sidebar';
+import { GlpiService } from 'src/app/services/glpi.service';
 import { ProjectTechnicalService } from 'src/app/services/project-technical.service';
+import { UtilsService } from 'src/app/services/utils.service';
 
 export type TicketDetailType = 'inspection' | 'technical' | 'commercial' | 'financial';
 
@@ -17,6 +19,13 @@ interface DetailSection {
     title: string;
     icon: string;
     fields: DetailField[];
+}
+
+interface InspectionDocument {
+    id_document: number;
+    document_name: string;
+    type: string | null;
+    created_at: string;
 }
 
 interface DetailMaterial {
@@ -48,10 +57,17 @@ export class TicketDetailSidebarComponent implements OnChanges {
     @Input() type: TicketDetailType = 'inspection';
 
     private readonly projectTechnicalService = inject(ProjectTechnicalService);
+    private readonly glpiService = inject(GlpiService);
+    private readonly utilsService = inject(UtilsService);
 
     sections: DetailSection[] = [];
     auditFields: DetailField[] = [];
     materials: DetailMaterial[] = [];
+    documents: InspectionDocument[] = [];
+    loadingDocuments = false;
+    // id_document en descarga/visualización, para deshabilitar sus botones
+    busyDocumentId: number | null = null;
+    private documentsRequestId: number | null = null;
 
     // El catálogo se pide una sola vez y solo cuando se abre un registro técnico con materiales
     private catalog: any[] | null = null;
@@ -77,6 +93,8 @@ export class TicketDetailSidebarComponent implements OnChanges {
             this.sections = [];
             this.auditFields = [];
             this.materials = [];
+            this.documents = [];
+            this.documentsRequestId = null;
             return;
         }
 
@@ -88,6 +106,7 @@ export class TicketDetailSidebarComponent implements OnChanges {
             { label: 'Última actualización', value: this.data.updated_at, format: 'datetime' },
         ];
         this.buildMaterials();
+        this.loadDocuments();
     }
 
     close(): void {
@@ -142,7 +161,7 @@ export class TicketDetailSidebarComponent implements OnChanges {
                             { label: 'Valor cotizado', value: d.quoted_amount, format: 'currency' },
                             { label: 'Probabilidad de cierre', value: d.probability_closing, format: 'percent' },
                             { label: 'Fecha estimada de cierre', value: d.closing_date, format: 'date' },
-                            { label: 'Fecha prevista de inicio', value: d.scheduled_start_date, format: 'date' },
+                            // { label: 'Fecha prevista de inicio', value: d.scheduled_start_date, format: 'date' },
                             { label: 'Fecha de finalización', value: d.date_finish, format: 'date' },
                             { label: 'Próxima acción', value: d.next_action },
                             { label: 'Responsable próxima acción', value: d.responsible_next_action },
@@ -222,6 +241,139 @@ export class TicketDetailSidebarComponent implements OnChanges {
         if (!this.catalog && !this.loadingCatalog && rawMaterials.some(material => material.material_id)) {
             this.loadCatalog();
         }
+    }
+
+    /**
+     * El GET de inspecciones ya trae los documentos; los registros técnico, comercial
+     * y financiero no, así que en esos casos se piden por el id de la inspección.
+     */
+    private loadDocuments(): void {
+        if (Array.isArray(this.data?.documents)) {
+            this.documents = this.data.documents;
+            this.documentsRequestId = null;
+            this.loadingDocuments = false;
+            return;
+        }
+
+        const inspectionId = this.data?.id_inspection;
+        this.documents = [];
+        if (!inspectionId) {
+            return;
+        }
+
+        this.documentsRequestId = inspectionId;
+        this.loadingDocuments = true;
+        this.glpiService.getInspectionTechnical({ id_inspection: inspectionId }).subscribe({
+            next: (response: any) => {
+                // Ignora respuestas de un registro anterior si el usuario ya abrió otro
+                if (this.documentsRequestId !== inspectionId) return;
+                this.documents = response?.data?.[0]?.documents ?? [];
+                this.loadingDocuments = false;
+            },
+            error: (error: any) => {
+                if (this.documentsRequestId !== inspectionId) return;
+                console.error('Error fetching inspection documents:', error);
+                this.loadingDocuments = false;
+            }
+        });
+    }
+
+    canPreview(document: InspectionDocument): boolean {
+        const type = document.type ?? '';
+        return type === 'application/pdf' || type.startsWith('image/');
+    }
+
+    documentIcon(document: InspectionDocument): string {
+        const type = document.type ?? '';
+        const name = (document.document_name ?? '').toLowerCase();
+        if (type === 'application/pdf') return 'pi-file-pdf';
+        if (type.startsWith('image/')) return 'pi-image';
+        if (/\.(xlsx?|csv)$/.test(name)) return 'pi-file-excel';
+        if (/\.docx?$/.test(name)) return 'pi-file-word';
+        return 'pi-file';
+    }
+
+    previewDocument(document: InspectionDocument): void {
+        // La pestaña se abre antes de la petición para que el navegador no la bloquee como popup
+        const tab = window.open('', '_blank');
+        this.busyDocumentId = document.id_document;
+        this.glpiService.downloadInspectionDocument(document.id_document, true).subscribe({
+            next: (blob: Blob) => {
+                this.busyDocumentId = null;
+                const url = window.URL.createObjectURL(blob);
+                if (tab) {
+                    tab.location.href = url;
+                } else {
+                    window.open(url, '_blank');
+                }
+                setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+            },
+            error: (error: any) => {
+                this.busyDocumentId = null;
+                tab?.close();
+                console.error('Error al visualizar documento:', error);
+                this.utilsService.onError('No se pudo abrir el documento.');
+            }
+        });
+    }
+
+    downloadDocument(document: InspectionDocument): void {
+        this.busyDocumentId = document.id_document;
+        this.glpiService.downloadInspectionDocument(document.id_document).subscribe({
+            next: (blob: Blob) => {
+                this.busyDocumentId = null;
+                const url = window.URL.createObjectURL(blob);
+                const link = window.document.createElement('a');
+                link.href = url;
+                link.download = document.document_name || `documento-${document.id_document}`;
+                link.click();
+                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+            },
+            error: (error: any) => {
+                this.busyDocumentId = null;
+                console.error('Error al descargar documento:', error);
+                this.utilsService.onError('No se pudo descargar el documento.');
+            }
+        });
+    }
+
+
+    downloadSaleQuote(id_quote: number): void {
+        this.glpiService.downloadSaleQuote(id_quote).subscribe({
+            next: (blob: Blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = window.document.createElement('a');
+                link.href = url;
+                link.download = `cotizacion-${id_quote}`;
+                link.click();
+                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+            },
+            error: (error: any) => {
+                console.error('Error al descargar documento:', error);
+                this.utilsService.onError('No se pudo descargar el documento.');
+            }
+        });
+    }
+
+    previewSaleQuote(id_quote: number): void {
+        // La pestaña se abre antes de la petición para que el navegador no la bloquee como popup
+        const tab = window.open('', '_blank');
+        this.glpiService.downloadSaleQuote(id_quote, true).subscribe({
+            next: (blob: Blob) => {
+                const url = window.URL.createObjectURL(blob);
+                if (tab) {
+                    tab.location.href = url;
+                } else {
+                    window.open(url, '_blank');
+                }
+                setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+            },
+            error: (error: any) => {
+                tab?.close();
+                console.error('Error al visualizar documento:', error);
+                this.utilsService.onError('No se pudo abrir el documento.');
+            }
+        });
     }
 
     private loadCatalog(): void {

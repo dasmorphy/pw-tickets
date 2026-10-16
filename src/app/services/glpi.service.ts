@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
+import { v4 as uuidv4 } from 'uuid';
 import { environment } from "src/environments/environment.development";
 
 @Injectable({
@@ -38,6 +39,21 @@ export class GlpiService {
         });
     }
 
+    /** Archivo adjunto de una inspección. Con inline=true el backend lo sirve para visualizarlo. */
+    downloadInspectionDocument(idDocument: number, inline = false): Observable<Blob> {
+        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection-documents/${idDocument}`, {
+            params: new HttpParams().set('inline', inline),
+            responseType: 'blob'
+        });
+    }
+
+    downloadSaleQuote(idDocument: number, inline = false): Observable<Blob> {
+        return this.http.get(`http://localhost:2127/rest/proxy-glpi-api/v1.0/sale-quotation/${idDocument}/pdf`, {
+            params: new HttpParams().set('inline', inline),
+            responseType: 'blob'
+        });
+    }
+
     getClients() {
         return this.http.get(`${environment.apiTechnical}/rest/technical-control-api/v1.0/clients`);
     }
@@ -48,12 +64,27 @@ export class GlpiService {
         });
     }
 
-    saveInspectionTechnical(data: any) {
-        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection`, {data})
+    /**
+     * Arma el multipart/form-data que esperan los POST de gestión interna:
+     * data (JSON en texto), files (opcionales, repetidos) y los datos de trazabilidad.
+     * El interceptor no modifica el body cuando es FormData, por eso channel y
+     * externalTransactionId se agregan aquí.
+     */
+    private buildMultipart(data: any, files: File[] = []): FormData {
+        const formData = new FormData();
+        formData.append('data', JSON.stringify(data));
+        formData.append('channel', 'TLSG_WEB');
+        formData.append('externalTransactionId', uuidv4());
+        files.forEach(file => formData.append('files', file, file.name));
+        return formData;
     }
 
-    saveTicketTechnical(data: any) {
-        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-technical`, {data})
+    saveInspectionTechnical(data: any, files: File[] = []) {
+        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection`, this.buildMultipart(data, files))
+    }
+
+    saveTicketTechnical(data: any, files: File[] = []) {
+        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-technical`, this.buildMultipart(data, files))
     }
 
     updateTicketTechnical(data: any) {
@@ -64,16 +95,20 @@ export class GlpiService {
         return this.http.put(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection/${id_inspection}`, {data})
     }
 
-    saveTicketCommercial(data: any) {
-        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-commercial`, {data})
+    saveTicketCommercial(data: any, files: File[] = []) {
+        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-commercial`, this.buildMultipart(data, files))
     }
 
     updateTicketCommercial(data: any) {
         return this.http.put(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-commercial`, {data})
     }
 
-    saveTicketFinancial(data: any) {
-        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-financial`, {data})
+    saveTicketFinancial(data: any, files: File[] = []) {
+        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-financial`, this.buildMultipart(data, files))
+    }
+
+    updateTicketFinancial(data: any) {
+        return this.http.put(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-financial`, {data})
     }
 
     getTicketsTechnical(filters?: any) {
@@ -183,6 +218,10 @@ export class GlpiService {
             params = params.set('page_size', filters.page_size);
         }
 
+        if (filters?.ticket_financial_id) {
+            params = params.set('ticket_financial_id', filters.ticket_financial_id);
+        }
+
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-financial`, {
             params
         });
@@ -212,6 +251,26 @@ export class GlpiService {
         }
 
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/followup-commercial`, {
+            params
+        });
+    }
+
+    saveFollowupFinancial(data: any) {
+        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/followup-financial`, {data});
+    }
+
+    getFollowupsFinancial(filters?: any) {
+        let params = new HttpParams();
+
+        if (filters?.id_financial) {
+            params = params.set('id_financial', filters.id_financial);
+        }
+
+        if (filters?.user) {
+            params = params.set('user', filters.user);
+        }
+
+        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/followup-financial`, {
             params
         });
     }

@@ -1,0 +1,380 @@
+<p-dialog [visible]="visible" (visibleChange)="visibleChange.emit($event)" [modal]="true" [draggable]="false"
+    [resizable]="false" [closable]="false" [style]="{ width: '74rem' }" [breakpoints]="{ '1200px': '96vw' }"
+    styleClass="delivery-dialog" [contentStyle]="{ overflow: 'auto' }">
+    <ng-template pTemplate="header">
+        <div class="delivery-header">
+            <span class="header-icon"><i class="pi pi-truck"></i></span>
+            <div class="header-text">
+                <span class="eyebrow">Bodega · Entrega de materiales</span>
+                <h2>{{ project?.code || 'Proyecto' }}</h2>
+                <p [title]="project?.name">
+                    {{ project?.name || '—' }}
+                    @if (proformaCode) {
+                        <span class="dot">·</span>Proforma {{ proformaCode }}
+                    }
+                </p>
+            </div>
+            <button type="button" class="close-button" aria-label="Cerrar" (click)="close()">
+                <i class="pi pi-times"></i>
+            </button>
+        </div>
+    </ng-template>
+
+    @if (loading && !rows.length) {
+        <div class="state"><i class="pi pi-spin pi-spinner"></i>Cargando materiales del proyecto...</div>
+    } @else if (!rows.length) {
+        <div class="state"><i class="pi pi-box"></i>El proyecto no tiene materiales asignados en la proforma.</div>
+    } @else {
+        <section class="summary" aria-label="Resumen de entregas">
+            <div class="summary-progress">
+                <div class="progress-label">
+                    <span>Avance de entrega</span>
+                    <strong>{{ progress }} %</strong>
+                </div>
+                <div class="progress-track" role="progressbar" [attr.aria-valuenow]="progress" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-fill" [style.width.%]="progress"></div>
+                </div>
+                <small>{{ deliveredUnits }} de {{ totalUnits }} unidades entregadas</small>
+            </div>
+            <div class="kpi"><span>Materiales</span><strong>{{ rows.length }}</strong></div>
+            <div class="kpi done"><span>Completos</span><strong>{{ completedCount }}</strong></div>
+            <div class="kpi pending"><span>Pendientes</span><strong>{{ pendingCount }}</strong></div>
+            <div class="kpi"><span>Entregas</span><strong>{{ history.length }}</strong></div>
+        </section>
+
+        <div class="tabs" role="tablist">
+            <button type="button" role="tab" [class.active]="activeTab === 'new'" [attr.aria-selected]="activeTab === 'new'"
+                (click)="activeTab = 'new'">
+                <i class="pi pi-send"></i>Nueva entrega
+            </button>
+            <button type="button" role="tab" [class.active]="activeTab === 'history'" [attr.aria-selected]="activeTab === 'history'"
+                (click)="activeTab = 'history'">
+                <i class="pi pi-history"></i>Historial
+                <span class="tab-count">{{ history.length }}</span>
+            </button>
+        </div>
+
+        @if (activeTab === 'new') {
+            <div class="delivery-form">
+                <div class="form-row">
+                    <div class="field technician-field">
+                        <label for="deliveryTechnician">Técnico que recibe <span class="required">*</span></label>
+                        <p-dropdown inputId="deliveryTechnician" [options]="technicians" [(ngModel)]="selectedTechnician"
+                            optionLabel="fullname_user" optionValue="user" placeholder="Seleccione un técnico"
+                            emptyMessage="El proyecto no tiene técnicos asignados" [filter]="technicians.length > 6"
+                            filterBy="fullname_user" styleClass="w-full" appendTo="body">
+                            <ng-template let-technician pTemplate="item">
+                                <div class="technician-option">
+                                    <span class="avatar">{{ technician.fullname_user?.charAt(0) }}</span>
+                                    {{ technician.fullname_user }}
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+
+                    <div class="field search-field">
+                        <label for="deliverySearch">Buscar material</label>
+                        <span class="search-input">
+                            <i class="pi pi-search"></i>
+                            <input pInputText id="deliverySearch" type="text" [(ngModel)]="search"
+                                placeholder="Producto, modelo o código" />
+                        </span>
+                    </div>
+
+                    <div class="switch-field">
+                        <p-inputSwitch inputId="hideCompleted" [(ngModel)]="hideCompleted"></p-inputSwitch>
+                        <label>Ocultar completos</label>
+                    </div>
+                </div>
+
+                @if (pendingProductsCount) {
+                    <p class="pending-notice">
+                        <i class="pi pi-info-circle"></i>
+                        <span>
+                            <strong>{{ pendingProductsCount }}</strong>
+                            {{ pendingProductsCount === 1 ? 'producto nuevo aún no existe' : 'productos nuevos aún no existen' }}
+                            en el catálogo. Puede entregarlos igual: el stock se ajusta al crearlos con <strong>Crear en catálogo</strong>.
+                        </span>
+                    </p>
+                }
+
+                <div class="table-toolbar">
+                    <span>{{ visibleRows.length }} de {{ rows.length }} materiales</span>
+                    <div class="toolbar-actions">
+                        <button type="button" class="link-button" (click)="fillAllPending()"
+                            [disabled]="!visibleRows.length">
+                            <i class="pi pi-check-square"></i>Entregar todo lo pendiente
+                        </button>
+                        <button type="button" class="link-button muted" (click)="clearQuantities()"
+                            [disabled]="!selectedRows.length">
+                            <i class="pi pi-eraser"></i>Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-scroll">
+                    <table class="delivery-table">
+                        <thead>
+                            <tr>
+                                <th>Material</th>
+                                <th class="col-num">Proforma</th>
+                                <th class="col-progress">Entregado</th>
+                                <th class="col-num">Pendiente</th>
+                                <th class="col-num">Stock</th>
+                                <th class="col-deliver">A entregar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (row of visibleRows; track row.key) {
+                                <tr [class.completed]="row.pending === 0" [class.selected]="(row.toDeliver ?? 0) > 0">
+                                    <td>
+                                        <div class="material-cell">
+                                            <strong [title]="row.product">{{ row.product }}</strong>
+                                            <small>
+                                                {{ row.model || 'Sin modelo' }}{{ row.code ? ' · ' + row.code : '' }}
+                                            </small>
+                                            <div class="tags">
+                                                @if (row.group) {
+                                                    <span class="tag group"><i class="pi pi-th-large"></i>{{ row.group }}</span>
+                                                }
+                                                @if (isPendingProduct(row)) {
+                                                    <span class="tag pending"><i class="pi pi-clock"></i>Pendiente de crear</span>
+                                                } @else if (row.is_new) {
+                                                    <span class="tag new"><i class="pi pi-plus-circle"></i>Producto nuevo</span>
+                                                }
+                                            </div>
+                                            @if (isPendingProduct(row)) {
+                                                <button type="button" class="create-product-button" (click)="openPendingProduct(row)">
+                                                    <i class="pi pi-plus"></i>Crear en catálogo
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="col-num">{{ row.quantity }} <small>{{ row.unit }}</small></td>
+                                    <td class="col-progress">
+                                        <div class="row-progress">
+                                            <span>{{ row.delivered }}</span>
+                                            <div class="mini-track"><div class="mini-fill" [style.width.%]="rowProgress(row)"></div></div>
+                                        </div>
+                                    </td>
+                                    <td class="col-num">
+                                        @if (row.pending === 0) {
+                                            <span class="status-complete"><i class="pi pi-check-circle"></i>Completo</span>
+                                        } @else {
+                                            <strong class="pending-value">{{ row.pending }}</strong>
+                                        }
+                                    </td>
+                                    <td class="col-num">
+                                        @if (row.stock == null) {
+                                            <span class="muted-text" pTooltip="Pendiente de crear en el catálogo: no descuenta stock" tooltipPosition="top">—</span>
+                                        } @else {
+                                            <span [class.low-stock]="row.stock < row.pending">{{ row.stock }}</span>
+                                        }
+                                    </td>
+                                    <td class="col-deliver">
+                                        @if (row.pending > 0 && maxDeliverable(row) === 0) {
+                                            <span class="no-stock"><i class="pi pi-ban"></i>Sin stock</span>
+                                        } @else if (row.pending > 0) {
+                                            <div class="deliver-input">
+                                                <p-inputNumber [(ngModel)]="row.toDeliver" [min]="0" [max]="maxDeliverable(row)"
+                                                    [maxFractionDigits]="0" placeholder="0" [showButtons]="true"
+                                                    buttonLayout="horizontal" incrementButtonIcon="pi pi-plus"
+                                                    decrementButtonIcon="pi pi-minus"
+                                                    [ariaLabel]="'Cantidad a entregar de ' + row.product"></p-inputNumber>
+                                                <button type="button" class="max-button" (click)="deliverAllPending(row)"
+                                                    [attr.aria-label]="'Entregar el máximo disponible de ' + row.product"
+                                                    [pTooltip]="limitedByStock(row) ? 'Entregar lo disponible en stock' : 'Entregar todo lo pendiente'"
+                                                    tooltipPosition="top">Máx.</button>
+                                            </div>
+                                            @if (limitedByStock(row)) {
+                                                <small class="stock-hint"><i class="pi pi-exclamation-triangle"></i>Máx. {{ maxDeliverable(row) }} por stock</small>
+                                            }
+                                        } @else {
+                                            <span class="muted-text">—</span>
+                                        }
+                                    </td>
+                                </tr>
+                            } @empty {
+                                <tr>
+                                    <td colspan="6" class="empty-row">
+                                        @if (search) {
+                                            Sin resultados para "{{ search }}".
+                                        } @else {
+                                            <i class="pi pi-check-circle"></i>Todos los materiales de la proforma ya fueron entregados.
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="field">
+                    <label for="deliveryObservations">Observaciones</label>
+                    <textarea pInputTextarea id="deliveryObservations" rows="5" [autoResize]="true"
+                        [(ngModel)]="observations" placeholder="Opcional"></textarea>
+                </div>
+            </div>
+        } @else {
+            <div class="history">
+                @if (historyByTechnician.length) {
+                    <div class="technician-chips" role="group" aria-label="Filtrar por técnico">
+                        <button type="button" class="chip" [class.active]="!historyTechnician" (click)="historyTechnician = null">
+                            Todos <span>{{ history.length }}</span>
+                        </button>
+                        @for (summary of historyByTechnician; track summary.user) {
+                            <button type="button" class="chip" [class.active]="historyTechnician === summary.user"
+                                (click)="historyTechnician = summary.user">
+                                <span class="avatar">{{ summary.name.charAt(0) }}</span>
+                                {{ summary.name }}
+                                <span>{{ summary.units }} u.</span>
+                            </button>
+                        }
+                    </div>
+                }
+
+                @for (delivery of filteredHistory; track delivery.id_delivery) {
+                    <article class="delivery-card">
+                        <header>
+                            <span class="avatar large">{{ delivery.technician_name.charAt(0) }}</span>
+                            <div>
+                                <strong>{{ delivery.technician_name }}</strong>
+                                <small>
+                                    <i class="pi pi-calendar"></i>{{ delivery.created_at | date: 'dd/MM/yyyy HH:mm':'UTC' }}
+                                    <span class="dot">·</span>
+                                    <i class="pi pi-user"></i>Entregó {{ delivery.delivered_by }}
+                                </small>
+                            </div>
+                            <span class="units-badge">{{ delivery.units }} u.</span>
+                        </header>
+                        <ul>
+                            @for (item of delivery.detail; track $index) {
+                                <li><span>{{ item.product }}</span><strong>{{ item.quantity }} <small>{{ item.unit }}</small></strong></li>
+                            }
+                        </ul>
+                        @if (delivery.observations) {
+                            <p class="observations"><i class="pi pi-comment"></i>{{ delivery.observations }}</p>
+                        }
+                    </article>
+                } @empty {
+                    <div class="state small"><i class="pi pi-inbox"></i>Aún no se han registrado entregas.</div>
+                }
+            </div>
+        }
+    }
+
+    <ng-template pTemplate="footer">
+        <div class="delivery-footer">
+            @if (activeTab === 'new' && rows.length) {
+                <p class="footer-summary" aria-live="polite">
+                    @if (selectedRows.length) {
+                        <strong>{{ unitsToDeliver }}</strong> unidades de <strong>{{ selectedRows.length }}</strong>
+                        {{ selectedRows.length === 1 ? 'material' : 'materiales' }}
+                        @if (selectedTechnicianName) {
+                            para <strong>{{ selectedTechnicianName }}</strong>
+                        }
+                    } @else {
+                        Ingrese las cantidades que entrega al técnico.
+                    }
+                </p>
+            } @else {
+                <span></span>
+            }
+            <div class="footer-actions">
+                <p-button type="button" label="Cerrar" [outlined]="true" styleClass="cancel-button" (click)="close()"></p-button>
+                @if (activeTab === 'new' && rows.length) {
+                    <p-button type="button" label="Registrar entrega" icon="pi pi-check" styleClass="save-button"
+                        [loading]="saving" [disabled]="!selectedRows.length || !selectedTechnician"
+                        (click)="saveDelivery()"></p-button>
+                }
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [visible]="!!pendingRow" (visibleChange)="!$event && closePendingProduct()" [modal]="true" [draggable]="false"
+    [resizable]="false" [closable]="false" [style]="{ width: '40rem' }" [breakpoints]="{ '700px': '96vw' }"
+    styleClass="delivery-dialog pending-product-dialog">
+    <ng-template pTemplate="header">
+        <div class="delivery-header">
+            <span class="header-icon"><i class="pi pi-box"></i></span>
+            <div class="header-text">
+                <span class="eyebrow">Bodega · Producto nuevo de la proforma</span>
+                <h2>Crear en catálogo</h2>
+                <p>Los datos vienen sugeridos desde la proforma; puede editarlos.</p>
+            </div>
+            <button type="button" class="close-button" aria-label="Cerrar" (click)="closePendingProduct()">
+                <i class="pi pi-times"></i>
+            </button>
+        </div>
+    </ng-template>
+
+    @if (pendingRow) {
+        <div class="pending-form">
+            <div class="field span-2">
+                <label for="pendingProduct">Producto <span class="required">*</span></label>
+                <input pInputText id="pendingProduct" type="text" [(ngModel)]="pendingForm.product" maxlength="250" />
+            </div>
+            <div class="field">
+                <label for="pendingCode">Código</label>
+                <input pInputText id="pendingCode" type="text" [(ngModel)]="pendingForm.code" placeholder="Opcional" />
+            </div>
+            <div class="field">
+                <label for="pendingModel">Modelo</label>
+                <input pInputText id="pendingModel" type="text" [(ngModel)]="pendingForm.model" placeholder="Opcional" />
+            </div>
+            <div class="field">
+                <label for="pendingProvider">Proveedor <span class="required">*</span></label>
+                <p-dropdown inputId="pendingProvider" [options]="providers" [(ngModel)]="pendingForm.provider_id"
+                    optionLabel="name" optionValue="id_provider" [filter]="true" filterBy="name,ruc,seller"
+                    [loading]="loadingProviders" placeholder="Seleccione un proveedor" styleClass="w-full" appendTo="body">
+                </p-dropdown>
+            </div>
+            <div class="field">
+                <label for="pendingUnit">Unidad</label>
+                <input pInputText id="pendingUnit" type="text" [(ngModel)]="pendingForm.unit" />
+            </div>
+            <div class="field">
+                <label for="pendingBasePrice">Precio base <span class="required">*</span></label>
+                <p-inputNumber inputId="pendingBasePrice" [(ngModel)]="pendingForm.base_price" mode="currency"
+                    currency="USD" locale="en-US" [min]="0" styleClass="w-full"></p-inputNumber>
+            </div>
+            <div class="field">
+                <label for="pendingMargin">Margen (%) <span class="required">*</span></label>
+                <p-inputNumber inputId="pendingMargin" [(ngModel)]="pendingForm.profit_margin_percent" suffix=" %"
+                    [min]="0" [maxFractionDigits]="2" styleClass="w-full"></p-inputNumber>
+            </div>
+            <div class="field">
+                <label for="pendingStock">Stock recibido <span class="required">*</span></label>
+                <p-inputNumber inputId="pendingStock" [(ngModel)]="pendingForm.stock" [min]="pendingMinStock"
+                    [maxFractionDigits]="0" [useGrouping]="false" styleClass="w-full"></p-inputNumber>
+                <small class="field-hint">Mínimo {{ pendingMinStock }} (cantidad de la proforma).</small>
+            </div>
+            <div class="price-summary">
+                <span>Ganancia <strong>{{ pendingProfitDollar | currency: 'USD' }}</strong></span>
+                <span>Precio final <strong>{{ pendingFinalPrice | currency: 'USD' }}</strong></span>
+            </div>
+            <div class="field span-2">
+                <label for="pendingDescription">Descripción</label>
+                <textarea pInputTextarea id="pendingDescription" rows="5" [autoResize]="true"
+                    [(ngModel)]="pendingForm.description" placeholder="Opcional"></textarea>
+            </div>
+            <p class="stock-result span-2">
+                <i class="pi pi-calculator"></i>
+                <span>
+                    Ya se entregaron <strong>{{ pendingRow.delivered }}</strong> con este pendiente.
+                    El catálogo quedará con <strong>{{ pendingResultingStock }}</strong> en stock.
+                </span>
+            </p>
+        </div>
+    }
+
+    <ng-template pTemplate="footer">
+        <div class="footer-actions">
+            <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
+                (click)="closePendingProduct()"></p-button>
+            <p-button type="button" label="Crear producto" icon="pi pi-check" styleClass="save-button"
+                [loading]="resolving" (click)="resolvePendingProduct()"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>

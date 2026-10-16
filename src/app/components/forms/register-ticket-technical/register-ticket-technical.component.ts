@@ -13,6 +13,7 @@ import { GlpiService } from 'src/app/services/glpi.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { UserService } from 'src/app/services/user.service';
 import { ProjectTechnicalService } from 'src/app/services/project-technical.service';
+import { DocumentUploadComponent } from '../document-upload/document-upload.component';
 
 @Component({
     selector: 'app-register-ticket-technical',
@@ -27,7 +28,8 @@ import { ProjectTechnicalService } from 'src/app/services/project-technical.serv
         InputTextModule,
         ToastModule,
         FormsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        DocumentUploadComponent
     ],
     templateUrl: './register-ticket-technical.component.html',
     styleUrls: ['./register-ticket-technical.component.sass']
@@ -51,6 +53,7 @@ export class RegisterTicketTechnicalComponent {
     isNewMaterial = false;
     newMaterialName = '';
     newMaterialDescription = '';
+    documents: File[] = [];
 
     ticketDetails: any = null;
     codeManagement: string | null = null;
@@ -221,7 +224,7 @@ export class RegisterTicketTechnicalComponent {
         if (this.ticketIdEdit) {
             this.updateTicket({ ...ticketData, id_management_technical: this.ticketIdEdit });
         } else {
-            this.glpiService.saveTicketTechnical(ticketData).subscribe({
+            this.glpiService.saveTicketTechnical(ticketData, this.documents).subscribe({
                 next: () => {
                     this.utilsService.onSuccess('Ticket registrado exitosamente.');
                     this.router.navigate(['/tickets-tecnicos'])

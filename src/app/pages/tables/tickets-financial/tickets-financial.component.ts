@@ -5,12 +5,17 @@ import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { Table, TableModule } from 'primeng/table';
 import { TabViewModule } from 'primeng/tabview';
 import { TooltipModule } from 'primeng/tooltip';
 import { GlpiService } from 'src/app/services/glpi.service';
 import { UtilsService } from 'src/app/services/utils.service';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ToastModule } from 'primeng/toast';
+import { UserService } from 'src/app/services/user.service';
 import { TicketDetailSidebarComponent, TicketDetailType } from 'src/app/components/modals/ticket-detail-sidebar/ticket-detail-sidebar.component';
 
 interface CommercialTicket {
@@ -26,6 +31,14 @@ interface CommercialTicket {
   status?: string;
 }
 
+interface FinancialFollowup {
+  id_followup: number | string;
+  management_financial_id: number | string;
+  observations?: string;
+  created_at: string;
+  created_by?: string;
+}
+
 @Component({
   selector: 'app-tickets-financial',
   standalone: true,
@@ -36,10 +49,14 @@ interface CommercialTicket {
     ButtonModule,
     CalendarModule,
     DropdownModule,
+    DialogModule,
+    InputTextareaModule,
     TableModule,
     TabViewModule,
     TooltipModule,
     SplitButtonModule,
+    ProgressSpinnerModule,
+    ToastModule,
     TicketDetailSidebarComponent
   ],
   templateUrl: './tickets-financial.component.html',
@@ -49,6 +66,7 @@ export class TicketsFinancialComponent {
   @ViewChild('pendingTable') pendingTable?: Table;
 
   private readonly glpiService = inject(GlpiService);
+  private readonly userService = inject(UserService);
   readonly utilsService = inject(UtilsService);
   private readonly router = inject(Router);
   
@@ -64,6 +82,12 @@ export class TicketsFinancialComponent {
   selectedTicket: any;
   activeMenu: number | string | null = null;
   activeIndex = 0;
+  registerFollowupVisible = false;
+  isLoading: boolean = false
+  followupsVisible = false;
+  followupObservation = '';
+  followups: FinancialFollowup[] = [];
+  user_json: any;
 
   pendingTickets: CommercialTicket[] = [];
   completedTickets: CommercialTicket[] = [];
@@ -88,14 +112,35 @@ export class TicketsFinancialComponent {
         }
     },
     {
+        label: 'Ver seguimientos',
+        icon: 'pi pi-history',
+        // Solo las gestiones financieras (Registrados) tienen seguimientos
+        visible: () => this.activeIndex === 1,
+        command: () => this.openFollowupsDialog()
+    },
+    {
+        label: 'Registrar seguimiento',
+        icon: 'pi pi-plus-circle',
+        visible: () => this.activeIndex === 1,
+        command: () => this.openRegisterFollowupDialog()
+    },
+    {
         label: 'Registro',
         icon: 'pi pi-play-circle',
-        // visible: () => this.user_permissions_signal().includes('CONTINUAR_BITACORA') && this.selectedLogbook?.status === 'Pendiente Salida',
+        // Pendientes son gestiones comerciales aún sin registro financiero
+        visible: () => this.activeIndex === 0,
         command: () => this.routeRegister()
+    },
+    {
+        label: 'Editar',
+        icon: 'pi pi-pencil',
+        visible: () => this.activeIndex === 1,
+        command: () => this.routeEdit()
     },
   ];
 
   ngOnInit() {
+    this.user_json = this.userService.getDataSession();
     this.fetchCompletedTickets();
     this.fetchPendingTickets();
   }
@@ -139,6 +184,18 @@ export class TicketsFinancialComponent {
     });
   }
 
+  fetchFollowups() {
+    this.glpiService.getFollowupsFinancial({id_financial: this.selectedTicket?.id_management_financial}).subscribe({
+      next: (data: any) => {
+        this.followups = data?.data ?? [];
+      },
+      error: (error: any) => {
+        console.log(error);
+        this.utilsService.onError(error?.error?.message ?? 'Error al obtener los seguimientos')
+      }
+    })
+  }
+
   applyFilters(): void {
     // La API de solicitudes técnicas aún no recibe estos filtros. Se conservan para mantener el estándar visual.
     this.pendingTable?.reset();
@@ -170,5 +227,50 @@ export class TicketsFinancialComponent {
 
   routeRegister() {
     this.router.navigate([`/registro-ticket/${this.selectedTicket?.id_inspection}/financiero`]);
+  }
+
+  routeEdit() {
+    this.router.navigate([
+      `/editar-ticket/${this.selectedTicket?.id_inspection}/${this.selectedTicket?.id_management_financial}/financiero`
+    ]);
+  }
+
+  openRegisterFollowupDialog(): void {
+    this.followupObservation = '';
+    this.registerFollowupVisible = true;
+  }
+
+  openFollowupsDialog(): void {
+    this.followups = [];
+    this.followupsVisible = true;
+    this.fetchFollowups();
+  }
+
+  saveFollowup(){
+    const data = {
+      observations: this.followupObservation,
+      management_financial_id: this.selectedTicket?.id_management_financial,
+      user: this.user_json?.user
+    }
+
+    this.isLoading = true;
+    this.closeNewFollowup();
+    this.glpiService.saveFollowupFinancial(data).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.fetchCompletedTickets();
+        this.utilsService.onSuccess('Seguimiento creado correctamente')
+      },
+      error: (error: any) => {
+        this.isLoading = false;
+        console.log(error)
+        this.utilsService.onError(error?.error?.message ?? 'No se puedo guardar el seguimiento, por favor intente nuevamente')
+      }
+    })
+  }
+
+  closeNewFollowup() {
+    this.registerFollowupVisible = false;
+    this.followupObservation = '';
   }
 }

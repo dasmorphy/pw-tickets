@@ -1,0 +1,817 @@
+$navy: #092f68
+$text: #14233f
+$muted: #65748d
+$border: #dfe6ef
+
+.delivery-header
+  display: flex
+  align-items: flex-start
+  gap: .85rem
+  width: 100%
+
+.header-icon
+  display: inline-flex
+  flex: 0 0 2.6rem
+  align-items: center
+  justify-content: center
+  width: 2.6rem
+  height: 2.6rem
+  border-radius: .65rem
+  background: linear-gradient(145deg, #0862ca, #063d8f)
+  color: #fff
+
+  i
+    font-size: 1.1rem
+
+.header-text
+  flex: 1
+  min-width: 0
+
+  .eyebrow
+    color: $muted
+    font-size: .66rem
+    font-weight: 600
+    letter-spacing: .04em
+    text-transform: uppercase
+
+  h2
+    margin: .15rem 0 0
+    color: #10213e
+    font-size: 1.1rem
+
+  p
+    overflow: hidden
+    margin: .2rem 0 0
+    color: #4f5f78
+    font-size: .74rem
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.dot
+  margin: 0 .35rem
+  color: #a3aebe
+
+.close-button
+  display: inline-flex
+  flex: 0 0 2rem
+  align-items: center
+  justify-content: center
+  width: 2rem
+  height: 2rem
+  border: 0
+  border-radius: 50%
+  background: transparent
+  color: $muted
+  cursor: pointer
+
+  &:hover
+    background: #eef2f7
+    color: $text
+
+  &:focus-visible
+    outline: 2px solid #7890ae
+    outline-offset: 1px
+
+.state
+  display: flex
+  align-items: center
+  justify-content: center
+  gap: .5rem
+  padding: 3rem 1rem
+  color: #7c899d
+  font-size: .8rem
+
+  &.small
+    padding: 2rem 1rem
+
+.summary
+  display: grid
+  grid-template-columns: minmax(16rem, 2fr) repeat(4, minmax(0, 1fr))
+  gap: .7rem
+
+  > div
+    padding: .75rem .9rem
+    border: 1px solid $border
+    border-radius: .6rem
+    background: #fafbfd
+
+.summary-progress
+  display: flex
+  flex-direction: column
+  gap: .4rem
+
+  small
+    color: $muted
+    font-size: .66rem
+
+.progress-label
+  display: flex
+  justify-content: space-between
+  color: #34445f
+  font-size: .7rem
+  font-weight: 600
+
+  strong
+    color: $text
+    font-size: .85rem
+
+.progress-track, .mini-track
+  overflow: hidden
+  border-radius: 1rem
+  background: #e4eaf2
+
+.progress-track
+  height: .5rem
+
+.progress-fill, .mini-fill
+  height: 100%
+  border-radius: inherit
+  background: linear-gradient(90deg, #1f9f63, #22a183)
+  transition: width .3s ease
+
+.kpi
+  display: flex
+  flex-direction: column
+  justify-content: center
+  gap: .25rem
+
+  span
+    color: $muted
+    font-size: .66rem
+    font-weight: 600
+
+  strong
+    color: $text
+    font-size: 1.15rem
+
+  &.done strong
+    color: #29964d
+
+  &.pending strong
+    color: #d9822b
+
+.tabs
+  display: flex
+  gap: .3rem
+  margin: 1.1rem 0 .9rem
+  border-bottom: 1px solid #e7edf4
+
+  button
+    display: inline-flex
+    align-items: center
+    gap: .45rem
+    margin-bottom: -1px
+    padding: .6rem .9rem
+    border: 0
+    border-bottom: 2px solid transparent
+    background: transparent
+    color: $muted
+    font-size: .74rem
+    font-weight: 600
+    cursor: pointer
+
+    &:hover
+      color: $text
+
+    &.active
+      border-bottom-color: $navy
+      color: $navy
+
+    &:focus-visible
+      outline: 2px solid #7890ae
+      outline-offset: -2px
+
+.tab-count
+  padding: .05rem .45rem
+  border-radius: 1rem
+  background: #e8f2ff
+  color: #156bd7
+  font-size: .62rem
+
+.delivery-form
+  display: flex
+  flex-direction: column
+  gap: .9rem
+
+.form-row
+  display: grid
+  grid-template-columns: minmax(14rem, 1fr) minmax(14rem, 1fr) auto
+  gap: 1rem
+  align-items: end
+
+.field
+  min-width: 0
+
+  > label
+    display: block
+    margin-bottom: .4rem
+    color: #34445f
+    font-size: .7rem
+    font-weight: 600
+
+  textarea
+    width: 100%
+    padding: .6rem .7rem
+    border: 1px solid #dbe3ee
+    border-radius: .45rem
+    font-size: .72rem
+    resize: vertical
+
+.required
+  color: #d6362f
+
+.search-input
+  position: relative
+  display: block
+
+  i
+    position: absolute
+    top: 50%
+    left: .75rem
+    color: #8c98aa
+    font-size: .75rem
+    transform: translateY(-50%)
+
+  input
+    width: 100%
+    height: 2.45rem
+    padding-left: 2.1rem
+    border-color: #dbe3ee
+    border-radius: .45rem
+    font-size: .72rem
+
+.switch-field
+  display: flex
+  align-items: center
+  gap: .5rem
+  height: 2.45rem
+  color: #34445f
+  font-size: .7rem
+  font-weight: 600
+  white-space: nowrap
+
+.technician-option
+  display: flex
+  align-items: center
+  gap: .55rem
+  font-size: .74rem
+
+.avatar
+  display: inline-flex
+  flex: 0 0 1.5rem
+  align-items: center
+  justify-content: center
+  width: 1.5rem
+  height: 1.5rem
+  border-radius: 50%
+  background: #e7edf5
+  color: #3e506b
+  font-size: .62rem
+  font-weight: 700
+  text-transform: uppercase
+
+  &.large
+    flex-basis: 2.2rem
+    width: 2.2rem
+    height: 2.2rem
+    background: #e8f2ff
+    color: #156bd7
+    font-size: .8rem
+
+.table-toolbar
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  justify-content: space-between
+  gap: .5rem
+  margin-bottom: -.4rem
+  color: $muted
+  font-size: .68rem
+
+.toolbar-actions
+  display: flex
+  gap: .3rem
+
+.link-button
+  display: inline-flex
+  align-items: center
+  gap: .35rem
+  padding: .3rem .5rem
+  border: 0
+  border-radius: .35rem
+  background: transparent
+  color: #1269d2
+  font-size: .68rem
+  font-weight: 600
+  cursor: pointer
+
+  &:hover:not(:disabled)
+    background: #e9f3ff
+
+  &.muted
+    color: $muted
+
+  &:disabled
+    color: #b5bfcc
+    cursor: default
+
+.table-scroll
+  overflow-x: auto
+  border: 1px solid $border
+  border-radius: .5rem
+  background: #fff
+
+.delivery-table
+  width: 100%
+  min-width: 52rem
+  border-collapse: collapse
+  font-size: .72rem
+
+  th
+    padding: .6rem .7rem
+    background: $navy
+    color: #fff
+    font-size: .66rem
+    font-weight: 600
+    text-align: left
+    white-space: nowrap
+
+  td
+    padding: .55rem .7rem
+    border-top: 1px solid #e7edf4
+    color: #33445f
+    vertical-align: middle
+
+  tbody tr:first-child td
+    border-top: 0
+
+  tr.selected td
+    background: #f3f8ff
+
+  tr.completed td
+    background: #fafcfb
+
+  .col-num
+    width: 6.5rem
+    text-align: right
+    white-space: nowrap
+
+    small
+      color: #8c98aa
+      font-size: .62rem
+
+  .col-progress
+    width: 8rem
+
+  .col-deliver
+    width: 13.5rem
+
+.material-cell
+  display: flex
+  min-width: 0
+  flex-direction: column
+  gap: .15rem
+
+  strong
+    color: #24344f
+    font-size: .74rem
+
+  small
+    color: #7c899d
+    font-size: .64rem
+
+.tags
+  display: flex
+  flex-wrap: wrap
+  gap: .3rem
+
+  &:empty
+    display: none
+
+.tag
+  display: inline-flex
+  align-items: center
+  gap: .3rem
+  margin-top: .15rem
+  padding: .1rem .45rem
+  border-radius: 1rem
+  font-size: .6rem
+  font-weight: 600
+
+  i
+    font-size: .58rem
+
+  &.group
+    background: #eef0ff
+    color: #4b4fc4
+
+  &.new
+    background: #e9f8ed
+    color: #29964d
+
+  &.pending
+    background: #fff4e3
+    color: #b56a07
+
+.create-product-button
+  display: inline-flex
+  align-items: center
+  gap: .3rem
+  width: fit-content
+  margin-top: .35rem
+  padding: .25rem .55rem
+  border: 1px dashed #e0a24a
+  border-radius: .4rem
+  background: #fffaf2
+  color: #9a5a05
+  font-size: .64rem
+  font-weight: 600
+  cursor: pointer
+
+  i
+    font-size: .58rem
+
+  &:hover
+    background: #fff1dc
+
+  &:focus-visible
+    outline: 2px solid #e0a24a
+    outline-offset: 1px
+
+.pending-notice
+  display: flex
+  align-items: flex-start
+  gap: .5rem
+  margin: 0 0 .75rem
+  padding: .6rem .75rem
+  border: 1px solid #f3dcb5
+  border-radius: .5rem
+  background: #fffaf2
+  color: #7a4a06
+  font-size: .7rem
+  line-height: 1.4
+
+  i
+    margin-top: .1rem
+    color: #c27510
+
+.pending-form
+  display: grid
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+  gap: .85rem 1rem
+
+  .span-2
+    grid-column: 1 / -1
+
+  input[pInputText]
+    width: 100%
+    height: 2.45rem
+    border-color: #dbe3ee
+    border-radius: .45rem
+    font-size: .72rem
+
+.field-hint
+  display: block
+  margin-top: .3rem
+  color: $muted
+  font-size: .62rem
+
+.price-summary
+  display: flex
+  flex-direction: column
+  justify-content: flex-end
+  gap: .3rem
+  padding: .55rem .75rem
+  border-radius: .5rem
+  background: #f5f8fc
+  color: $muted
+  font-size: .68rem
+
+  strong
+    color: $text
+    font-size: .76rem
+
+.stock-result
+  display: flex
+  align-items: flex-start
+  gap: .5rem
+  margin: 0
+  padding: .6rem .75rem
+  border-radius: .5rem
+  background: #eef4fd
+  color: #1f3c66
+  font-size: .7rem
+  line-height: 1.4
+
+  i
+    margin-top: .1rem
+    color: #0862ca
+
+.row-progress
+  display: flex
+  align-items: center
+  gap: .5rem
+
+  span
+    min-width: 1.6rem
+    color: $text
+    font-weight: 600
+    text-align: right
+
+.mini-track
+  flex: 1
+  height: .35rem
+
+.pending-value
+  color: #d9822b
+
+.status-complete
+  display: inline-flex
+  align-items: center
+  gap: .3rem
+  color: #29964d
+  font-size: .66rem
+  font-weight: 600
+
+.low-stock
+  color: #d6362f
+  font-weight: 600
+
+.muted-text
+  color: #a3aebe
+
+.deliver-input
+  display: flex
+  align-items: center
+  gap: .35rem
+
+.max-button
+  padding: .35rem .5rem
+  border: 1px solid #d5deea
+  border-radius: .4rem
+  background: #fff
+  color: $navy
+  font-size: .64rem
+  font-weight: 600
+  cursor: pointer
+
+  &:hover
+    background: #f1f5fb
+
+  &:focus-visible
+    outline: 2px solid #7890ae
+    outline-offset: 1px
+
+.stock-hint
+  display: flex
+  align-items: center
+  gap: .3rem
+  margin-top: .3rem
+  color: #c27510
+  font-size: .62rem
+
+.no-stock
+  display: inline-flex
+  align-items: center
+  gap: .35rem
+  padding: .3rem .6rem
+  border-radius: 1rem
+  background: #feeceb
+  color: #d6362f
+  font-size: .66rem
+  font-weight: 600
+
+  i
+    font-size: .62rem
+
+.empty-row
+  padding: 1.6rem 1rem !important
+  color: #7c899d
+  text-align: center
+
+  i
+    margin-right: .4rem
+    color: #29964d
+
+.history
+  display: flex
+  flex-direction: column
+  gap: .75rem
+
+.technician-chips
+  display: flex
+  flex-wrap: wrap
+  gap: .45rem
+
+.chip
+  display: inline-flex
+  align-items: center
+  gap: .45rem
+  padding: .3rem .7rem .3rem .4rem
+  border: 1px solid $border
+  border-radius: 2rem
+  background: #fff
+  color: #34445f
+  font-size: .7rem
+  font-weight: 600
+  cursor: pointer
+
+  > span:last-child
+    color: $muted
+    font-weight: 500
+
+  &:first-child
+    padding-left: .7rem
+
+  &.active
+    border-color: $navy
+    background: $navy
+    color: #fff
+
+    > span:last-child
+      color: #c9d6ea
+
+  &:focus-visible
+    outline: 2px solid #7890ae
+    outline-offset: 1px
+
+.delivery-card
+  padding: .85rem 1rem
+  border: 1px solid $border
+  border-radius: .6rem
+  background: #fff
+
+  header
+    display: flex
+    align-items: center
+    gap: .7rem
+
+    > div
+      display: flex
+      flex: 1
+      min-width: 0
+      flex-direction: column
+      gap: .2rem
+
+    strong
+      color: $text
+      font-size: .78rem
+
+    small
+      color: $muted
+      font-size: .66rem
+
+      i
+        margin-right: .25rem
+        font-size: .6rem
+
+  ul
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr))
+    gap: .35rem 1rem
+    margin: .75rem 0 0
+    padding: .7rem 0 0
+    border-top: 1px dashed #e1e7ef
+    list-style: none
+
+  li
+    display: flex
+    justify-content: space-between
+    gap: .5rem
+    color: #33445f
+    font-size: .7rem
+
+    strong
+      color: $text
+      white-space: nowrap
+
+    small
+      color: #8c98aa
+      font-weight: 400
+
+.units-badge
+  padding: .25rem .6rem
+  border-radius: 1rem
+  background: #e9f8ed
+  color: #29964d
+  font-size: .68rem
+  font-weight: 700
+
+.observations
+  display: flex
+  gap: .4rem
+  margin: .65rem 0 0
+  padding: .5rem .65rem
+  border-radius: .4rem
+  background: #fafbfd
+  color: #4f5f78
+  font-size: .68rem
+
+  i
+    margin-top: .1rem
+    color: #8c98aa
+
+.delivery-footer
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  justify-content: space-between
+  gap: .8rem
+  width: 100%
+
+.footer-summary
+  margin: 0
+  color: #4f5f78
+  font-size: .72rem
+  text-align: left
+
+  strong
+    color: $text
+
+.footer-actions
+  display: flex
+  gap: .6rem
+
+:host ::ng-deep
+  .delivery-dialog
+    .p-dialog-header
+      padding: 1.2rem 1.35rem 1rem
+      border-bottom: 1px solid #e7edf4
+
+    .p-dialog-content
+      padding: 1rem 1.35rem 1.2rem
+
+    .p-dialog-footer
+      padding: .9rem 1.35rem
+      border-top: 1px solid #e7edf4
+
+    .p-dropdown
+      width: 100%
+      height: 2.45rem
+      border-color: #dbe3ee
+      border-radius: .45rem
+      box-shadow: none
+
+      .p-dropdown-label
+        padding: .68rem .72rem
+        font-size: .72rem
+
+    .pending-form .p-inputnumber
+      width: 100%
+
+      .p-inputnumber-input
+        width: 100%
+        height: 2.45rem
+        border-color: #dbe3ee
+        border-radius: .45rem
+        font-size: .72rem
+
+    .deliver-input .p-inputnumber
+      width: 9rem
+
+      .p-inputnumber-input
+        width: 100%
+        min-width: 0
+        padding: .4rem .3rem
+        font-size: .72rem
+        text-align: center
+
+      .p-button
+        width: 1.9rem
+        padding: 0
+        border-color: #d5deea
+        background: #fff
+        color: $navy
+        box-shadow: none
+
+        .p-button-icon
+          font-size: .6rem
+
+  .cancel-button, .save-button
+    height: 2.45rem
+    border-radius: .45rem
+    box-shadow: none
+    font-size: .72rem
+
+  .cancel-button
+    border-color: #d5deea
+    background: #fff
+    color: #314461
+
+  .save-button
+    border-color: $navy
+    background: $navy
+    color: #fff
+
+@media screen and (max-width: 900px)
+  .summary
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+
+  .summary-progress
+    grid-column: 1 / -1
+
+  .form-row
+    grid-template-columns: 1fr
+
+  .pending-form
+    grid-template-columns: 1fr

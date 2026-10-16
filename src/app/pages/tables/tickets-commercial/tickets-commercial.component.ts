@@ -116,13 +116,14 @@ export class TicketsCommercialComponent {
     {
         label: 'Registrar seguimiento',
         icon: 'pi pi-plus-circle',
-        visible: () => this.selectedTicket?.status_name != 'Aprobada' && this.selectedTicket?.status_name != 'Rechazada',
+        // visible: () => this.selectedTicket?.status_name != 'Aprobada' && this.selectedTicket?.status_name != 'Rechazada',
         command: () => this.openRegisterFollowupDialog()
     },
     {
         label: 'Editar',
         icon: 'pi pi-play-circle',
-        visible: () => this.selectedTicket?.status_name != 'Aprobada' && this.selectedTicket?.status_name != 'Rechazada',
+        // Solo una gestión pendiente (status_id 7) se puede editar; el backend también lo valida
+        visible: () => this.selectedTicket?.status_id === 7,
         command: () => this.routeRegister()
     },
   ];

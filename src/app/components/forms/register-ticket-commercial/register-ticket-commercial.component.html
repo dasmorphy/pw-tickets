@@ -41,20 +41,6 @@
                 </div>
 
                 <div class="field">
-                    <label for="estimatedCloseDate">Fecha estimada de cierre</label>
-                    <p-calendar inputId="estimatedCloseDate" name="estimatedCloseDate"
-                        formControlName="closing_date" dateFormat="dd/mm/yy" [showIcon]="true"
-                        [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
-                </div>
-
-                <div class="field">
-                    <label for="expectedStartDate">Fecha prevista de inicio</label>
-                    <p-calendar inputId="expectedStartDate" name="expectedStartDate"
-                        formControlName="scheduled_start_date" dateFormat="dd/mm/yy" [showIcon]="true"
-                        [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
-                </div>
-
-                <div class="field">
                     <label for="nextAction">Próxima acción</label>
                     <p-dropdown inputId="nextAction" name="nextAction" [options]="nextActions"
                         formControlName="next_action" placeholder="Seleccione una acción" styleClass="w-full"
@@ -80,7 +66,7 @@
 
             <div class="form-grid">
                 <div class="field">
-                    <label for="proformaClient">Cliente</label>
+                    <label for="proformaClient">Razón Social</label>
                     <input pInputText id="proformaClient" type="text" class="w-full readonly-input" formControlName="client"
                         readonly tabindex="-1" placeholder="—" />
                 </div>
@@ -116,9 +102,15 @@
                     <p-button type="button" label="Material existente" icon="pi pi-box" [outlined]="true"
                         styleClass="add-button add-existing" pTooltip="Elegir un material del catálogo" tooltipPosition="top"
                         (click)="addProformaItem('added')"></p-button>
+                    <p-button type="button" label="Materiales varios" icon="pi pi-th-large" [outlined]="true"
+                        styleClass="add-button add-existing" pTooltip="Varios materiales del catálogo agrupados en un solo ítem"
+                        tooltipPosition="top" (click)="openBundleDialog()"></p-button>
                     <p-button type="button" label="Producto nuevo" icon="pi pi-plus-circle"
                         styleClass="add-button" pTooltip="Producto que no está en el catálogo" tooltipPosition="top"
                         (click)="addProformaItem('new')"></p-button>
+                    <p-button type="button" label="Mano de obra" icon="pi pi-wrench" [outlined]="true"
+                        styleClass="add-button add-existing" pTooltip="Servicio de mano de obra (cantidad 1)"
+                        tooltipPosition="top" (click)="addProformaItem('labor')"></p-button>
                 </div>
             </div>
 
@@ -146,6 +138,8 @@
                                         <input pInputText type="text" class="w-full" [(ngModel)]="item.model"
                                             [ngModelOptions]="{standalone: true}" placeholder="Modelo"
                                             [attr.aria-label]="'Modelo del ítem ' + (i + 1)" />
+                                    } @else if (item.kind === 'bundle' || item.kind === 'labor') {
+                                        <span class="locked-value muted">M/V</span>
                                     } @else {
                                         <span class="locked-value" [title]="item.model">{{ item.model || '—' }}</span>
                                     }
@@ -158,6 +152,13 @@
                                                 placeholder="Descripción"
                                                 [attr.aria-label]="'Descripción del ítem ' + (i + 1)"></textarea>
                                             <span class="new-badge">Producto nuevo</span>
+                                        }
+                                        @case ('labor') {
+                                            <textarea pInputTextarea rows="2" [autoResize]="true" class="w-full"
+                                                [(ngModel)]="item.description" [ngModelOptions]="{standalone: true}"
+                                                placeholder="Descripción de la mano de obra"
+                                                [attr.aria-label]="'Descripción del ítem ' + (i + 1)"></textarea>
+                                            <span class="new-badge labor-badge">Mano de obra</span>
                                         }
                                         @case ('added') {
                                             <p-dropdown [options]="catalogMaterials" [ngModel]="item.material_id"
@@ -176,40 +177,65 @@
                                                 </ng-template>
                                             </p-dropdown>
                                         }
+                                        @case ('bundle') {
+                                            <div class="bundle-cell">
+                                                <div class="bundle-head">
+                                                    <span class="bundle-badge"><i class="pi pi-th-large"></i>Materiales varios · {{ item.components?.length ?? 0 }}</span>
+                                                    <button type="button" class="bundle-edit" (click)="openBundleDialog(i)"
+                                                        [attr.aria-label]="'Editar materiales varios del ítem ' + (i + 1)">
+                                                        <i class="pi pi-pencil"></i>Editar
+                                                    </button>
+                                                </div>
+                                                <span class="locked-value description">{{ item.description || '—' }}</span>
+                                            </div>
+                                        }
                                         @default {
                                             <span class="locked-value description">{{ item.description || '—' }}</span>
                                         }
                                     }
                                 </td>
                                 <td class="col-quantity">
-                                    <p-inputNumber [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}"
-                                        [min]="0" [maxFractionDigits]="2" placeholder="0"
-                                        [ariaLabel]="'Cantidad del ítem ' + (i + 1)"></p-inputNumber>
+                                    @if (item.kind === 'bundle' || item.kind === 'labor') {
+                                        <span class="locked-number"
+                                            [pTooltip]="item.kind === 'labor' ? 'La mano de obra siempre va con cantidad 1' : 'Los materiales varios siempre van con cantidad 1'"
+                                            tooltipPosition="top"><i class="pi pi-lock"></i>1</span>
+                                    } @else {
+                                        <p-inputNumber [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}"
+                                            [min]="0" [maxFractionDigits]="0" placeholder="0"
+                                            [ariaLabel]="'Cantidad del ítem ' + (i + 1)"></p-inputNumber>
+                                    }
                                 </td>
                                 <td class="col-pvp">
-                                    @if (item.kind === 'new') {
-                                        <p-inputNumber [(ngModel)]="item.base_price" [ngModelOptions]="{standalone: true}"
-                                            (ngModelChange)="item.base_price = $event; onNewItemPriceChange(item)"
+                                    @if (item.kind === 'bundle') {
+                                        <span class="money locked" pTooltip="Suma de los materiales. Edítelo desde Materiales varios"
+                                            tooltipPosition="top"><i class="pi pi-lock"></i>{{ item.base_price | currency: 'USD' }}</span>
+                                    } @else {
+                                        <p-inputNumber [ngModel]="item.base_price" [ngModelOptions]="{standalone: true}"
+                                            (ngModelChange)="onBasePriceChange(item, $event)"
                                             mode="currency" currency="USD" locale="en-US" [min]="0"
                                             [minFractionDigits]="2" [maxFractionDigits]="2" placeholder="$0.00"
                                             [styleClass]="item.base_price == null ? 'pending-price' : ''"
                                             [ariaLabel]="'Precio base del ítem ' + (i + 1)"></p-inputNumber>
-                                    } @else {
-                                        <span class="money">{{ item.base_price != null ? (item.base_price | currency: 'USD') : '—' }}</span>
                                     }
                                 </td>
                                 <td class="col-margin">
-                                    @if (item.kind === 'new') {
-                                        <p-inputNumber [ngModel]="marginPercent(item)" [ngModelOptions]="{standalone: true}"
-                                            (ngModelChange)="onNewItemPriceChange(item, $event)"
-                                            suffix=" %" [min]="0" [maxFractionDigits]="2" placeholder="0 %"
-                                            [ariaLabel]="'Margen del ítem ' + (i + 1)"></p-inputNumber>
-                                        <small class="margin-value">{{ (item.profit_margin_dollar ?? 0) | currency: 'USD' }}</small>
+                                    @if (item.kind === 'bundle') {
+                                        <div class="margin-inputs" pTooltip="Ganancia total de los materiales. Edítela desde Materiales varios"
+                                            tooltipPosition="top">
+                                            <span class="money locked"><i class="pi pi-lock"></i>{{ marginPercent(item) ?? 0 }} %</span>
+                                            <small class="margin-dollar">{{ item.profit_margin_dollar | currency: 'USD' }}</small>
+                                        </div>
                                     } @else {
-                                        <span class="money">
-                                            <small>({{ marginPercent(item) ?? 0 }}%)</small>
+                                    <div class="margin-inputs">
+                                        <p-inputNumber [ngModel]="marginPercent(item)" [ngModelOptions]="{standalone: true}"
+                                            (ngModelChange)="onMarginPercentChange(item, $event)"
+                                            suffix=" %" [min]="0" [maxFractionDigits]="2" placeholder="0 %"
+                                            pTooltip="Ganancia en porcentaje" tooltipPosition="top"
+                                            [ariaLabel]="'Ganancia en porcentaje del ítem ' + (i + 1)"></p-inputNumber>
+                                        <small class="margin-dollar" aria-live="polite">
                                             {{ item.profit_margin_dollar != null ? (item.profit_margin_dollar | currency: 'USD') : '—' }}
-                                        </span>
+                                        </small>
+                                    </div>
                                     }
                                 </td>
                                 <td class="col-pvp">
@@ -254,10 +280,134 @@
                 placeholder="Describe el motivo por el cual se rechazó la oportunidad" [autoResize]="true"></textarea>
         </div>
 
+        <!-- <app-document-upload *ngIf="!ticketIdEdit" [(files)]="documents"></app-document-upload> -->
+
         <div class="form-actions">
             <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
                 routerLink="/solicitudes"></p-button>
             <p-button type="submit" label="Guardar" icon="pi pi-save" styleClass="save-button"></p-button>
         </div>
     </form>
+
+    <p-dialog [(visible)]="bundleDialogVisible" [modal]="true" [draggable]="false" [resizable]="false"
+        [dismissableMask]="false" [style]="{ width: '70rem' }" [breakpoints]="{ '1100px': '96vw' }"
+        styleClass="bundle-dialog" (onHide)="onBundleDialogHide()" [closable]="false">
+        <ng-template pTemplate="header">
+            <div class="flex align-items-center gap-2">
+                <span class="bundle-dialog-icon"><i class="pi pi-th-large"></i></span>
+                <h3 class="text-center">{{ isEditingBundle ? 'Editar materiales varios' : 'Materiales varios' }}</h3>
+            </div>
+        </ng-template>
+
+        <div class="bundle-editor">
+            <div class="items-header">
+                <h4>Materiales <span class="count-badge">{{ bundleDraft.length }}</span></h4>
+                <p-button type="button" label="Agregar material" icon="pi pi-plus" [outlined]="true"
+                    styleClass="add-button add-existing" (click)="addBundleMaterial()"></p-button>
+            </div>
+
+            <div class="items-scroll">
+                <table class="items-table bundle-table">
+                    <thead>
+                        <tr>
+                            <th class="col-item">#</th>
+                            <th>Material</th>
+                            <th class="col-quantity">Cant.</th>
+                            <th class="col-pvp">Precio base</th>
+                            <th class="col-margin">Ganancia</th>
+                            <th class="col-pvp">PVP</th>
+                            <th class="col-total">Subtotal</th>
+                            <th class="col-actions"><span class="sr-only">Acciones</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (component of bundleDraft; track component; let j = $index) {
+                            <tr>
+                                <td class="col-item">{{ j + 1 }}</td>
+                                <td>
+                                    <p-dropdown [options]="catalogMaterials" [ngModel]="component.material_id"
+                                        (ngModelChange)="onSelectCatalogMaterial(component, $event)"
+                                        optionLabel="product" optionValue="id_equipment" [filter]="true"
+                                        filterBy="product,code,model" [loading]="loadingCatalog"
+                                        placeholder="Seleccione un material" emptyMessage="Sin materiales"
+                                        emptyFilterMessage="Sin resultados" styleClass="w-full catalog-dropdown"
+                                        appendTo="body" [ariaLabel]="'Material de la fila ' + (j + 1)">
+                                        <ng-template let-material pTemplate="item">
+                                            <div class="catalog-option">
+                                                <strong>{{ material.product }}</strong>
+                                                <small>{{ material.model || 'Sin modelo' }}{{ material.code ? ' · ' + material.code : '' }} · {{ material.price != null ? (material.price | currency: 'USD') : 'Sin precio' }}</small>
+                                            </div>
+                                        </ng-template>
+                                    </p-dropdown>
+                                    @if (component.model) {
+                                        <small class="component-model">Modelo: {{ component.model }}</small>
+                                    }
+                                </td>
+                                <td class="col-quantity">
+                                    <p-inputNumber [(ngModel)]="component.quantity" [min]="0" [maxFractionDigits]="0"
+                                        placeholder="0" [ariaLabel]="'Cantidad de la fila ' + (j + 1)"></p-inputNumber>
+                                </td>
+                                <td class="col-pvp">
+                                    <p-inputNumber [ngModel]="component.base_price"
+                                        (ngModelChange)="onBasePriceChange(component, $event)"
+                                        mode="currency" currency="USD" locale="en-US" [min]="0"
+                                        [minFractionDigits]="2" [maxFractionDigits]="2" placeholder="$0.00"
+                                        [styleClass]="component.material_id && component.base_price == null ? 'pending-price' : ''"
+                                        [ariaLabel]="'Precio base de la fila ' + (j + 1)"></p-inputNumber>
+                                </td>
+                                <td class="col-margin">
+                                    <div class="margin-inputs">
+                                        <p-inputNumber [ngModel]="marginPercent(component)"
+                                            (ngModelChange)="onMarginPercentChange(component, $event)"
+                                            suffix=" %" [min]="0" [maxFractionDigits]="2" placeholder="0 %"
+                                            [ariaLabel]="'Ganancia en porcentaje de la fila ' + (j + 1)"></p-inputNumber>
+                                        <small class="margin-dollar" aria-live="polite">
+                                            {{ component.profit_margin_dollar != null ? (component.profit_margin_dollar | currency: 'USD') : '—' }}
+                                        </small>
+                                    </div>
+                                </td>
+                                <td class="col-pvp">
+                                    <span class="money strong">{{ component.price != null ? (component.price | currency: 'USD') : '—' }}</span>
+                                </td>
+                                <td class="col-total">{{ itemTotal(component) | currency: 'USD' }}</td>
+                                <td class="col-actions">
+                                    <button pButton type="button" icon="pi pi-trash"
+                                        class="p-button-text p-button-rounded p-button-danger remove-button"
+                                        [attr.aria-label]="'Quitar material de la fila ' + (j + 1)"
+                                        (click)="removeBundleMaterial(j)"></button>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="8" class="items-empty">
+                                    <i class="pi pi-box"></i>No hay materiales. Use "Agregar material".
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bundle-preview">
+                <span>Así se verá en la proforma</span>
+                <p [class.muted]="!bundleDraftDescription">{{ bundleDraftDescription || 'Seleccione materiales para ver la descripción.' }}</p>
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <div class="bundle-footer">
+                <dl class="bundle-totals">
+                    <div><dt>Precio base</dt><dd>{{ bundleDraftTotals.base | currency: 'USD' }}</dd></div>
+                    <div><dt>Ganancia</dt><dd>{{ bundleDraftTotals.margin | currency: 'USD' }}</dd></div>
+                    <div class="highlight"><dt>Total del ítem</dt><dd>{{ bundleDraftTotals.price | currency: 'USD' }}</dd></div>
+                </dl>
+                <div class="bundle-actions">
+                    <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
+                        (click)="closeBundleDialog()"></p-button>
+                    <p-button type="button" [label]="isEditingBundle ? 'Guardar cambios' : 'Agregar a la proforma'"
+                        icon="pi pi-check" styleClass="save-button" (click)="applyBundle()"></p-button>
+                </div>
+            </div>
+        </ng-template>
+    </p-dialog>
 </section>
