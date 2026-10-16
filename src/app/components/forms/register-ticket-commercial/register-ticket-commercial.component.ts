@@ -407,7 +407,7 @@ export class RegisterTicketCommercialComponent {
             profit_margin: equipment?.profit_margin ?? null,
             profit_margin_dollar: profitDollar,
             // Si el catálogo no trae price se calcula como precio base + ganancia
-            price: equipment?.price ?? (basePrice != null ? this.round(basePrice + (profitDollar ?? 0)) : null),
+            price: (basePrice != null ? this.round(basePrice + (profitDollar ?? 0)) : null),
         };
     }
 

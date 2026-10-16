@@ -188,6 +188,7 @@
             <th>Prioridad</th>
             <th>Área actual</th>
             <th>Siguiente área</th>
+            <th>Estado</th>
             <th>Responsable</th>
             <th class="actions-heading"><span class="sr-only">Acciones</span></th>
           </tr>
@@ -206,6 +207,7 @@
             <td><span class="priority">{{ inspection.priority ?? 'N/A' }}</span></td>
             <td><p-tag [value]="inspection.management_area ?? 'N/A'" [severity]="getAreaSeverity(inspection.management_area)"></p-tag></td>
             <td><p-tag [value]="inspection.next_area ?? 'N/A'" [severity]="getAreaSeverity(inspection.next_area)"></p-tag></td>
+            <td>{{ inspection.status != 'Finalizado' ? 'Pendiente' : 'Finalizado' }}</td>
             <td>{{ inspection.responsible_name ?? 'N/A' }}</td>
             <td class="row-actions">
               <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(inspection)" [model]="items">

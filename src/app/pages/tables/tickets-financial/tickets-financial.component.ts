@@ -121,7 +121,7 @@ export class TicketsFinancialComponent {
     {
         label: 'Registrar seguimiento',
         icon: 'pi pi-plus-circle',
-        visible: () => this.activeIndex === 1,
+        visible: () => this.activeIndex === 1 && this.selectedTicket?.status === 'Solicitado',
         command: () => this.openRegisterFollowupDialog()
     },
     {
@@ -134,7 +134,7 @@ export class TicketsFinancialComponent {
     {
         label: 'Editar',
         icon: 'pi pi-pencil',
-        visible: () => this.activeIndex === 1,
+        visible: () => this.activeIndex === 1 && this.selectedTicket?.status != 'Cobrada',
         command: () => this.routeEdit()
     },
   ];

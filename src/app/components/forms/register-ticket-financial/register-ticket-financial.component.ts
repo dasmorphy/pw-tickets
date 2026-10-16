@@ -53,6 +53,9 @@ export class RegisterTicketFinancialComponent {
     // valueInvoice = ['1 mes', '3 meses', '6 meses', '9 meses'];
     user_session: any;
     documents: File[] = [];
+    // Solo se factura una inspección con gestión comercial aprobada y proforma registrada
+    loadingQuotation = false;
+    quotationError: string | null = null;
 
 
     readonly nextActions = ['Facturar', 'Solicitar reunión con cliente', 'En revisión por cliente'];
@@ -65,7 +68,8 @@ export class RegisterTicketFinancialComponent {
             status: ['', Validators.required],
             amount_pending: [{ value: null, disabled: true }],
             amount_paid: [null],
-            invoice_price: [null],
+            // Siempre es el total de la proforma aprobada; el backend lo vuelve a calcular
+            invoice_price: [{ value: null, disabled: true }],
             date_document: [null],
             number_document: [null],
             inspection_id: [null, Validators.required],
@@ -82,11 +86,41 @@ export class RegisterTicketFinancialComponent {
                 inspection_id: parseInt(inspectionId, 10),
                 // responsible
             })
+            this.loadQuotationTotal(parseInt(inspectionId, 10));
         }
 
         if (this.ticketIdEdit) {
             this.loadTicket();
         }
+    }
+
+    loadQuotationTotal(inspectionId: number): void {
+        this.loadingQuotation = true;
+        this.quotationError = null;
+        this.glpiService.getInspectionTechnical({ id_inspection: inspectionId }).subscribe({
+            next: (response: any) => {
+                this.loadingQuotation = false;
+                const inspection = response?.data?.[0];
+                if (inspection?.commercial_status_id !== 5) {
+                    this.quotationError = 'La gestión comercial de esta inspección no está aprobada.';
+                } else if (inspection?.sale_quote_total == null) {
+                    this.quotationError = 'La inspección no tiene una proforma registrada.';
+                }
+
+                if (this.quotationError) {
+                    this.utilsService.onWarn(this.quotationError);
+                    return;
+                }
+                this.ticketForm.patchValue({ invoice_price: this.toNumber(inspection.sale_quote_total) });
+                this.calculateAmountPending();
+            },
+            error: (error: any) => {
+                console.log(error)
+                this.loadingQuotation = false;
+                this.quotationError = 'No se pudo obtener el valor de la proforma.';
+                this.utilsService.onError(this.quotationError);
+            }
+        })
     }
 
     loadTicket(): void {
@@ -114,11 +148,12 @@ export class RegisterTicketFinancialComponent {
             status: dataTicket?.status,
             number_document: dataTicket?.number_document,
             date_document: this.toLocalDate(dataTicket?.date_document),
-            invoice_price: this.toNumber(dataTicket?.invoice_price),
             amount_paid: this.toNumber(dataTicket?.amount_paid),
             amount_pending: this.toNumber(dataTicket?.amount_pending),
             observations: dataTicket?.observations,
         });
+        // El valor facturado viene de la proforma (loadQuotationTotal)
+        this.calculateAmountPending();
     }
 
     // El backend envía la fecha en UTC; se toma el día UTC para que no se corra al día anterior
@@ -167,6 +202,11 @@ export class RegisterTicketFinancialComponent {
     }
 
     saveTicket() {
+        if (this.quotationError || this.loadingQuotation) {
+            this.utilsService.onWarn(this.quotationError ?? 'Espere a que se cargue el valor de la proforma.');
+            return;
+        }
+
         if (this.ticketForm.valid) {
             // getRawValue incluye amount_pending, que está deshabilitado
             const ticketData = {

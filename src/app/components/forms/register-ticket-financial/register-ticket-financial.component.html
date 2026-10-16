@@ -34,9 +34,13 @@
 
             <div class="field">
                 <label for="valueInvoice">Valor facturado</label>
-                <p-inputNumber inputId="valueInvoice" name="valueInvoice" formControlName="invoice_price" (onInput)="calculateAmountPending()"
+                <p-inputNumber inputId="valueInvoice" name="valueInvoice" formControlName="invoice_price"
                     mode="currency" currency="USD" locale="en-US" [minFractionDigits]="2" [maxFractionDigits]="2"
+                    [placeholder]="loadingQuotation ? 'Cargando proforma...' : ''"
                     styleClass="w-full"></p-inputNumber>
+                <small class="field-hint" [class.error]="quotationError">
+                    {{ quotationError ?? 'Total de la proforma aprobada.' }}
+                </small>
             </div>
 
             <div class="field">

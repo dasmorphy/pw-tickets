@@ -65,6 +65,9 @@ export class TicketDetailSidebarComponent implements OnChanges {
     materials: DetailMaterial[] = [];
     documents: InspectionDocument[] = [];
     loadingDocuments = false;
+    // Proforma de la inspección (GET de inspecciones: sale_quote_id); null si no existe
+    saleQuoteId: number | null = null;
+    loadingSaleQuote = false;
     // id_document en descarga/visualización, para deshabilitar sus botones
     busyDocumentId: number | null = null;
     private documentsRequestId: number | null = null;
@@ -94,6 +97,7 @@ export class TicketDetailSidebarComponent implements OnChanges {
             this.auditFields = [];
             this.materials = [];
             this.documents = [];
+            this.saleQuoteId = null;
             this.documentsRequestId = null;
             return;
         }
@@ -250,6 +254,7 @@ export class TicketDetailSidebarComponent implements OnChanges {
     private loadDocuments(): void {
         if (Array.isArray(this.data?.documents)) {
             this.documents = this.data.documents;
+            this.saleQuoteId = this.data.sale_quote_id ?? null;
             this.documentsRequestId = null;
             this.loadingDocuments = false;
             return;
@@ -257,6 +262,7 @@ export class TicketDetailSidebarComponent implements OnChanges {
 
         const inspectionId = this.data?.id_inspection;
         this.documents = [];
+        this.saleQuoteId = null;
         if (!inspectionId) {
             return;
         }
@@ -268,6 +274,7 @@ export class TicketDetailSidebarComponent implements OnChanges {
                 // Ignora respuestas de un registro anterior si el usuario ya abrió otro
                 if (this.documentsRequestId !== inspectionId) return;
                 this.documents = response?.data?.[0]?.documents ?? [];
+                this.saleQuoteId = response?.data?.[0]?.sale_quote_id ?? null;
                 this.loadingDocuments = false;
             },
             error: (error: any) => {
@@ -339,16 +346,19 @@ export class TicketDetailSidebarComponent implements OnChanges {
 
 
     downloadSaleQuote(id_quote: number): void {
+        this.loadingSaleQuote = true;
         this.glpiService.downloadSaleQuote(id_quote).subscribe({
             next: (blob: Blob) => {
+                this.loadingSaleQuote = false;
                 const url = window.URL.createObjectURL(blob);
                 const link = window.document.createElement('a');
                 link.href = url;
-                link.download = `cotizacion-${id_quote}`;
+                link.download = `cotizacion-${id_quote}.pdf`;
                 link.click();
                 setTimeout(() => window.URL.revokeObjectURL(url), 1000);
             },
             error: (error: any) => {
+                this.loadingSaleQuote = false;
                 console.error('Error al descargar documento:', error);
                 this.utilsService.onError('No se pudo descargar el documento.');
             }

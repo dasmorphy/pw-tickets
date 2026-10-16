@@ -149,13 +149,34 @@
                 <h3>
                     <i class="pi pi-paperclip"></i>Documentos
                     @if (!loadingDocuments) {
-                        <span class="count">{{ documents.length }}</span>
+                        <span class="count">{{ documents.length + (saleQuoteId ? 1 : 0) }}</span>
                     }
                 </h3>
                 @if (loadingDocuments) {
                     <p class="empty"><i class="pi pi-spin pi-spinner"></i> Cargando documentos...</p>
-                } @else if (documents.length) {
+                } @else if (documents.length || saleQuoteId) {
                     <ul class="documents">
+                        @if (saleQuoteId) {
+                            <li>
+                                <span class="document-icon pdf">
+                                    <i class="pi pi-file-pdf"></i>
+                                </span>
+                                <div class="material-info">
+                                    <strong title="Proforma comercial">Proforma comercial</strong>
+                                    <small>Cotización generada en PDF</small>
+                                </div>
+                                <div class="document-actions">
+                                    <button type="button" class="icon-button" title="Ver" aria-label="Ver proforma"
+                                        (click)="previewSaleQuote(saleQuoteId)">
+                                        <i class="pi pi-eye"></i>
+                                    </button>
+                                    <button type="button" class="icon-button" title="Descargar" aria-label="Descargar proforma"
+                                        [disabled]="loadingSaleQuote" (click)="downloadSaleQuote(saleQuoteId)">
+                                        <i class="pi" [ngClass]="loadingSaleQuote ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        }
                         @for (document of documents; track document.id_document) {
                             <li>
                                 <span class="document-icon" [class.pdf]="document.type === 'application/pdf'">

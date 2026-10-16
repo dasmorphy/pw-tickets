@@ -48,7 +48,7 @@ export class GlpiService {
     }
 
     downloadSaleQuote(idDocument: number, inline = false): Observable<Blob> {
-        return this.http.get(`http://localhost:2127/rest/proxy-glpi-api/v1.0/sale-quotation/${idDocument}/pdf`, {
+        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/sale-quotation/${idDocument}/pdf`, {
             params: new HttpParams().set('inline', inline),
             responseType: 'blob'
         });

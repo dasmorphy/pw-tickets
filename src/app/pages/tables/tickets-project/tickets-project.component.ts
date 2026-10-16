@@ -189,6 +189,7 @@ export class TicketsProjectComponent {
         this.isLoading = false;
         this.showConfirm = false;
         this.utilsService.onSuccess('Ticket aprobado')
+        this.fetchTickets();
       },
       error: (error: any) => {
         console.log(error)
