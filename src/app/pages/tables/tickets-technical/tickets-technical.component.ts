@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { Table, TableModule } from 'primeng/table';
 import { Router, RouterModule } from '@angular/router';
 import { GlpiService } from 'src/app/services/glpi.service';
@@ -34,7 +35,7 @@ interface ServiceRequest {
 @Component({
   selector: 'app-tickets-technical',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ButtonModule, CalendarModule, DropdownModule, TableModule,
+  imports: [CommonModule, FormsModule, RouterModule, ButtonModule, CalendarModule, DropdownModule, MultiSelectModule, TableModule,
     TagModule, PanelMenuModule, SplitButtonModule, TabViewModule, TooltipModule, TicketDetailSidebarComponent],
   templateUrl: './tickets-technical.component.html',
   styleUrls: ['./tickets-technical.component.sass']
@@ -47,15 +48,10 @@ export class TicketsTechnicalComponent {
   readonly utilsService = inject(UtilsService);
   readonly userService = inject(UserService);
 
-  readonly areas: RequestArea[] = ['Técnica', 'Comercial', 'Proyectos', 'Contabilidad'];
-  readonly statuses: RequestStatus[] = ['En proceso', 'Pendiente', 'Resuelto', 'Aprobado'];
-  readonly clients = ['TechSolutions S.A.', 'Comercializadora del Sur', 'Industrias Andinas', 'Constructora Bello', 'Distribuidora Norte', 'Servicios Generales S.A.', 'Retail Plus', 'Alimentos del Valle'];
+  clients: any[] = [];
 
-  dateRange: Date[] | null = [new Date(2024, 4, 1), new Date(2024, 4, 31)];
-  selectedArea: RequestArea | null = null;
-  selectedStatus: RequestStatus | null = null;
-  selectedClient: string | null = null;
-  appliedFilters = { dateFrom: '2024-05-01', dateTo: '2024-05-31', area: '', status: '', client: '' };
+  dateRange: Date[] | null = null;
+  selectedClients: number[] = [];
   activeMenu: number | null = null;
   selectedTicket: any;
 
@@ -92,10 +88,35 @@ export class TicketsTechnicalComponent {
     }
     
     this.fetchInspection();
+    this.fetchClients();
+  }
+
+  fetchClients() {
+    this.glpiService.getClients().subscribe({
+      next: (data: any) => {
+        this.clients = data?.data ?? [];
+      },
+      error: (error: any) => {
+        console.error('Error fetching clients:', error);
+        this.utilsService.onError('Error al obtener los clientes. Por favor, inténtelo de nuevo más tarde.');
+      }
+    });
   }
 
   fetchInspection() {
-    this.glpiService.getInspectionTechnical({...this.filters, pending_technical: true}).subscribe({
+    const filters: any = { ...this.filters, pending_technical: true };
+
+    if (this.selectedClients.length) {
+      filters.client_id = this.selectedClients;
+    }
+
+    if (this.dateRange?.[0]) {
+      // end_date incluye todo el último día del rango
+      filters.start_date = `${this.formatIsoDate(this.dateRange[0])}T00:00:00`;
+      filters.end_date = `${this.formatIsoDate(this.dateRange[1] ?? this.dateRange[0])}T23:59:59`;
+    }
+
+    this.glpiService.getInspectionTechnical(filters).subscribe({
       next: (response: any) => {
         console.log(response);
         this.pendingTickets = this.extractRecords(response?.data);
@@ -135,23 +156,13 @@ export class TicketsTechnicalComponent {
   }
 
   applyFilters(): void {
-    const start = this.dateRange?.[0] ? this.formatIsoDate(this.dateRange[0]) : '';
-    const end = this.dateRange?.[1] ? this.formatIsoDate(this.dateRange[1]) : start;
-    this.appliedFilters = {
-      dateFrom: start,
-      dateTo: end,
-      area: this.selectedArea ?? '',
-      status: this.selectedStatus ?? '',
-      client: this.selectedClient ?? ''
-    };
     this.requestsTable?.reset();
+    this.fetchInspection();
   }
 
   clearFilters(): void {
     this.dateRange = null;
-    this.selectedArea = null;
-    this.selectedStatus = null;
-    this.selectedClient = null;
+    this.selectedClients = [];
     this.applyFilters();
   }
 

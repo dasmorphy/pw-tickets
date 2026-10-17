@@ -123,6 +123,12 @@ export class RegisterTicketCommercialComponent {
                 client: [''],
                 requested_by: [''],
                 project: [''],
+            }),
+            // Condiciones comerciales de la proforma; se envían dentro de sale_quotation
+            quotation_terms: this.fb.group({
+                delivery_time: [null],
+                payment_terms: [null],
+                validity_days: [null],
             })
         });
     }
@@ -155,6 +161,10 @@ export class RegisterTicketCommercialComponent {
 
     get proformaForm(): FormGroup {
         return this.ticketForm.get('proforma') as FormGroup;
+    }
+
+    get quotationTermsForm(): FormGroup {
+        return this.ticketForm.get('quotation_terms') as FormGroup;
     }
 
     get subtotal(): number {
@@ -211,6 +221,11 @@ export class RegisterTicketCommercialComponent {
                 this.setTicketEdit(dataTicket)
                 if (dataTicket?.sale_quotation) {
                     this.savedQuotation = dataTicket.sale_quotation;
+                    this.quotationTermsForm.patchValue({
+                        delivery_time: dataTicket.sale_quotation.delivery_time ?? null,
+                        payment_terms: dataTicket.sale_quotation.payment_terms ?? null,
+                        validity_days: dataTicket.sale_quotation.validity_days ?? null,
+                    });
                     this.applySavedQuotation();
                 } else if (this.ticketForm.value.inspection_id) {
                     // Tickets registrados antes de guardar la proforma: se parte del registro técnico
@@ -601,9 +616,10 @@ export class RegisterTicketCommercialComponent {
         }
 
         // proforma son datos de solo lectura de la inspección: no se envían
-        const { proforma, ...ticketValues } = this.ticketForm.value;
+        const { proforma, quotation_terms, ...ticketValues } = this.ticketForm.value;
         const ticketData = {
             ...ticketValues,
+            sales_code: this.user_session?.attributes?.sales_consultant_code ?? null,
             quoted_amount: this.total,
             sale_quotation: {
                 client_company: this.clientCompanyId,
@@ -636,6 +652,9 @@ export class RegisterTicketCommercialComponent {
                 iva_rate: this.ivaRate,
                 iva: this.iva,
                 total: this.total,
+                delivery_time: quotation_terms.delivery_time?.trim() || null,
+                payment_terms: quotation_terms.payment_terms?.trim() || null,
+                validity_days: quotation_terms.validity_days ?? null,
             },
             user: this.user_session?.user
         };

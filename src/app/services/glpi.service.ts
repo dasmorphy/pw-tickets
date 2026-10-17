@@ -204,6 +204,23 @@ export class GlpiService {
             params = params.set('pending_commercial', filters.pending_commercial);
         }
 
+        if (filters?.sales_user) {
+            params = params.set('sales_user', filters.sales_user);
+        }
+
+        // client_id admite varios ids, se envían separados por coma (ej: client_id=1,2,3)
+        if (filters?.client_id?.length) {
+            params = params.set('client_id', filters.client_id.join(','));
+        }
+
+        if (filters?.start_date) {
+            params = params.set('start_date', filters.start_date);
+        }
+
+        if (filters?.end_date) {
+            params = params.set('end_date', filters.end_date);
+        }
+
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection`, {params});
     }
 
@@ -286,5 +303,10 @@ export class GlpiService {
     getProjectActivities() {
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/dashboard/project-activities`);
     }
-    
+
+    // data: { id_inspection, user } -> actualiza sales_user de la inspección
+    assignSalesUser(data: { id_inspection: number | string; user: string }) {
+        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/assign-ticket-commercial`, { data });
+    }
+
 }

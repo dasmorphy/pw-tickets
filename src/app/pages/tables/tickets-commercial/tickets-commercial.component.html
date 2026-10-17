@@ -1,7 +1,7 @@
 <p-toast></p-toast>
 
 <main class="requests-page" (click)="activeMenu = null">
-  <section class="requests-panel" aria-labelledby="commercial-requests-title">
+  <section class="mx-3" aria-labelledby="commercial-requests-title">
     <header class="panel-heading">
       <div>
         <span class="eyebrow">Gestión comercial</span>
@@ -20,19 +20,23 @@
             </p-calendar>
           </div>
 
-          <div class="filter-field">
+          <!-- <div class="filter-field">
             <label for="area-filter">Área</label>
             <p-dropdown inputId="area-filter" [options]="areas" [(ngModel)]="selectedArea" placeholder="Todas" [showClear]="true" styleClass="request-dropdown"></p-dropdown>
-          </div>
+          </div> -->
 
-          <div class="filter-field">
+          <!-- <div class="filter-field">
             <label for="status-filter">Estado</label>
             <p-dropdown inputId="status-filter" [options]="statuses" [(ngModel)]="selectedStatus" placeholder="Todos" [showClear]="true" styleClass="request-dropdown"></p-dropdown>
-          </div>
+          </div> -->
 
           <div class="filter-field">
             <label for="client-filter">Cliente</label>
-            <p-dropdown inputId="client-filter" [options]="clients" [(ngModel)]="selectedClient" placeholder="Todos" [showClear]="true" [filter]="true" filterPlaceholder="Buscar cliente" styleClass="request-dropdown"></p-dropdown>
+            <p-multiSelect inputId="client-filter" [options]="clients" optionLabel="name" optionValue="id_client"
+              [(ngModel)]="selectedClients" placeholder="Todos" [showClear]="true" display="chip"
+              [maxSelectedLabels]="2" selectedItemsLabel="{0} clientes" [filter]="true" filterBy="name"
+              filterPlaceholder="Buscar cliente" styleClass="request-dropdown request-multiselect" appendTo="body">
+            </p-multiSelect>
           </div>
 
           <div class="filter-actions">
@@ -72,6 +76,7 @@
               <th>Contacto</th>
               <th>Prioridad</th>
               <th>Estado</th>
+              <th>Asesor</th>
               <th>Usuario</th>
               <th *ngIf="activeIndex === 1">Último seguimiento</th>
               <th class="actions-heading"><span class="sr-only">Acciones</span></th>
@@ -87,6 +92,7 @@
               <td class="subject-cell">{{ request.contact ?? 'N/A' }}</td>
               <td><span>{{ request.priority ?? 'N/A' }}</span></td>
               <td><span>{{ request.status_name ?? request.status ?? 'N/A' }}</span></td>
+              <td><span>{{ request.sales_user ?? 'N/A' }}</span></td>
               <td><span>{{ request.created_by ?? 'N/A' }}</span></td>
               <td *ngIf="activeIndex === 1">
                 <span *ngIf="request.last_followup_at; else noFollowup" class="last-followup" [pTooltip]="'Hora ' + (request.last_followup_at | date:'HH:mm':'UTC')" tooltipPosition="top">
@@ -97,7 +103,7 @@
               <td class="row-actions">
                 <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(request)" [model]="activeIndex === 1 ? items : itemsTechnical">
                   <ng-template pTemplate="dropdownicon">
-                    <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                    <i class="pi pi-ellipsis-h" style="color: #0b326b;"></i>
                   </ng-template>
                 </p-splitButton>
               </td>
@@ -183,6 +189,42 @@
   <ng-template pTemplate="footer">
     <div class="flex w-full justify-content-center">
       <button pButton (click)="followupsVisible = false">Cerrar</button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="showAssignDialog" [modal]="true" [draggable]="false" [resizable]="false" [closable]="false"
+  [style]="{ width: 'min(32rem, calc(100vw - 2rem))' }" styleClass="followup-dialog">
+  <ng-template pTemplate="header">
+    <div class="dialog-title">
+      <div>
+        <h2>Asignar asesor</h2>
+        <p class="text-center">{{ selectedTicket?.code ?? 'Solicitud comercial' }}</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="followup-form mt-3">
+    <div class="followup-context">
+      <i class="pi pi-user"></i>
+      <div>
+        <span>Asesor actual</span>
+        <strong>{{ selectedTicket?.sales_user ?? 'Sin asignar' }}</strong>
+      </div>
+    </div>
+
+    <label for="sales-user">Asesor comercial</label>
+    <p-dropdown inputId="sales-user" [options]="users_intern" [(ngModel)]="selectedSalesUser"
+      optionLabel="fullname" optionValue="user" [filter]="true" filterBy="fullname,user"
+      [loading]="loadingUsers" placeholder="Seleccione un asesor" emptyMessage="No hay asesores disponibles"
+      styleClass="w-full" appendTo="body"></p-dropdown>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-actions mt-3">
+      <p-button label="Cancelar" [text]="true" styleClass="cancel-followup-button" (onClick)="closeAssignDialog()"></p-button>
+      <p-button label="Asignar" icon="pi pi-check" styleClass="save-followup-button"
+        [disabled]="!selectedSalesUser || selectedSalesUser === selectedTicket?.sales_user" (onClick)="saveAssignment()"></p-button>
     </div>
   </ng-template>
 </p-dialog>

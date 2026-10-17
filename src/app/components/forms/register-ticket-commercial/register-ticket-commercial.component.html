@@ -268,6 +268,36 @@
             </dl>
         </div>
 
+        <div class="form-section" formGroupName="quotation_terms">
+            <div class="section-title">
+                <div>
+                    <h3>Condiciones de la proforma</h3>
+                    <p>Se imprimen al final de la proforma.</p>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label for="deliveryTime">Tiempo de entrega</label>
+                    <input pInputText id="deliveryTime" type="text" class="w-full" formControlName="delivery_time"
+                        placeholder="Ej: 15 días laborables" />
+                </div>
+
+                <div class="field">
+                    <label for="paymentTerms">Forma de pago</label>
+                    <input pInputText id="paymentTerms" type="text" class="w-full" formControlName="payment_terms"
+                        placeholder="Ej: 50% anticipo, 50% contra entrega" />
+                </div>
+
+                <div class="field">
+                    <label for="validityDays">Validez (días)</label>
+                    <p-inputNumber inputId="validityDays" formControlName="validity_days" [min]="0"
+                        [maxFractionDigits]="0" [useGrouping]="false" suffix=" días" placeholder="Ej: 30"
+                        styleClass="w-full"></p-inputNumber>
+                </div>
+            </div>
+        </div>
+
         <div class="field full-field">
             <label for="observations">Observaciones</label>
             <textarea pInputTextarea id="observations" name="observations" formControlName="observations"

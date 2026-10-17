@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { SplitButtonModule } from 'primeng/splitbutton';
@@ -31,6 +32,7 @@ interface CommercialTicket {
   status?: string;
   status_name?: string;
   last_followup_at?: string;
+  sales_user?: string;
 }
 
 interface CommercialFollowup {
@@ -51,6 +53,7 @@ interface CommercialFollowup {
     ButtonModule,
     CalendarModule,
     DropdownModule,
+    MultiSelectModule,
     DialogModule,
     InputTextareaModule,
     TableModule,
@@ -75,12 +78,12 @@ export class TicketsCommercialComponent {
 
   readonly areas = ['Técnica', 'Comercial', 'Proyectos', 'Contabilidad'];
   readonly statuses = ['En proceso', 'Pendiente', 'Resuelto', 'Aprobado'];
-  readonly clients = ['TechSolutions S.A.', 'Comercializadora del Sur', 'Industrias Andinas', 'Constructora Bello', 'Distribuidora Norte', 'Servicios Generales S.A.', 'Retail Plus', 'Alimentos del Valle'];
+  clients = [];
 
   dateRange: Date[] | null = null;
   selectedArea: string | null = null;
   selectedStatus: string | null = null;
-  selectedClient: string | null = null;
+  selectedClients: number[] = [];
   selectedTicket: any;
   activeMenu: number | string | null = null;
   activeIndex = 0;
@@ -100,6 +103,11 @@ export class TicketsCommercialComponent {
   pendingFilters = { first: 0, rows: 5 };
 
   showDetail = false;
+  showAssignDialog = false;
+  loadingUsers = false;
+  users_intern: any[] = [];
+  // Atributo user del asesor seleccionado; se guarda en sales_user de la inspección
+  selectedSalesUser: string | null = null;
   detailType: TicketDetailType = 'commercial';
 
   items: any = [
@@ -140,12 +148,31 @@ export class TicketsCommercialComponent {
         // visible: () => this.user_permissions_signal().includes('CONTINUAR_BITACORA') && this.selectedLogbook?.status === 'Pendiente Salida',
         command: () => this.routeNewRegister()
     },
+    {
+      label: 'Asignar asesor',
+      icon: 'pi pi-user-plus',
+      // visible: () => this.user_permissions_signal().includes('CONTINUAR_BITACORA') && this.selectedLogbook?.status === 'Pendiente Salida',
+      command: () => this.assignCommercialUser()
+    },
   ];
 
   ngOnInit() {
     this.user_json = this.userService.getDataSession();
     this.area_user = this.user_json?.attributes?.area
     this.fetchPendingTickets()
+    this.fetchClients()
+  }
+
+  fetchClients() {
+    this.glpiService.getClients().subscribe({
+      next: (data: any) => {
+        this.clients = data?.data;
+      },
+      error: (error: any) => {
+        console.error('Error fetching clients:', error);
+        this.utilsService.onError('Error al obtener los clientes. Por favor, inténtelo de nuevo más tarde.');
+      }
+    });
   }
 
 
@@ -158,10 +185,85 @@ export class TicketsCommercialComponent {
     }
   }
 
-  fetchPendingTickets(): void {
-    this.glpiService.getInspectionTechnical({
-      pending_commercial: true
+  assignCommercialUser() {
+    // Precarga el asesor actual para poder reasignar
+    this.selectedSalesUser = this.selectedTicket?.sales_user ?? null;
+    this.showAssignDialog = true;
+    if (!this.users_intern.length) {
+      this.fetchUsers();
+    }
+  }
+
+  saveAssignment() {
+    if (!this.selectedSalesUser) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.glpiService.assignSalesUser({
+      id_inspection: this.selectedTicket?.id_inspection,
+      user: this.selectedSalesUser
     }).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.closeAssignDialog();
+        this.utilsService.onSuccess('Asesor asignado correctamente');
+        this.fetchPendingTickets();
+      },
+      error: (error: any) => {
+        this.isLoading = false;
+        console.log(error);
+        this.utilsService.onError(error?.error?.message ?? 'No se pudo asignar el asesor, por favor intente nuevamente');
+      }
+    });
+  }
+
+  closeAssignDialog() {
+    this.showAssignDialog = false;
+    this.selectedSalesUser = null;
+  }
+
+  fetchUsers() {
+    this.loadingUsers = true;
+    const filters = {
+      roles: ['asesor_comercial']
+    }
+    this.userService.getUsers(filters).subscribe({
+      next: (data: any) => {
+        this.loadingUsers = false;
+        this.users_intern = (data?.data ?? []).map((user: any) => ({
+          ...user,
+          fullname: user.attributes?.fullname ?? user.user
+        }));
+      },
+      error: (error: any) => {
+        console.log(error);
+        this.loadingUsers = false;
+        this.utilsService.onError('Error al obtener los asesores comerciales.');
+      }
+    });
+  }
+
+  fetchPendingTickets(): void {
+    let filters: any = {
+      pending_commercial: true
+    };
+
+    if (this.user_json?.role === 'asesor_comercial') {
+      filters.sales_user = this.user_json?.user;
+    }
+
+    if (this.selectedClients.length) {
+      filters.client_id = this.selectedClients;
+    }
+
+    if (this.dateRange?.[0]) {
+      // end_date incluye todo el último día del rango
+      filters.start_date = `${this.formatIsoDate(this.dateRange[0])}T00:00:00`;
+      filters.end_date = `${this.formatIsoDate(this.dateRange[1] ?? this.dateRange[0])}T23:59:59`;
+    }
+
+    this.glpiService.getInspectionTechnical(filters).subscribe({
       next: (response: any) => {
         this.pendingTickets = response?.data ?? [];
       },
@@ -199,16 +301,23 @@ export class TicketsCommercialComponent {
   }
 
   applyFilters(): void {
-    // La API de solicitudes técnicas aún no recibe estos filtros. Se conservan para mantener el estándar visual.
     this.pendingTable?.reset();
+    this.fetchPendingTickets();
   }
 
   clearFilters(): void {
     this.dateRange = null;
     this.selectedArea = null;
     this.selectedStatus = null;
-    this.selectedClient = null;
+    this.selectedClients = [];
     this.applyFilters();
+  }
+
+  private formatIsoDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   toggleMenu(ticketId: number | string): void {

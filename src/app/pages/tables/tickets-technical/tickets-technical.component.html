@@ -1,5 +1,5 @@
 <main class="requests-page" (click)="activeMenu = null">
-  <section class="requests-panel" aria-labelledby="requests-title">
+  <section class="mx-3" aria-labelledby="requests-title">
     <header class="panel-heading">
       <div>
         <span class="eyebrow">Gestión operativa</span>
@@ -21,25 +21,12 @@
           </div>
 
           <div class="filter-field">
-            <label for="area-filter">Área</label>
-            <p-dropdown inputId="area-filter" [options]="areas" [(ngModel)]="selectedArea"
-              placeholder="Todas" [showClear]="true" styleClass="request-dropdown">
-            </p-dropdown>
-          </div>
-
-          <div class="filter-field">
-            <label for="status-filter">Estado</label>
-            <p-dropdown inputId="status-filter" [options]="statuses" [(ngModel)]="selectedStatus"
-              placeholder="Todos" [showClear]="true" styleClass="request-dropdown">
-            </p-dropdown>
-          </div>
-
-          <div class="filter-field">
             <label for="client-filter">Cliente</label>
-            <p-dropdown inputId="client-filter" [options]="clients" [(ngModel)]="selectedClient"
-              placeholder="Todos" [showClear]="true" [filter]="true" filterPlaceholder="Buscar cliente"
-              styleClass="request-dropdown">
-            </p-dropdown>
+            <p-multiSelect inputId="client-filter" [options]="clients" optionLabel="name" optionValue="id_client"
+              [(ngModel)]="selectedClients" placeholder="Todos" [showClear]="true" display="chip"
+              [maxSelectedLabels]="2" selectedItemsLabel="{0} clientes" [filter]="true" filterBy="name"
+              filterPlaceholder="Buscar cliente" styleClass="request-dropdown request-multiselect" appendTo="body">
+            </p-multiSelect>
           </div>
 
           <div class="filter-actions">
@@ -81,6 +68,7 @@
           <ng-template pTemplate="header">
             <tr>
               <th>Solicitud</th>
+              <th>Titulo</th>
               <th>Fecha</th>
               <th>Cliente</th>
               <th>Ubicación</th>
@@ -93,7 +81,8 @@
           </ng-template>
           <ng-template pTemplate="body" let-request>
             <tr>
-              <td>{{ request.code_management ?? request.title_ticket ?? 'N/A' }}</td>
+              <td>{{ request.code }}</td>
+              <td>{{ request.title_ticket ?? 'N/A' }}</td>
               <td>
                 <span class="date" tooltipPosition="top"
                   [pTooltip]="(request.created_at ?? request.ticket_created_at) ? 'Hora de registro: ' + ((request.created_at ?? request.ticket_created_at) | date:'HH:mm':'UTC') : ''">
@@ -108,14 +97,14 @@
               <td><span>{{ request.created_by ?? request.responsible_name ?? 'N/A' }}</span></td>
               <td class="row-actions">
                 @if (activeIndex === 1) {
-                  <i class="pi pi-eye cursor-pointer" style="color: #83378f;" pTooltip="Ver detalles" tooltipPosition="top"
+                  <i class="pi pi-eye cursor-pointer" style="color: #0b326b;" pTooltip="Ver detalles" tooltipPosition="top"
                     role="button" tabindex="0" aria-label="Ver detalles"
                     (click)="optionsTicket(request); viewDetails('technical')"
                     (keydown.enter)="optionsTicket(request); viewDetails('technical')"></i>
                 }@else {
                   <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(request)" [model]="itemsPending">
                     <ng-template pTemplate="dropdownicon">
-                      <i class="pi pi-ellipsis-h" style="color: #83378f;"></i>
+                      <i class="pi pi-ellipsis-h" style="color: #0b326b;"></i>
                     </ng-template>
                   </p-splitButton>
                 }
