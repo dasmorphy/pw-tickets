@@ -55,11 +55,11 @@ export class GlpiService {
     }
 
     getClients() {
-        return this.http.get(`${environment.apiTechnical}/rest/technical-control-api/v1.0/clients`);
+        return this.http.get(`${environment.apiTicket}/rest/technical-control-api/v1.0/clients`);
     }
 
     getLocationsClient(id_client: number) {
-        return this.http.get(`${environment.apiTechnical}/rest/technical-control-api/v1.0/location`, {
+        return this.http.get(`${environment.apiTicket}/rest/technical-control-api/v1.0/location`, {
             params: new HttpParams().set('client_id', id_client)
         });
     }

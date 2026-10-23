@@ -42,13 +42,13 @@ export class ProjectTechnicalService {
             params = params.set('tech_assignments', filter.tech_assignments.join(','));
         }
 
-        return this.http.get(`${environment.apiTechnical}/rest/technical-control-api/v1.0/project`,
+        return this.http.get(`${environment.apiTicket}/rest/technical-control-api/v1.0/project`,
             { headers, params }
         )
     }
 
     updateStatusProject(data: any) {
-        return this.http.patch(`${environment.apiTechnical}/rest/technical-control-api/v1.0/update-status-project/${data.id_project}`, {data});
+        return this.http.patch(`${environment.apiTicket}/rest/technical-control-api/v1.0/update-status-project/${data.id_project}`, {data});
     }
 
     getAuditingTechnical(filter?: any) {
@@ -75,34 +75,34 @@ export class ProjectTechnicalService {
             params = params.set('tasks', filter.tasks);
         }
 
-        return this.http.get(`${environment.apiTechnical}/rest/technical-control-api/v1.0/auditing`,
+        return this.http.get(`${environment.apiTicket}/rest/technical-control-api/v1.0/auditing`,
             { headers, params }
         )
     }
 
     postProject(data: any) {
         return this.http.post(
-            `${environment.apiTechnical}/rest/technical-control-api/v1.0/project`,
+            `${environment.apiTicket}/rest/technical-control-api/v1.0/project`,
             {technical_data: data}
         );
     }
 
     getAuditingSections() {
         return this.http.get(
-            `${environment.apiTechnical}/rest/technical-control-api/v1.0/auditing-sections`
+            `${environment.apiTicket}/rest/technical-control-api/v1.0/auditing-sections`
         );
     }
 
     postAuditing(formData: FormData) {
         return this.http.post(
-            `${environment.apiTechnical}/rest/technical-control-api/v1.0/auditing`,
+            `${environment.apiTicket}/rest/technical-control-api/v1.0/auditing`,
             formData
         );
     }
 
     generateTechnicalRecordPdf(id_record: number) {
         const params = new HttpParams().set('id-record', id_record)
-        return this.http.get(`${environment.apiTechnical}/rest/technical-control-api/v1.0/technical_record/pdf`, 
+        return this.http.get(`${environment.apiTicket}/rest/technical-control-api/v1.0/technical_record/pdf`, 
             {
                 params,
                 responseType: 'blob',
@@ -123,32 +123,32 @@ export class ProjectTechnicalService {
             params = params.set('end_date', filter.end_date);
         }
 
-        return this.http.get(`${environment.apiTechnical}/rest/technical-control-api/v1.0/resume-graphs`,
+        return this.http.get(`${environment.apiTicket}/rest/technical-control-api/v1.0/resume-graphs`,
             { headers, params }
         )
     }
 
     deleteTechnicalRecord(id_record: number) {
-        return this.http.delete(`${environment.apiTechnical}/rest/technical-control-api/v1.0/technical_record/${id_record}`)
+        return this.http.delete(`${environment.apiTicket}/rest/technical-control-api/v1.0/technical_record/${id_record}`)
     }
 
     deleteTechnicalProject(id_task: number) {
-        return this.http.delete(`${environment.apiTechnical}/rest/technical-control-api/v1.0/project/${id_task}`)
+        return this.http.delete(`${environment.apiTicket}/rest/technical-control-api/v1.0/project/${id_task}`)
     }
 
     saveMaterial(formData: FormData) {
-        return this.http.post(`${environment.apiTechnical}/rest/technical-control-api/v1.0/tech-materials`, formData);
+        return this.http.post(`${environment.apiTicket}/rest/technical-control-api/v1.0/tech-materials`, formData);
     }
 
     updateMaterial(id_equipment: number, formData: FormData) {
-        return this.http.put(`${environment.apiTechnical}/rest/technical-control-api/v1.0/tech-materials/${id_equipment}`, formData);
+        return this.http.put(`${environment.apiTicket}/rest/technical-control-api/v1.0/tech-materials/${id_equipment}`, formData);
     }
 
     getMaterials(filter?: any) {
         let params = new HttpParams();
         let headers = new HttpHeaders();
 
-        return this.http.get(`${environment.apiTechnical}/rest/technical-control-api/v1.0/tech-materials`,
+        return this.http.get(`${environment.apiTicket}/rest/technical-control-api/v1.0/tech-materials`,
             { headers, params }
         )
     }
