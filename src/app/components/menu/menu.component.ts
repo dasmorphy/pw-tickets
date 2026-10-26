@@ -61,28 +61,27 @@ export class MenuComponent implements OnInit {
       {
         label: 'Inspecciones',
         icon: 'pi pi-list-check',
-        // routerLink: ['tickets-glpi'],
-        // visible: this.user_permissions_signal()?.includes('VER_INSPECCION'),
+        visible: this.user_permissions_signal()?.includes('VER_INSPECCION'),
         command: () => { this.clickHiddenToggle(true) },
         items: [
           {
             label: 'Todos',
             icon: 'pi pi-list-check',
-            // visible: this.user_permissions_signal()?.includes('VER_INSPECCION'),
+            visible: this.user_permissions_signal()?.includes('VER_INSPECCION'),
             routerLink: ['inspecciones'],
             command: () => { this.clickHiddenToggle() }
           },
           {
             label: 'Nuevo',
             icon: 'pi pi-list-check',
-            // visible: this.user_permissions_signal()?.includes('NUEVA_INSPECCION'),
+            visible: this.user_permissions_signal()?.includes('NUEVA_INSPECCION'),
             routerLink: ['nueva-inspeccion'],
             command: () => { this.clickHiddenToggle() }
           },
           {
             label: 'Por aprobar',
             icon: 'pi pi-list-check',
-            // visible: this.user_permissions_signal()?.includes('NUEVA_INSPECCION'),
+            visible: this.user_permissions_signal()?.includes('APROBAR_INSPECCION'),
             routerLink: ['inspecciones-por-aprobar'],
             command: () => { this.clickHiddenToggle() }
           }
@@ -92,22 +91,15 @@ export class MenuComponent implements OnInit {
       {
         label: 'Logística',
         icon: 'pi pi-cart-plus',
-        command: () => { this.clickHiddenToggle(true) },
-        items: [
-          {
-            label: 'Productos',
-            icon: 'pi pi-box',
-            // visible: this.user_permissions_signal()?.includes('VER_INSPECCION'),
-            routerLink: ['productos'],
-            command: () => { this.clickHiddenToggle() }
-          }
-        ]
+        routerLink: ['productos'],
+        visible: this.user_permissions_signal()?.includes('LOGISTICA'),
+        command: () => { this.clickHiddenToggle(true) }
       },
       {
         label: 'Solicitudes Tecnico',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-tecnicos'],
-        // visible: this.user_permissions_signal()?.includes('VER_TICKETS_TECNICOS'),
+        visible: this.user_permissions_signal()?.includes('VER_TICKETS_TECNICOS'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
@@ -115,7 +107,7 @@ export class MenuComponent implements OnInit {
         label: 'Solicitudes Comercial',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-comercial'],
-        // visible: this.user_permissions_signal()?.includes('VER_TICKETS_COMERCIALES'),
+        visible: this.user_permissions_signal()?.includes('VER_TICKETS_COMERCIALES'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
@@ -123,7 +115,7 @@ export class MenuComponent implements OnInit {
         label: 'Solicitudes Proyectos',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-proyectos'],
-        // visible: this.user_permissions_signal()?.includes('VER_TICKETS_PROYECTOS'),
+        visible: this.user_permissions_signal()?.includes('VER_TICKETS_PROYECTOS'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
@@ -131,14 +123,14 @@ export class MenuComponent implements OnInit {
         label: 'Solicitudes Contabilidad',
         icon: 'pi pi-list-check',
         routerLink: ['tickets-financieros'],
-        // visible: this.user_permissions_signal()?.includes('VER_TICKETS_FINANCIEROS'),
+        visible: this.user_permissions_signal()?.includes('VER_TICKETS_FINANCIEROS'),
         command: () => { this.clickHiddenToggle(true) },
         
       },
       {
         label: 'Proyectos técnicos',
         icon: 'pi pi-folder-open',
-        // visible: this.user_permissions_signal()?.includes('VER_PROYECTOS'),
+        visible: this.user_permissions_signal()?.includes('VER_PROYECTOS'),
         items: [
           {
             label: 'Proyectos técnicos',

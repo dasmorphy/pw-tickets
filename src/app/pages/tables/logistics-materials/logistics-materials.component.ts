@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, computed, inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -19,7 +19,7 @@ import { UserService } from 'src/app/services/user.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { environment } from 'src/environments/environment.development';
 import { Material, MaterialImage, Provider } from 'src/app/models/logistic';
-
+import { AuthService } from 'src/app/services/auth.service';
 
 type StockFilter = 'all' | 'available' | 'low' | 'out';
 
@@ -52,12 +52,15 @@ export class LogisticsMaterialsComponent implements OnInit {
     private readonly glpiService = inject(GlpiService);
     private readonly userService = inject(UserService);
     private readonly utilsService = inject(UtilsService);
+    private readonly authService = inject(AuthService);
     private readonly fb = inject(FormBuilder);
+
+    user_permissions_signal = computed(() => this.authService.user_permissions_signal());
 
     readonly maxImages = 10;
     readonly maxImageSize = 5000000;
     // Las imágenes se guardan en /var/www/uploads del servidor de technical-control-ms
-    readonly imagesBaseUrl = 'http://192.168.230.61';
+    readonly imagesBaseUrl = environment.apiTicket;
 
     showCreate = false;
     editingMaterial: Material | null = null;

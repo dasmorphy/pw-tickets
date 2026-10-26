@@ -115,9 +115,15 @@ export class ProjectTechnicalComponent {
             command: () => this.showModal = true
         },
         {
+            label: 'Solicitar proforma',
+            icon: 'pi pi-box',
+            visible: () => this.user_permissions_signal().includes('SOLICITAR_PROFORMA_SOPORTE') && this.selectedProject?.is_support,
+            command: () => this.showDelivery = true
+        },
+        {
             label: 'Entrega de materiales',
             icon: 'pi pi-box',
-            // visible: () => this.user_permissions_signal().includes('ENTREGA_MATERIALES') && this.selectedProject?.status != 'Finalizado',
+            visible: () => this.user_permissions_signal().includes('ENTREGA_MATERIALES') ,
             command: () => this.showDelivery = true
         },
         {

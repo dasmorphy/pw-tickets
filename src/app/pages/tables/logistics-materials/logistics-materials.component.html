@@ -190,7 +190,9 @@
       </div>
       <div class="heading-actions">
         <span class="request-count"><strong>{{ filteredMaterials.length }}</strong> materiales</span>
-        <p-button label="Nuevo material" icon="pi pi-plus" styleClass="create-button" (onClick)="openCreate()"></p-button>
+        @if (user_permissions_signal().includes('NUEVO_PRODUCTO')) {
+          <p-button label="Nuevo material" icon="pi pi-plus" styleClass="create-button" (onClick)="openCreate()"></p-button>
+        }
       </div>
     </header>
 
@@ -305,10 +307,12 @@
                 aria-label="Ver detalles" (click)="viewDetails(material)">
                 <i class="pi pi-eye"></i>
               </button>
-              <button type="button" class="view-button" pTooltip="Editar" tooltipPosition="top"
-                aria-label="Editar material" (click)="openEdit(material)">
-                <i class="pi pi-pencil"></i>
-              </button>
+              @if (user_permissions_signal().includes('EDITAR_PRODUCTO')) {
+                <button type="button" class="view-button" pTooltip="Editar" tooltipPosition="top"
+                  aria-label="Editar material" (click)="openEdit(material)">
+                  <i class="pi pi-pencil"></i>
+                </button>
+              }
             </td>
           </tr>
         </ng-template>
