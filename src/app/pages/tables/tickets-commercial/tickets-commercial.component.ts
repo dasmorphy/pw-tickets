@@ -226,7 +226,7 @@ export class TicketsCommercialComponent {
   fetchUsers() {
     this.loadingUsers = true;
     const filters = {
-      roles: ['asesor_comercial']
+      roles: ['asesor_ventas']
     }
     this.userService.getUsers(filters).subscribe({
       next: (data: any) => {
@@ -249,7 +249,7 @@ export class TicketsCommercialComponent {
       pending_commercial: true
     };
 
-    if (this.user_json?.role === 'asesor_comercial') {
+    if (this.user_json?.role === 'asesor_ventas') {
       filters.sales_user = this.user_json?.user;
     }
 

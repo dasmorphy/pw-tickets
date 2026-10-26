@@ -2,8 +2,14 @@
 
 <div [class]="{ 'w-calc': toggle(), 'w-screen-dashboard': !toggle() }"
   class="container xl:justify-content-evenly p-3-responsive border-box bg-white mt-dashboard flex-column">
-  <div class="flex w-full justify-content-between align-items-center mb-3 px-5 column-responsive">
-    <app-tickets-dashboard class="w-full"></app-tickets-dashboard>
+  <div class="flex w-full align-items-center mb-3 px-5 column-responsive">
+    
+    @if (user_session?.role === 'jefe_tecnico' || user_session?.role === 'tecnico' || user_session?.role == 'coordinador_tecnico') {
+      <app-technical-dashboard class="w-full mt-5"></app-technical-dashboard>
+    }@else {
+      <app-tickets-dashboard class="w-full"></app-tickets-dashboard>
+    }
+
     <!-- <div class="flex gap-2">
       @if (optionDashboardSelected == 'Biomar') {
         <i class="flex justify-content-center align-items-center pi pi-filter cursor-pointer" (click)="op.toggle($event)"></i>      

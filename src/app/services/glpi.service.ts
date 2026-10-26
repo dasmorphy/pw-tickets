@@ -283,6 +283,14 @@ export class GlpiService {
             params = params.set('id_financial', filters.id_financial);
         }
 
+        if (filters?.id_commercial) {
+            params = params.set('id_commercial', filters.id_commercial);
+        }
+
+        if (filters?.type) {
+            params = params.set('type', filters.type);
+        }
+
         if (filters?.user) {
             params = params.set('user', filters.user);
         }

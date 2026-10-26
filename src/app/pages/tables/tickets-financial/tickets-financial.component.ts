@@ -31,9 +31,13 @@ interface CommercialTicket {
   status?: string;
 }
 
+type FollowupType = 'Pendiente' | 'Registrado';
+
 interface FinancialFollowup {
   id_followup: number | string;
-  management_financial_id: number | string;
+  management_financial_id?: number | string;
+  management_commercial_id?: number | string;
+  type?: FollowupType;
   observations?: string;
   created_at: string;
   created_by?: string;
@@ -114,14 +118,13 @@ export class TicketsFinancialComponent {
     {
         label: 'Ver seguimientos',
         icon: 'pi pi-history',
-        // Solo las gestiones financieras (Registrados) tienen seguimientos
-        visible: () => this.activeIndex === 1,
         command: () => this.openFollowupsDialog()
     },
     {
         label: 'Registrar seguimiento',
         icon: 'pi pi-plus-circle',
-        visible: () => this.activeIndex === 1 && this.selectedTicket?.status === 'Solicitado',
+        // Pendientes siempre admiten seguimiento; Registrados solo mientras estén solicitados
+        visible: () => this.activeIndex === 0 || this.selectedTicket?.status === 'Solicitado',
         command: () => this.openRegisterFollowupDialog()
     },
     {
@@ -184,8 +187,18 @@ export class TicketsFinancialComponent {
     });
   }
 
+  // Pendientes se vinculan a la gestión comercial; Registrados, a la gestión financiera
+  private get followupType(): FollowupType {
+    return this.activeIndex === 0 ? 'Pendiente' : 'Registrado';
+  }
+
   fetchFollowups() {
-    this.glpiService.getFollowupsFinancial({id_financial: this.selectedTicket?.id_management_financial}).subscribe({
+    const type = this.followupType;
+    const filters = type === 'Pendiente'
+      ? { id_commercial: this.selectedTicket?.id_management_commercial, type }
+      : { id_financial: this.selectedTicket?.id_management_financial, type };
+
+    this.glpiService.getFollowupsFinancial(filters).subscribe({
       next: (data: any) => {
         this.followups = data?.data ?? [];
       },
@@ -247,9 +260,13 @@ export class TicketsFinancialComponent {
   }
 
   saveFollowup(){
+    const type = this.followupType;
     const data = {
       observations: this.followupObservation,
-      management_financial_id: this.selectedTicket?.id_management_financial,
+      type,
+      ...(type === 'Pendiente'
+        ? { management_commercial_id: this.selectedTicket?.id_management_commercial }
+        : { management_financial_id: this.selectedTicket?.id_management_financial }),
       user: this.user_json?.user
     }
 
@@ -258,7 +275,11 @@ export class TicketsFinancialComponent {
     this.glpiService.saveFollowupFinancial(data).subscribe({
       next: () => {
         this.isLoading = false;
-        this.fetchCompletedTickets();
+        if (type === 'Pendiente') {
+          this.fetchPendingTickets();
+        } else {
+          this.fetchCompletedTickets();
+        }
         this.utilsService.onSuccess('Seguimiento creado correctamente')
       },
       error: (error: any) => {

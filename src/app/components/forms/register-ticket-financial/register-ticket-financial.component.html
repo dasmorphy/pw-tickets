@@ -5,11 +5,13 @@
 
     <form #commercialForm="ngForm" [formGroup]="ticketForm" class="commercial-form">
         <div class="form-grid">
-            <div class="field">
-                <label for="number_doc">Número documento</label>
-                <input pInputText inputId="number_doc" formControlName="number_document"
-                    styleClass="w-full" class="w-full">
-            </div>
+            @if (ticketForm.get('type_management')?.value == 'Factura') {
+                <div class="field">
+                    <label for="number_doc">Número documento</label>
+                    <input pInputText inputId="number_doc" formControlName="number_document"
+                        styleClass="w-full" class="w-full">
+                </div>
+            }
 
             <div class="field">
                 <label for="dateDocument">Fecha documento</label>
@@ -45,7 +47,7 @@
 
             <div class="field">
                 <label for="amountPaid">Valor abonado</label>
-                <p-inputNumber inputId="amountPaid" name="amountPaid" formControlName="amount_paid" (onInput)="calculateAmountPending()"
+                <p-inputNumber formControlName="amount_paid" (onInput)="calculateAmountPending()"
                     mode="currency" currency="USD" locale="en-US" [minFractionDigits]="2" [maxFractionDigits]="2"
                     styleClass="w-full"></p-inputNumber>
             </div>

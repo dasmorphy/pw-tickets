@@ -74,7 +74,7 @@
               <th>Prioridad</th>
               <th>Estado</th>
               <th>Usuario</th>
-              <th *ngIf="activeIndex === 1">Último seguimiento</th>
+              <th>Último seguimiento</th>
               <th class="actions-heading"><span class="sr-only">Acciones</span></th>
             </tr>
           </ng-template>
@@ -89,7 +89,7 @@
               <td><span>{{ request.priority ?? 'N/A' }}</span></td>
               <td><span>{{ request.status ?? 'N/A' }}</span></td>
               <td><span>{{ request.created_by ?? 'N/A' }}</span></td>
-              <td *ngIf="activeIndex === 1">
+              <td>
                 <span *ngIf="request.last_followup_at; else noFollowup" class="last-followup" [pTooltip]="'Hora ' + (request.last_followup_at | date:'HH:mm':'UTC')" tooltipPosition="top">
                   <i class="pi pi-clock"></i>{{ request.last_followup_at | date:'dd/MM/yyyy':'UTC' }}
                 </span>
@@ -106,7 +106,7 @@
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="10" class="empty-state"><i class="pi pi-inbox"></i><strong>No hay solicitudes</strong><span>Prueba con otros filtros.</span></td>
+              <td colspan="11" class="empty-state"><i class="pi pi-inbox"></i><strong>No hay solicitudes</strong><span>Prueba con otros filtros.</span></td>
             </tr>
           </ng-template>
         </p-table>
@@ -140,7 +140,7 @@
     <label for="followup-observation">Observación <span>Opcional</span></label>
     <textarea id="followup-observation" pInputTextarea [(ngModel)]="followupObservation" rows="5"
       placeholder="Escribe una nota sobre la gestión realizada..."></textarea>
-    <small>Podrás registrar el seguimiento aunque no agregues una observación.</small>
+    <small class="mb-3">Podrás registrar el seguimiento aunque no agregues una observación.</small>
   </div>
 
   <ng-template pTemplate="footer">
