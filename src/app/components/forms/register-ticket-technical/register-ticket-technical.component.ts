@@ -205,14 +205,17 @@ export class RegisterTicketTechnicalComponent {
 
         const ticketData = {
             ...this.ticketForm.value,
+            // id_material conserva el material guardado y el pendiente de creación que tenga asociado
             materials: this.selectedMaterials.map(x => x.is_new
                 ? {
+                    id_material: x.id_material ?? null,
                     material_id: null,
                     other: x.product,
                     material_description: x.description || null,
                     quantity: x.quantity
                 }
                 : {
+                    id_material: x.id_material ?? null,
                     material_id: x.id_equipment,
                     other: null,
                     material_description: null,
@@ -261,6 +264,7 @@ export class RegisterTicketTechnicalComponent {
         this.selectedMaterials = (dataTicket?.materials ?? []).map((x: any) => {
             if (!x.material_id) {
                 return {
+                    id_material: x.id_material,
                     is_new: true,
                     product: x.other ?? '',
                     description: x.material_description ?? '',
@@ -270,6 +274,7 @@ export class RegisterTicketTechnicalComponent {
 
             const material = this.materialsOptions.find(m => m.id_equipment === x.material_id);
             return {
+                id_material: x.id_material,
                 id_equipment: x.material_id,
                 product: material?.product ?? `Material #${x.material_id}`,
                 provider: material?.provider,

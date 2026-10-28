@@ -1,0 +1,184 @@
+<p-toast></p-toast>
+
+<p-dialog [(visible)]="showCreate" [modal]="true" [draggable]="false" [resizable]="false" [closable]="false"
+  [closeOnEscape]="!isSaving" [style]="{ width: 'min(40rem, calc(100vw - 2rem))' }">
+  <ng-template pTemplate="header">
+    <div class="dialog-title">
+      <span class="type-icon"><i class="pi pi-building"></i></span>
+      <div>
+        <h2>Nuevo cliente</h2>
+        <p>Asocia el cliente a una empresa existente o registra una nueva.</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <form [formGroup]="clientForm" class="material-form" (ngSubmit)="saveClient()" id="client-form">
+    <div class="form-block">
+      <h3>Datos del cliente</h3>
+      <div class="field">
+        <label for="client-name">Nombre del cliente <span class="required">*</span></label>
+        <input pInputText id="client-name" formControlName="name" class="w-full" maxlength="250"
+          placeholder="Ej. EXPALSA" />
+        @if (isInvalid('name')) {
+          <small class="field-error">El nombre del cliente es obligatorio.</small>
+        }
+      </div>
+    </div>
+
+    <div class="form-block">
+      <h3>Empresa</h3>
+      <p-selectButton [options]="companyModeOptions" formControlName="company_mode" optionLabel="label"
+        optionValue="value" [allowEmpty]="false" styleClass="company-mode"></p-selectButton>
+
+      @if (companyMode === 'existing') {
+        <div class="field company-fields">
+          <label for="client-company">Empresa <span class="required">*</span></label>
+          <p-dropdown inputId="client-company" formControlName="client_company_id" [options]="companies"
+            optionLabel="company_name" optionValue="id_company" [filter]="true" filterBy="company_name,identity"
+            [showClear]="true" [loading]="loadingCompanies" placeholder="Seleccione una empresa"
+            emptyMessage="Sin empresas registradas" emptyFilterMessage="Sin resultados" styleClass="w-full"
+            appendTo="body">
+            <ng-template let-company pTemplate="item">
+              <div class="provider-option">
+                <strong>{{ company.company_name }}</strong>
+                <small>{{ company.type_document || 'Doc.' }}: {{ company.identity || '—' }}</small>
+              </div>
+            </ng-template>
+          </p-dropdown>
+          @if (isInvalid('client_company_id')) {
+            <small class="field-error">Seleccione una empresa.</small>
+          }
+          @if (!loadingCompanies && !companies.length) {
+            <small class="field-hint">No hay empresas registradas. Use «Nueva empresa».</small>
+          }
+        </div>
+      } @else {
+        <div class="form-grid company-fields">
+          <div class="field span-2">
+            <label for="company-name">Razón social <span class="required">*</span></label>
+            <input pInputText id="company-name" formControlName="company_name" class="w-full" maxlength="250"
+              placeholder="Ej. EXPALSA S.A." />
+            @if (isInvalid('company_name')) {
+              <small class="field-error">La razón social es obligatoria.</small>
+            }
+          </div>
+
+          <div class="field">
+            <label for="company-doc-type">Tipo de documento <span class="required">*</span></label>
+            <p-dropdown inputId="company-doc-type" formControlName="type_document" [options]="documentTypes"
+              styleClass="w-full" appendTo="body"></p-dropdown>
+          </div>
+
+          <div class="field">
+            <label for="company-identity">Identificación <span class="required">*</span></label>
+            <input pInputText id="company-identity" formControlName="identity" class="w-full" maxlength="20"
+              placeholder="Número de documento" />
+            @if (isInvalid('identity')) {
+              <small class="field-error">{{ identityError }}</small>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-actions">
+      <p-button label="Cancelar" [outlined]="true" styleClass="clear-button" [disabled]="isSaving"
+        (onClick)="showCreate = false"></p-button>
+      <p-button label="Guardar cliente" icon="pi pi-save" styleClass="filter-button" [loading]="isSaving"
+        (onClick)="saveClient()"></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<main class="requests-page">
+  <section class="requests-panel" aria-labelledby="clients-title">
+    <header class="panel-heading">
+      <div>
+        <span class="eyebrow">Administración</span>
+        <h1 id="clients-title">Clientes</h1>
+        <p>Consulta los clientes y la empresa a la que pertenecen.</p>
+      </div>
+      <div class="heading-actions">
+        <span class="request-count"><strong>{{ filteredClients.length }}</strong> clientes</span>
+        <!-- @if (user_permissions_signal().includes('NUEVO_CLIENTE')) { -->
+          <p-button label="Nuevo cliente" icon="pi pi-plus" styleClass="create-button" (onClick)="openCreate()"></p-button>
+        <!-- } -->
+      </div>
+    </header>
+
+    <div class="filters" aria-label="Filtros de clientes">
+      <div class="filter-field search-field">
+        <label for="client-search">Buscar</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input pInputText id="client-search" type="search" class="w-full" [(ngModel)]="search"
+            (ngModelChange)="applyFilters()" placeholder="Cliente, empresa o identificación" />
+        </span>
+      </div>
+
+      <div class="filter-field">
+        <label for="company-filter">Empresa</label>
+        <p-dropdown inputId="company-filter" [options]="companies" optionLabel="company_name" optionValue="id_company"
+          [(ngModel)]="selectedCompanyId" (onChange)="applyFilters()" placeholder="Todas" [showClear]="true"
+          [filter]="true" filterBy="company_name,identity" filterPlaceholder="Buscar empresa"
+          styleClass="request-dropdown" appendTo="body">
+        </p-dropdown>
+      </div>
+
+      <div class="filter-actions">
+        <p-button label="Limpiar filtros" icon="pi pi-filter-slash" [outlined]="true"
+          styleClass="clear-button" (onClick)="clearFilters()"></p-button>
+        <p-button label="Actualizar" icon="pi pi-refresh" [loading]="isLoading"
+          styleClass="filter-button" (onClick)="fetchClients()"></p-button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <p-table [value]="filteredClients" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="isLoading" sortMode="single" rowStyleClass="custom-row-height" styleClass="requests-table"
+        dataKey="id_client">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="id_client"># <p-sortIcon field="id_client"></p-sortIcon></th>
+            <th pSortableColumn="name">Cliente <p-sortIcon field="name"></p-sortIcon></th>
+            <th pSortableColumn="client_company.company_name">Empresa <p-sortIcon field="client_company.company_name"></p-sortIcon></th>
+            <th>Tipo doc.</th>
+            <th pSortableColumn="client_company.identity">Identificación <p-sortIcon field="client_company.identity"></p-sortIcon></th>
+            <th pSortableColumn="created_by">Creado por <p-sortIcon field="created_by"></p-sortIcon></th>
+            <th pSortableColumn="created_at">Fecha de creación <p-sortIcon field="created_at"></p-sortIcon></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-client>
+          <tr>
+            <td class="muted-cell">{{ client.id_client }}</td>
+            <td class="product-cell"><strong>{{ client.name || '—' }}</strong></td>
+            <td>
+              @if (client.client_company) {
+                {{ client.client_company.company_name || '—' }}
+              } @else {
+                <span class="no-company">Sin empresa</span>
+              }
+            </td>
+            <td>
+              @if (client.client_company?.type_document) {
+                <span class="code-chip">{{ client.client_company.type_document }}</span>
+              } @else {
+                —
+              }
+            </td>
+            <td>{{ client.client_company?.identity || '—' }}</td>
+            <td>{{ client.created_by || '—' }}</td>
+            <td>{{ client.created_at ? (client.created_at | date: 'dd/MM/yyyy HH:mm':'UTC') : '—' }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="empty-state"><i class="pi pi-inbox"></i><strong>No hay clientes</strong><span>Prueba con otros filtros.</span></td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </section>
+</main>

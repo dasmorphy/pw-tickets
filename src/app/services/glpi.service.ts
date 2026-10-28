@@ -3,6 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from "src/environments/environment.development";
+import { NewClient } from "../models/client";
 
 @Injectable({
     providedIn: 'root'
@@ -56,6 +57,15 @@ export class GlpiService {
 
     getClients() {
         return this.http.get(`${environment.apiTicket}/rest/technical-control-api/v1.0/clients`);
+    }
+
+    getClientCompanies() {
+        return this.http.get(`${environment.apiTicket}/rest/technical-control-api/v1.0/client-companies`);
+    }
+
+    // Envía client_company_id (empresa existente) o client_company (empresa nueva), no ambos
+    saveClient(data: NewClient) {
+        return this.http.post(`${environment.apiTicket}/rest/technical-control-api/v1.0/clients`, { data });
     }
 
     getLocationsClient(id_client: number) {

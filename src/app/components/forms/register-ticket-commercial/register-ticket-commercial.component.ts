@@ -33,6 +33,8 @@ interface ProformaItem {
     // Solo en 'bundle': materiales que componen el ítem
     components?: ProformaItem[];
     material_id: number | null;
+    // Solo en 'new': material del registro técnico del que proviene (vincula su pendiente de creación)
+    material_tech_ticket_id?: number | null;
     model: string;
     description: string;
     quantity: number | null;
@@ -275,6 +277,7 @@ export class RegisterTicketCommercialComponent {
         if (saved.is_labor || saved.is_new) {
             return {
                 ...this.fromSavedPrices(saved.is_labor ? 'labor' : 'new', saved),
+                material_tech_ticket_id: saved.material_tech_ticket_id ?? null,
                 model: saved.model ?? (saved.is_labor ? 'M/V' : ''),
                 description: saved.description ?? '',
             };
@@ -394,6 +397,7 @@ export class RegisterTicketCommercialComponent {
             return {
                 kind: 'new',
                 material_id: null,
+                material_tech_ticket_id: material?.id_material ?? null,
                 model: '',
                 description: [material?.other, material?.material_description].filter(Boolean).join(' - '),
                 quantity: material?.quantity ?? null,
@@ -635,6 +639,7 @@ export class RegisterTicketCommercialComponent {
                     is_bundle: item.kind === 'bundle',
                     is_labor: item.kind === 'labor',
                     is_new: item.kind === 'new',
+                    material_tech_ticket_id: item.kind === 'new' ? item.material_tech_ticket_id ?? null : null,
                     // Sin material_id no hay catálogo de donde recuperar modelo y descripción
                     ...(item.kind === 'new' || item.kind === 'labor'
                         ? { model: item.model?.trim() || null, description: item.description.trim() }

@@ -91,8 +91,30 @@ export class MenuComponent implements OnInit {
       {
         label: 'Logística',
         icon: 'pi pi-cart-plus',
-        routerLink: ['productos'],
         visible: this.user_permissions_signal()?.includes('LOGISTICA'),
+        command: () => { this.clickHiddenToggle(true) },
+        items: [
+          {
+            label: 'Materiales / Equipos',
+            icon: 'pi pi-inbox',
+            routerLink: ['productos'],
+            visible: this.user_permissions_signal()?.includes('LOGISTICA'),
+            command: () => { this.clickHiddenToggle(true) },
+          },
+          {
+            label: 'Pendientes',
+            icon: 'pi pi-inbox',
+            routerLink: ['productos-pendientes'],
+            visible: this.user_permissions_signal()?.includes('PENDIENTES_PRODUCTOS'),
+            command: () => { this.clickHiddenToggle(true) },
+          },
+        ]
+      },
+      {
+        label: 'Clientes',
+        icon: 'pi pi-building',
+        routerLink: ['clientes'],
+        visible: this.user_permissions_signal()?.includes('VER_CLIENTES'),
         command: () => { this.clickHiddenToggle(true) }
       },
       {

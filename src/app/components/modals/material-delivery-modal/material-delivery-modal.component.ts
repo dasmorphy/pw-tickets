@@ -9,15 +9,16 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { TooltipModule } from 'primeng/tooltip';
-import { GlpiService } from 'src/app/services/glpi.service';
 import {
     MaterialDelivery,
     MaterialDeliveryService,
+    PendingMaterialInfo,
     ProjectMaterial,
     ProjectTechnician,
 } from 'src/app/services/material-delivery.service';
 import { UserService } from 'src/app/services/user.service';
 import { UtilsService } from 'src/app/services/utils.service';
+import { PendingProductDialogComponent } from '../pending-product-dialog/pending-product-dialog.component';
 
 interface DeliveryRow extends ProjectMaterial {
     toDeliver: number | null;
@@ -32,19 +33,6 @@ interface DeliveryHistoryItem {
 interface DeliveryHistory extends MaterialDelivery {
     detail: DeliveryHistoryItem[];
     units: number;
-}
-
-// Datos para crear en el catálogo el producto de un pendiente (sugeridos desde la proforma)
-interface PendingProductForm {
-    product: string;
-    code: string;
-    model: string;
-    unit: string;
-    provider_id: number | null;
-    stock: number | null;
-    base_price: number | null;
-    profit_margin_percent: number | null;
-    description: string;
 }
 
 type DeliveryTab = 'new' | 'history';
@@ -63,6 +51,7 @@ type DeliveryTab = 'new' | 'history';
         InputTextModule,
         InputTextareaModule,
         TooltipModule,
+        PendingProductDialogComponent,
     ],
     templateUrl: './material-delivery-modal.component.html',
     styleUrls: ['./material-delivery-modal.component.sass']
@@ -75,7 +64,6 @@ export class MaterialDeliveryModalComponent implements OnChanges {
     @Output() delivered = new EventEmitter<number>();
 
     private readonly deliveryService = inject(MaterialDeliveryService);
-    private readonly glpiService = inject(GlpiService);
     private readonly userService = inject(UserService);
     private readonly utilsService = inject(UtilsService);
 
@@ -96,10 +84,7 @@ export class MaterialDeliveryModalComponent implements OnChanges {
 
     // Creación del producto de un pendiente
     pendingRow: DeliveryRow | null = null;
-    pendingForm: PendingProductForm = this.emptyPendingForm();
-    providers: any[] = [];
-    loadingProviders = false;
-    resolving = false;
+    pendingProduct: PendingMaterialInfo | null = null;
 
     ngOnChanges(changes: SimpleChanges): void {
         if ((changes['visible'] || changes['project']) && this.visible && this.project) {
@@ -181,25 +166,6 @@ export class MaterialDeliveryModalComponent implements OnChanges {
             summary.set(delivery.technician, entry);
         }
         return [...summary.values()].sort((a, b) => b.units - a.units);
-    }
-
-    get pendingProfitDollar(): number {
-        const basePrice = this.pendingForm.base_price ?? 0;
-        return this.round(basePrice * ((this.pendingForm.profit_margin_percent ?? 0) / 100));
-    }
-
-    get pendingFinalPrice(): number {
-        return this.round((this.pendingForm.base_price ?? 0) + this.pendingProfitDollar);
-    }
-
-    // El stock inicial no puede ser menor a lo aprobado en la proforma
-    get pendingMinStock(): number {
-        return this.pendingRow?.pending_material?.quantity ?? 0;
-    }
-
-    // Lo que quedará en stock luego de descontar lo ya entregado con el pendiente
-    get pendingResultingStock(): number {
-        return Math.max(0, (this.pendingForm.stock ?? 0) - (this.pendingRow?.delivered ?? 0));
     }
 
     isPendingProduct(row: ProjectMaterial): boolean {
@@ -297,81 +263,17 @@ export class MaterialDeliveryModalComponent implements OnChanges {
             return;
         }
         this.pendingRow = row;
-        this.pendingForm = {
-            ...this.emptyPendingForm(),
-            product: pending.name_material ?? row.product ?? '',
-            model: pending.model ?? '',
-            stock: pending.quantity,
-            base_price: pending.base_price,
-            profit_margin_percent: pending.profit_margin != null ? this.round(pending.profit_margin * 100) : null,
-        };
-        if (!this.providers.length) {
-            this.fetchProviders();
-        }
+        this.pendingProduct = { ...pending, name_material: pending.name_material ?? row.product };
     }
 
     closePendingProduct(): void {
         this.pendingRow = null;
+        this.pendingProduct = null;
     }
 
-    resolvePendingProduct(): void {
-        const pending = this.pendingRow?.pending_material;
-        if (!pending) {
-            return;
-        }
-        const form = this.pendingForm;
-        if (!form.product.trim() || form.provider_id == null || form.base_price == null || form.profit_margin_percent == null) {
-            this.utilsService.onWarn('Complete el nombre, proveedor, precio base y margen del producto.');
-            return;
-        }
-        if (form.stock == null || form.stock < this.pendingMinStock) {
-            this.utilsService.onWarn(`El stock debe ser al menos la cantidad de la proforma (${this.pendingMinStock}).`);
-            return;
-        }
-
-        const user: any = this.userService.getDataSession();
-        this.resolving = true;
-        this.deliveryService.resolvePendingMaterial(pending.id_pending_material, {
-            product: form.product.trim(),
-            code: form.code.trim() || null,
-            model: form.model.trim() || null,
-            unit: form.unit.trim() || null,
-            description: form.description.trim() || null,
-            provider_id: form.provider_id,
-            base_price: form.base_price,
-            profit_margin: this.round(form.profit_margin_percent / 100, 4),
-            profit_margin_dollar: this.pendingProfitDollar,
-            price: this.pendingFinalPrice,
-            stock: form.stock,
-            user: user?.user ?? 'Desconocido',
-        }).subscribe({
-            next: () => {
-                this.resolving = false;
-                this.utilsService.onSuccess(`"${form.product.trim()}" se creó en el catálogo.`);
-                this.closePendingProduct();
-                this.load();
-            },
-            error: (error: any) => {
-                console.log(error);
-                this.resolving = false;
-                this.utilsService.onError(error?.error?.message ?? 'No se pudo crear el producto, intente nuevamente');
-            }
-        });
-    }
-
-    private fetchProviders(): void {
-        this.loadingProviders = true;
-        this.glpiService.getProviders().subscribe({
-            next: (response: any) => {
-                this.providers = response?.data ?? [];
-                this.loadingProviders = false;
-            },
-            error: (error: any) => {
-                console.log(error);
-                this.loadingProviders = false;
-                this.utilsService.onError('Error al obtener los proveedores.');
-            }
-        });
+    onPendingProductCreated(): void {
+        this.closePendingProduct();
+        this.load();
     }
 
     private validate(): string | null {
@@ -400,22 +302,8 @@ export class MaterialDeliveryModalComponent implements OnChanges {
         this.selectedTechnician = null;
         this.observations = '';
         this.search = '';
-        this.pendingRow = null;
+        this.closePendingProduct();
         this.clearQuantities();
-    }
-
-    private emptyPendingForm(): PendingProductForm {
-        return {
-            product: '',
-            code: '',
-            model: '',
-            unit: 'Unid.',
-            provider_id: null,
-            stock: null,
-            base_price: null,
-            profit_margin_percent: null,
-            description: '',
-        };
     }
 
     // Se priorizan los técnicos asignados al proyecto; si no tiene, se usan los que devuelve la API
@@ -443,11 +331,6 @@ export class MaterialDeliveryModalComponent implements OnChanges {
                 units: detail.reduce((sum, item) => sum + item.quantity, 0),
             };
         });
-    }
-
-    private round(value: number, decimals = 2): number {
-        const factor = 10 ** decimals;
-        return Math.round(value * factor) / factor;
     }
 
     private normalize(value: string | null | undefined): string {

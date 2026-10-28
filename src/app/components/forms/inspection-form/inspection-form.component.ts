@@ -100,7 +100,10 @@ export class InspectionFormComponent {
 
     fetchUsers() {
         const filters = {
-            roles: ['jefe_sistemas', 'asiste_sistemas', 'jefe_tecnico', 'tecnico']
+            roles: ['jefe_tecnico', 'tecnico',
+                'coordinador_tecnico'
+            ],
+            users: ['e814c1bf-6626-43da-ac32-b0369a6e9c06', 'f7f14541-935b-4132-a98d-4fcbda71f2a8', 'fce8fe78-169b-4e9b-bc07-030345265e1d']
         }
         this.userService.getUsers(filters).subscribe({
             next: (data: any) => {

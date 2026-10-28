@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, inject } from '@angular/core';
+import { Component, ViewChild, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -18,6 +18,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToastModule } from 'primeng/toast';
 import { UserService } from 'src/app/services/user.service';
 import { TicketDetailSidebarComponent, TicketDetailType } from 'src/app/components/modals/ticket-detail-sidebar/ticket-detail-sidebar.component';
+import { AuthService } from 'src/app/services/auth.service';
 
 interface CommercialTicket {
   id: number | string;
@@ -74,8 +75,10 @@ export class TicketsCommercialComponent {
   private readonly userService = inject(UserService);
   readonly utilsService = inject(UtilsService);
   private readonly router = inject(Router);
+  public readonly authService = inject(AuthService);
   
-
+  user_permissions_signal = computed(() => this.authService.user_permissions_signal());
+  
   readonly areas = ['Técnica', 'Comercial', 'Proyectos', 'Contabilidad'];
   readonly statuses = ['En proceso', 'Pendiente', 'Resuelto', 'Aprobado'];
   clients = [];
@@ -151,7 +154,7 @@ export class TicketsCommercialComponent {
     {
       label: 'Asignar asesor',
       icon: 'pi pi-user-plus',
-      // visible: () => this.user_permissions_signal().includes('CONTINUAR_BITACORA') && this.selectedLogbook?.status === 'Pendiente Salida',
+      visible: () => this.user_permissions_signal().includes('ASIGNAR_ASESOR_COMERCIAL'),
       command: () => this.assignCommercialUser()
     },
   ];

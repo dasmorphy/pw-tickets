@@ -109,6 +109,14 @@
             </section>
         }
 
+        <section class="detail-section">
+            <h3><i class="pi pi-align-left"></i>Descripción Técnica</h3>
+            @if (data.description_technical) {
+                <div class="rich-text" [innerHTML]="data.description_technical"></div>
+            } @else {
+                <p class="empty">Sin descripción.</p>
+            }
+        </section>
 
         @if (type == 'commercial') {
             <section class="detail-section">

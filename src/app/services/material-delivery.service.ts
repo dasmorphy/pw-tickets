@@ -3,17 +3,38 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment.development";
 
-// Producto nuevo de la proforma que aún no existe en el catálogo
+// Producto nuevo (del registro técnico o de la proforma) que aún no existe en el catálogo
 export interface PendingMaterialInfo {
     id_pending_material: number;
-    // 'Pendiente' | 'Creado'
+    // 'Pendiente' | 'Creado' | 'Eliminado de proforma'
     status: string;
     name_material: string | null;
+    description: string | null;
     model: string | null;
     quantity: number;
     base_price: number | null;
     profit_margin: number | null;
     profit_margin_dollar: number | null;
+}
+
+// Fila de la lista de productos pendientes de logística
+export interface PendingMaterialRow extends PendingMaterialInfo {
+    // 'Técnico': nació en el registro técnico; 'Proforma': lo agregó el comercial
+    origin: string;
+    inspection_id: number;
+    inspection_code: string | null;
+    title_ticket: string | null;
+    client_name: string | null;
+    material_tech_ticket_id: number | null;
+    // null mientras la proforma no se apruebe
+    quote_id: number | null;
+    quote_number: string | null;
+    quotation_item_id: number | null;
+    material_id: number | null;
+    created_at: string;
+    created_by: string | null;
+    resolved_at: string | null;
+    resolved_by: string | null;
 }
 
 // Línea de la proforma a entregar: un ítem o un componente de "Materiales varios"
@@ -97,7 +118,7 @@ export interface ResolvePendingPayload {
     profit_margin: number | null;
     profit_margin_dollar: number | null;
     price: number | null;
-    // Stock recibido; mínimo la cantidad de la proforma
+    // Stock recibido; mínimo la cantidad de la proforma aprobada (0 si aún no tiene)
     stock: number;
     user: string;
 }
@@ -117,15 +138,18 @@ export class MaterialDeliveryService {
         return this.http.post<{ message: string; data: { id_history: number } }>(`${this.baseUrl}/material-delivery`, { data });
     }
 
-    getPendingMaterials(filters?: { quote_id?: number; status?: string }): Observable<any> {
+    getPendingMaterials(filters?: { quote_id?: number; inspection_id?: number; status?: string }): Observable<{ data: PendingMaterialRow[] }> {
         let params = new HttpParams();
         if (filters?.quote_id != null) {
             params = params.set('quote_id', filters.quote_id);
         }
+        if (filters?.inspection_id != null) {
+            params = params.set('inspection_id', filters.inspection_id);
+        }
         if (filters?.status) {
             params = params.set('status', filters.status);
         }
-        return this.http.get(`${this.baseUrl}/pending-material`, { params });
+        return this.http.get<{ data: PendingMaterialRow[] }>(`${this.baseUrl}/pending-material`, { params });
     }
 
     resolvePendingMaterial(idPendingMaterial: number, data: ResolvePendingPayload): Observable<{ message: string; data: { id_equipment: number } }> {

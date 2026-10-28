@@ -1,0 +1,147 @@
+<p-toast></p-toast>
+
+<main class="requests-page">
+  <section class="requests-panel" aria-labelledby="pending-materials-title">
+    <header class="panel-heading">
+      <div>
+        <span class="eyebrow">Logística</span>
+        <h1 id="pending-materials-title">Productos pendientes de creación</h1>
+        <p>Productos nuevos del registro técnico y de las proformas que aún no existen en el catálogo.</p>
+      </div>
+      <div class="heading-actions">
+        <span class="request-count"><strong>{{ filteredPendings.length }}</strong> productos</span>
+      </div>
+    </header>
+
+    <div class="summary-grid" aria-label="Resumen de productos pendientes">
+      <article class="summary-tile warning">
+        <span class="tile-icon"><i class="pi pi-clock"></i></span>
+        <div>
+          <span class="tile-label">Por crear</span>
+          <strong class="tile-value">{{ pendingCount | number }}</strong>
+          <small>Aún no existen en el catálogo</small>
+        </div>
+      </article>
+
+      <article class="summary-tile">
+        <span class="tile-icon"><i class="pi pi-check-circle"></i></span>
+        <div>
+          <span class="tile-label">Creados</span>
+          <strong class="tile-value">{{ createdCount | number }}</strong>
+          <small>Ya están en el catálogo</small>
+        </div>
+      </article>
+
+      <article class="summary-tile muted">
+        <span class="tile-icon"><i class="pi pi-ban"></i></span>
+        <div>
+          <span class="tile-label">Eliminados de proforma</span>
+          <strong class="tile-value">{{ removedCount | number }}</strong>
+          <small>El comercial no los cotizó</small>
+        </div>
+      </article>
+    </div>
+
+    <div class="filters" aria-label="Filtros de productos pendientes">
+      <div class="filter-field search-field">
+        <label for="pending-search">Buscar</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input pInputText id="pending-search" type="search" class="w-full" [(ngModel)]="search"
+            (ngModelChange)="applyFilters()" placeholder="Producto, ticket, cliente o proforma" />
+        </span>
+      </div>
+
+      <div class="filter-field">
+        <label for="status-filter">Estado</label>
+        <p-dropdown inputId="status-filter" [options]="statusOptions" [(ngModel)]="selectedStatus"
+          (onChange)="applyFilters()" placeholder="Todos" [showClear]="true" styleClass="request-dropdown"
+          appendTo="body"></p-dropdown>
+      </div>
+
+      <div class="filter-field">
+        <label for="origin-filter">Origen</label>
+        <p-dropdown inputId="origin-filter" [options]="originOptions" [(ngModel)]="selectedOrigin"
+          (onChange)="applyFilters()" placeholder="Todos" [showClear]="true" styleClass="request-dropdown"
+          appendTo="body"></p-dropdown>
+      </div>
+
+      <div class="filter-actions">
+        <p-button label="Limpiar filtros" icon="pi pi-filter-slash" [outlined]="true"
+          styleClass="clear-button" (onClick)="clearFilters()"></p-button>
+        <p-button label="Actualizar" icon="pi pi-refresh" [loading]="isLoading"
+          styleClass="filter-button" (onClick)="fetchPendings()"></p-button>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <p-table [value]="filteredPendings" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="isLoading" sortMode="single" rowStyleClass="custom-row-height" styleClass="requests-table"
+        dataKey="id_pending_material">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="id_pending_material"># <p-sortIcon field="id_pending_material"></p-sortIcon></th>
+            <th pSortableColumn="name_material">Producto <p-sortIcon field="name_material"></p-sortIcon></th>
+            <th pSortableColumn="inspection_code">Ticket <p-sortIcon field="inspection_code"></p-sortIcon></th>
+            <th pSortableColumn="origin">Origen <p-sortIcon field="origin"></p-sortIcon></th>
+            <th pSortableColumn="quote_number">Proforma <p-sortIcon field="quote_number"></p-sortIcon></th>
+            <th pSortableColumn="quantity" class="numeric">Cantidad <p-sortIcon field="quantity"></p-sortIcon></th>
+            <th pSortableColumn="status">Estado <p-sortIcon field="status"></p-sortIcon></th>
+            <th pSortableColumn="created_at">Registrado <p-sortIcon field="created_at"></p-sortIcon></th>
+            <th class="actions-heading"><span class="sr-only">Acciones</span></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-pending>
+          <tr>
+            <td class="muted-cell">{{ pending.id_pending_material }}</td>
+            <td class="product-cell">
+              <strong [pTooltip]="pending.name_material" tooltipPosition="top">{{ pending.name_material || 'Producto sin nombre' }}</strong>
+              @if (pending.description || pending.model) {
+                <small>{{ pending.model ? pending.model + ' · ' : '' }}{{ pending.description }}</small>
+              }
+            </td>
+            <td class="ticket-cell">
+              <span class="code-chip">{{ pending.inspection_code || '#' + pending.inspection_id }}</span>
+              @if (pending.client_name) {
+                <small>{{ pending.client_name }}</small>
+              }
+            </td>
+            <td>{{ pending.origin }}</td>
+            <td>
+              @if (pending.quote_number) {
+                {{ pending.quote_number }}
+              } @else {
+                <span class="muted-cell">Sin aprobar</span>
+              }
+            </td>
+            <td class="numeric">{{ pending.quantity | number: '1.0-2' }}</td>
+            <td><span class="status-badge" [ngClass]="statusClass(pending)">{{ pending.status }}</span></td>
+            <td class="date-cell">
+              {{ pending.created_at | date: 'dd/MM/yyyy':'UTC' }}
+              @if (pending.created_by) {
+                <small>{{ pending.created_by }}</small>
+              }
+            </td>
+            <td class="row-actions">
+              @if (canCreate(pending)) {
+                <button type="button" class="view-button" pTooltip="Crear en catálogo" tooltipPosition="top"
+                  aria-label="Crear en catálogo" (click)="openCreate(pending)">
+                  <i class="pi pi-plus-circle"></i>
+                </button>
+              }
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="9" class="empty-state"><i class="pi pi-inbox"></i><strong>No hay productos pendientes</strong><span>Prueba con otros filtros.</span></td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </section>
+</main>
+
+<app-pending-product-dialog [pending]="selectedPending" [minStock]="selectedPending ? minStock(selectedPending) : 0"
+  [source]="selectedPending?.origin === 'Técnico' ? 'Producto nuevo del registro técnico' : 'Producto nuevo de la proforma'"
+  (closed)="closeCreate()" (created)="onCreated()"></app-pending-product-dialog>

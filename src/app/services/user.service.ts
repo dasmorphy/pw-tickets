@@ -29,7 +29,8 @@ export class UserService {
 
     getUsers(filters?: any) {
         const headers = new HttpHeaders({
-            roles: filters?.roles?.join(',') ?? ''
+            roles: filters?.roles?.join(',') ?? '',
+            users: filters?.users?.join(',') ?? ''
         });
         return this.http.get(
             `${environment.apiUrl}/rest/zent-logbook-api/v1.0/get/all-users`,

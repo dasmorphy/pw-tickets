@@ -19,6 +19,8 @@ import { InspectionsTechnicalComponent } from './pages/tables/inspections-techni
 import { InspectionsApprovalComponent } from './pages/tables/inspections-approval/inspections-approval.component';
 import { LogisticsMaterialsComponent } from './pages/tables/logistics-materials/logistics-materials.component';
 import { RegisterTicketTechnicalComponent } from './components/forms/register-ticket-technical/register-ticket-technical.component';
+import { ClientsComponent } from './pages/tables/clients/clients.component';
+import { PendingMaterialsComponent } from './pages/tables/pending-materials/pending-materials.component';
 
 export const routes: Routes = [
     {
@@ -93,6 +95,19 @@ export const routes: Routes = [
                 path: "productos",
                 loadComponent: () => LogisticsMaterialsComponent,
                 canActivate: [AuthGuard]
+            },
+            {
+                path: "productos-pendientes",
+                loadComponent: () => PendingMaterialsComponent,
+                canActivate: [AuthGuard]
+            },
+            {
+                path: "clientes",
+                loadComponent: () => ClientsComponent,
+                canActivate: [AuthGuard],
+                // data: {
+                //     permission: 'VER_CLIENTES'
+                // }
             },
             {
                 path: "inspecciones-por-aprobar",

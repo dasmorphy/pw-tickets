@@ -1,0 +1,36 @@
+// Reutiliza la tabla, filtros y el diálogo del inventario de materiales
+@import '../logistics-materials/logistics-materials.component'
+
+.filters
+  grid-template-columns: 1.6fr 1fr auto
+
+.company-fields
+  margin-top: .9rem
+
+.field-hint
+  display: block
+  margin-top: .3rem
+  color: #7c899d
+  font-size: .66rem
+
+.no-company
+  color: #d97a06
+  font-size: .72rem
+  font-weight: 600
+
+:host ::ng-deep
+  .company-mode
+    display: flex
+
+    .p-button
+      flex: 1
+      height: 2.4rem
+      font-size: .76rem
+
+@media screen and (max-width: 1180px)
+  .filters
+    grid-template-columns: 1fr 1fr
+
+@media screen and (max-width: 700px)
+  .filters
+    grid-template-columns: 1fr

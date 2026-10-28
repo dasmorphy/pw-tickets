@@ -1,0 +1,99 @@
+<p-dialog [visible]="!!pending" (visibleChange)="!$event && close()" [modal]="true" [draggable]="false"
+    [resizable]="false" [closable]="false" [style]="{ width: '40rem' }" [breakpoints]="{ '700px': '96vw' }"
+    styleClass="pending-product-dialog">
+    <ng-template pTemplate="header">
+        <div class="dialog-header">
+            <span class="header-icon"><i class="pi pi-box"></i></span>
+            <div class="header-text">
+                <span class="eyebrow">Bodega · {{ source }}</span>
+                <h2>Crear en catálogo</h2>
+                <p>Los datos vienen sugeridos desde el pendiente; puede editarlos.</p>
+            </div>
+            <button type="button" class="close-button" aria-label="Cerrar" (click)="close()">
+                <i class="pi pi-times"></i>
+            </button>
+        </div>
+    </ng-template>
+
+    @if (pending) {
+        <div class="pending-form">
+            <div class="field span-2">
+                <label for="pendingProduct">Producto <span class="required">*</span></label>
+                <input pInputText id="pendingProduct" type="text" [(ngModel)]="form.product" maxlength="250" />
+            </div>
+            <div class="field">
+                <label for="pendingCode">Código</label>
+                <input pInputText id="pendingCode" type="text" [(ngModel)]="form.code" placeholder="Opcional" />
+            </div>
+            <div class="field">
+                <label for="pendingModel">Modelo</label>
+                <input pInputText id="pendingModel" type="text" [(ngModel)]="form.model" placeholder="Opcional" />
+            </div>
+            <div class="field">
+                <label for="pendingProvider">Proveedor <span class="required">*</span></label>
+                <p-dropdown inputId="pendingProvider" [options]="providers" [(ngModel)]="form.provider_id"
+                    optionLabel="name" optionValue="id_provider" [filter]="true" filterBy="name,ruc,seller"
+                    [loading]="loadingProviders" placeholder="Seleccione un proveedor" styleClass="w-full" appendTo="body">
+                </p-dropdown>
+            </div>
+            <div class="field">
+                <label for="pendingUnit">Unidad</label>
+                <input pInputText id="pendingUnit" type="text" [(ngModel)]="form.unit" />
+            </div>
+            <div class="field">
+                <label for="pendingBasePrice">Precio base <span class="required">*</span></label>
+                <p-inputNumber inputId="pendingBasePrice" [(ngModel)]="form.base_price" mode="currency"
+                    currency="USD" locale="en-US" [min]="0" styleClass="w-full"></p-inputNumber>
+            </div>
+            <div class="field">
+                <label for="pendingMargin">Margen (%) <span class="required">*</span></label>
+                <p-inputNumber inputId="pendingMargin" [(ngModel)]="form.profit_margin_percent" suffix=" %"
+                    [min]="0" [maxFractionDigits]="2" styleClass="w-full"></p-inputNumber>
+            </div>
+            <div class="field">
+                <label for="pendingStock">Stock recibido <span class="required">*</span></label>
+                <p-inputNumber inputId="pendingStock" [(ngModel)]="form.stock" [min]="minStock"
+                    [maxFractionDigits]="0" [useGrouping]="false" styleClass="w-full"></p-inputNumber>
+                <small class="field-hint">
+                    @if (minStock) {
+                        Mínimo {{ minStock }} (cantidad de la proforma).
+                    } @else {
+                        Sin proforma aprobada: puede ser 0.
+                    }
+                </small>
+            </div>
+            <div class="price-summary">
+                <span>Ganancia <strong>{{ profitDollar | currency: 'USD' }}</strong></span>
+                <span>Precio final <strong>{{ finalPrice | currency: 'USD' }}</strong></span>
+            </div>
+            <div class="field span-2">
+                <label for="pendingDescription">Descripción</label>
+                <textarea pInputTextarea id="pendingDescription" rows="5" [autoResize]="true"
+                    [(ngModel)]="form.description" placeholder="Opcional"></textarea>
+            </div>
+            @if (delivered != null) {
+                <p class="stock-result span-2">
+                    <i class="pi pi-calculator"></i>
+                    <span>
+                        Ya se entregaron <strong>{{ delivered }}</strong> con este pendiente.
+                        El catálogo quedará con <strong>{{ resultingStock }}</strong> en stock.
+                    </span>
+                </p>
+            } @else if (minStock) {
+                <p class="stock-result span-2">
+                    <i class="pi pi-calculator"></i>
+                    <span>Al stock recibido se le descontará lo ya entregado con este pendiente.</span>
+                </p>
+            }
+        </div>
+    }
+
+    <ng-template pTemplate="footer">
+        <div class="footer-actions">
+            <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
+                (click)="close()"></p-button>
+            <p-button type="button" label="Crear producto" icon="pi pi-check" styleClass="save-button"
+                [loading]="resolving" (click)="resolve()"></p-button>
+        </div>
+    </ng-template>
+</p-dialog>

@@ -129,7 +129,7 @@ export class ProjectTechnicalComponent {
         {
             label: 'Aprobar finalización',
             icon: 'pi pi-check',
-            // visible: () => this.user_permissions_signal().includes('APROBAR_FINALIZACION') && this.selectedProject?.status === 'Pendiente aprobación',
+            visible: () => this.user_permissions_signal().includes('APROBAR_FINALIZACION') && this.selectedProject?.status === 'Pendiente aprobación',
             command: () => {
                 this.showUpdate = true
                 this.typeRequest = 'Aprobar solicitud'

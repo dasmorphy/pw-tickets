@@ -1,0 +1,168 @@
+@import '../tickets-technical/tickets-technical.component'
+
+.summary-grid
+  display: grid
+  grid-template-columns: repeat(3, minmax(0, 1fr))
+  gap: .9rem
+  margin-bottom: 1rem
+
+.summary-tile
+  display: flex
+  align-items: center
+  gap: .9rem
+  padding: 1rem 1.1rem
+  border: 1px solid #e0e7f0
+  border-radius: .85rem
+  background: #fff
+  box-shadow: 0 3px 14px rgba(22, 45, 82, .04)
+
+  > div
+    display: flex
+    min-width: 0
+    flex-direction: column
+    gap: .15rem
+
+  small
+    color: #8c98aa
+    font-size: .66rem
+
+  &.warning .tile-icon
+    background: #fff4e5
+    color: #d97a06
+
+  &.muted .tile-icon
+    background: #eef2f7
+    color: #65748d
+
+.tile-icon
+  display: inline-flex
+  flex: 0 0 2.6rem
+  align-items: center
+  justify-content: center
+  width: 2.6rem
+  height: 2.6rem
+  border-radius: .65rem
+  background: #e9f8ed
+  color: #29964d
+
+  i
+    font-size: 1.05rem
+
+.tile-label
+  color: #65748d
+  font-size: .7rem
+  font-weight: 600
+
+.tile-value
+  color: #10254b
+  font-size: 1.3rem
+  font-variant-numeric: tabular-nums
+
+.filters
+  grid-template-columns: 1.6fr 1fr .8fr auto
+
+.search-field input
+  height: 2.55rem
+  border-color: #dbe3ee
+  border-radius: .48rem
+  font-size: .78rem
+
+.numeric
+  text-align: right !important
+  font-variant-numeric: tabular-nums
+  white-space: nowrap
+
+.muted-cell
+  color: #8c98aa
+
+.code-chip
+  padding: .2rem .45rem
+  border-radius: .3rem
+  background: #eef2f7
+  color: #34425c
+  font-size: .72rem
+  font-weight: 600
+  white-space: nowrap
+
+.product-cell, .ticket-cell, .date-cell
+  small
+    display: block
+    margin-top: .2rem
+    color: #8c98aa
+    font-size: .66rem
+
+.product-cell
+  max-width: 22rem
+
+  strong, small
+    display: -webkit-box
+    overflow: hidden
+    -webkit-box-orient: vertical
+    -webkit-line-clamp: 2
+
+  strong
+    color: #24344f
+    font-weight: 600
+
+.date-cell
+  white-space: nowrap
+
+.status-badge
+  display: inline-flex
+  padding: .25rem .6rem
+  border-radius: 1rem
+  font-size: .7rem
+  font-weight: 700
+  white-space: nowrap
+
+  &.pending
+    background: #fff4e5
+    color: #d97a06
+
+  &.created
+    background: #e9f8ed
+    color: #29964d
+
+  &.removed
+    background: #eef2f7
+    color: #65748d
+
+.view-button
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  width: 2rem
+  height: 2rem
+  border: 0
+  border-radius: 50%
+  background: transparent
+  color: #0b326b
+  cursor: pointer
+  transition: background .15s ease
+
+  &:hover
+    background: #f4ecf5
+
+  &:focus-visible
+    outline: 2px solid #0b326b
+    outline-offset: 1px
+
+.heading-actions
+  display: flex
+  align-items: center
+  gap: .75rem
+
+:host ::ng-deep
+  .search-field .p-input-icon-left > i
+    color: #8c98aa
+
+@media screen and (max-width: 1180px)
+  .filters
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+
+@media screen and (max-width: 700px)
+  .summary-grid, .filters
+    grid-template-columns: 1fr
+
+  .heading-actions .request-count
+    display: none
