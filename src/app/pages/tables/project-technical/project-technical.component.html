@@ -324,7 +324,7 @@
             <div class="div-responsive mt-3">
                 <div class="flex justify-content-center" *ngFor="let image of selectedRecord?.images">
                     <p-image
-                        [src]="'https://n8n.telearseg.net' + image"
+                        [src]="imagesBaseUrl + image"
                         alt="registros" width="140" height="190" loading="lazy"
                         [preview]="true" appendTo="body" imageClass="finding-image">
                     </p-image>

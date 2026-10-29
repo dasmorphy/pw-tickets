@@ -42,6 +42,17 @@
         </div>
 
         <div class="field">
+          <label for="type-material">Tipo <span class="required">*</span></label>
+          <p-dropdown inputId="type-material" formControlName="type" [options]="typeMaterial"
+            [showClear]="true" placeholder="Seleccione un tipo"
+            styleClass="w-full" appendTo="body">
+          </p-dropdown>
+          @if (isInvalid('type')) {
+            <small class="field-error">Seleccione un tipo.</small>
+          }
+        </div>
+
+        <div class="field">
           <label for="mat-provider">Proveedor <span class="required">*</span></label>
           <p-dropdown inputId="mat-provider" formControlName="provider_id" [options]="providers"
             optionLabel="name" optionValue="id_provider" [filter]="true" filterBy="name,ruc,seller"
@@ -277,6 +288,7 @@
             <th pSortableColumn="code">Código <p-sortIcon field="code"></p-sortIcon></th>
             <th pSortableColumn="product">Producto <p-sortIcon field="product"></p-sortIcon></th>
             <th pSortableColumn="model">Modelo <p-sortIcon field="model"></p-sortIcon></th>
+            <th pSortableColumn="type">Tipo <p-sortIcon field="type"></p-sortIcon></th>
             <th pSortableColumn="provider">Proveedor <p-sortIcon field="provider"></p-sortIcon></th>
             <th pSortableColumn="stock" class="numeric">Stock <p-sortIcon field="stock"></p-sortIcon></th>
             <th pSortableColumn="base_price" class="numeric">Precio base <p-sortIcon field="base_price"></p-sortIcon></th>
@@ -292,6 +304,7 @@
             <td><span class="code-chip">{{ material.code || '—' }}</span></td>
             <td class="product-cell"><span [pTooltip]="material.product" tooltipPosition="top">{{ material.product || '—' }}</span></td>
             <td>{{ material.model || '—' }}</td>
+            <td>{{ material.type || '—' }}</td>
             <td>{{ material.provider || '—' }}</td>
             <td class="numeric">
               <span class="stock-badge" [ngClass]="stockState(material)" [pTooltip]="stockLabel(material)" tooltipPosition="top">
@@ -372,6 +385,7 @@
         <dl>
           <div><dt>Código</dt><dd>{{ material.code || '—' }}</dd></div>
           <div><dt>Modelo</dt><dd>{{ material.model || '—' }}</dd></div>
+          <div><dt>Tipo</dt><dd>{{ material.type || '—' }}</dd></div>
           <div><dt>Proveedor</dt><dd>{{ material.provider || '—' }}</dd></div>
           <div><dt>Unidad</dt><dd>{{ material.unit?.trim() || '—' }}</dd></div>
           <div><dt>Stock</dt><dd>{{ material.stock ?? 0 }}</dd></div>

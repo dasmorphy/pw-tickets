@@ -65,6 +65,15 @@
             </div>
 
             <div class="form-grid">
+                @if (usersCommercial.length > 0) {
+                    <div class="field">
+                        <label for="codeSeller">Código asesor</label>
+                        <p-dropdown inputId="codeSeller" name="codeSeller" [options]="usersCommercial" optionLabel="label" optionValue="value"
+                            formControlName=salesCodeSelected placeholder="Seleccione un asesor" styleClass="w-full"
+                            appendTo="body"></p-dropdown>
+                    </div>
+                }
+
                 <div class="field">
                     <label for="proformaClient">Razón Social</label>
                     <input pInputText id="proformaClient" type="text" class="w-full readonly-input" formControlName="client"
@@ -118,6 +127,7 @@
                 <table class="items-table">
                     <thead>
                         <tr>
+                            <th class="col-item"></th>
                             <th class="col-item">Ítem</th>
                             <th class="col-model">Modelo</th>
                             <th>Descripción</th>
@@ -132,6 +142,9 @@
                     <tbody>
                         @for (item of proformaItems; track item; let i = $index) {
                             <tr>
+                                <td>
+                                    fff
+                                </td>
                                 <td class="col-item">{{ i + 1 }}</td>
                                 <td class="col-model">
                                     @if (item.kind === 'new') {
@@ -310,7 +323,7 @@
                 placeholder="Describe el motivo por el cual se rechazó la oportunidad" [autoResize]="true"></textarea>
         </div>
 
-        <!-- <app-document-upload *ngIf="!ticketIdEdit" [(files)]="documents"></app-document-upload> -->
+        <app-document-upload [(files)]="documents"></app-document-upload>
 
         <div class="form-actions">
             <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"

@@ -86,6 +86,7 @@ export class RegisterTicketCommercialComponent {
 
     ticketForm: FormGroup;
 
+    usersCommercial: any[] = []
     origins: any = [];
     solutionTypes: any = [];
     status: any = [];
@@ -138,6 +139,7 @@ export class RegisterTicketCommercialComponent {
                 client: [''],
                 requested_by: [''],
                 project: [''],
+                salesCodeSelected: [null]
             }),
             // Condiciones comerciales de la proforma; se envían dentro de sale_quotation
             quotation_terms: this.fb.group({
@@ -226,6 +228,29 @@ export class RegisterTicketCommercialComponent {
         const factor = 10 ** decimals;
         return Math.round((value + Number.EPSILON) * factor) / factor;
     }
+
+    getUsersCommercial(sales_user?: string): void {
+        this.userService.getUsers({
+            roles: ['asesor_ventas']
+        }).subscribe({
+            next: (data: any) => {
+                if (sales_user) {
+                    const user_commercial = data?.data?.find((user: any) => user.user == sales_user)
+                    const code_seller = user_commercial?.attributes?.sales_consultant_code
+                    this.proformaForm.patchValue({salesCodeSelected: code_seller })
+                }else{
+                    this.usersCommercial = (data?.data ?? []).map((user: any) => ({
+                        label: `${user.attributes?.fullname ?? ''} - ${user.attributes?.sales_consultant_code ?? ''}`,
+                        value: user.attributes?.sales_consultant_code
+                    }));
+                }
+            },
+            error: (error: any) => {
+                console.log(error)
+            }
+        })
+    }
+
 
     loadTicket(): void {
         this.glpiService.getTicketsCommercial({'ticket_commercial_id': this.ticketIdEdit}).subscribe({
@@ -367,6 +392,9 @@ export class RegisterTicketCommercialComponent {
                     requested_by: inspection?.contact ?? '',
                     ruc: inspection?.identity ?? '',
                 });
+                if (!this.user_session?.attributes?.sales_consultant_code) {
+                    this.getUsersCommercial(inspection?.sales_user);
+                }
             },
             error: (error: any) => {
                 console.log(error);
@@ -703,7 +731,7 @@ export class RegisterTicketCommercialComponent {
         const { proforma, quotation_terms, ...ticketValues } = this.ticketForm.value;
         const ticketData = {
             ...ticketValues,
-            sales_code: this.user_session?.attributes?.sales_consultant_code ?? null,
+            sales_code: this.user_session?.attributes?.sales_consultant_code ?? proforma.salesCodeSelected ?? null,
             quoted_amount: this.total,
             sale_quotation: {
                 client_company: this.clientCompanyId,
@@ -752,6 +780,10 @@ export class RegisterTicketCommercialComponent {
             user: this.user_session?.user
         };
 
+        if (!ticketData?.sales_code && this.usersCommercial.length > 0) {
+            this.utilsService.onWarn('Seleccione un asesor para poder continuar');
+            return;
+        }
 
         if (this.ticketIdEdit) {
             this.updateTicket(ticketData);
@@ -770,7 +802,7 @@ export class RegisterTicketCommercialComponent {
     }
 
     updateTicket(data: any) {
-        this.glpiService.updateTicketCommercial(data).subscribe({
+        this.glpiService.updateTicketCommercial(data, this.documents).subscribe({
             next: (data: any) => {
                 this.utilsService.onSuccess('Ticket actualizado exitosamente.');
                 this.router.navigate(['/tickets-comercial'])

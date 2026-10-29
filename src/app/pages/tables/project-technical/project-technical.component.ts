@@ -30,6 +30,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ImageModule } from "primeng/image";
 import { AuthService } from "src/app/services/auth.service";
 import { MaterialDeliveryModalComponent } from "src/app/components/modals/material-delivery-modal/material-delivery-modal.component";
+import { environment } from "src/environments/environment.development";
 
 @Component({
     selector: 'app-project-technical',
@@ -73,7 +74,8 @@ export class ProjectTechnicalComponent {
     private readonly projectTechnicalService = inject(ProjectTechnicalService);
     public readonly authService = inject(AuthService);
     
-
+    readonly imagesBaseUrl = environment.apiTicket;
+    
     user_permissions_signal = computed(() => this.authService.user_permissions_signal());
 
     

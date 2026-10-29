@@ -47,6 +47,7 @@ export class InspectionFormComponent {
     
     ticketForm: FormGroup;
     
+    type: string[] = ["Inspección", "Soporte", "Asistencia Técnica"];
     clientsOptions: any[] = [];
     ubicationsOptions: any[] = [];
     user_session: any;
@@ -73,6 +74,7 @@ export class InspectionFormComponent {
             ubication_name: ['', Validators.required],
             ubication_id: ['', Validators.required],
             contact: ['', Validators.required],
+            type: ['Inspección', Validators.required],
             case_type: ['', Validators.required],
             priority: [null, Validators.required],
             management_status: [null, Validators.required],

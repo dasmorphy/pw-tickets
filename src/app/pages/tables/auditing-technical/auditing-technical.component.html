@@ -98,7 +98,7 @@
                                 <div class="signature-item">
                                     <span class="auditing-label">AUDITOR</span>
                                     @if (signatures?.auditor_image) {
-                                        <p-image [src]="'https://n8n.telearseg.net' + signatures.auditor_image"
+                                        <p-image [src]="imagesBaseUrl + signatures.auditor_image"
                                             alt="Firma del auditor" width="170" height="72" [preview]="true"
                                             appendTo="body" imageClass="signature-image"></p-image>
                                     } @else {
@@ -109,7 +109,7 @@
                                 <div class="signature-item">
                                     <span class="auditing-label">CLIENTE</span>
                                     @if (signatures?.client_image) {
-                                        <p-image [src]="'https://n8n.telearseg.net' + signatures.client_image"
+                                        <p-image [src]="imagesBaseUrl + signatures.client_image"
                                             alt="Firma del cliente" width="170" height="72" [preview]="true"
                                             appendTo="body" imageClass="signature-image"></p-image>
                                     } @else {
@@ -120,7 +120,7 @@
                                 <div class="signature-item">
                                     <span class="auditing-label">RESPONSABLE</span>
                                     @if (signatures?.responsible_image) {
-                                        <p-image [src]="'https://n8n.telearseg.net' + signatures.responsible_image"
+                                        <p-image [src]="imagesBaseUrl + signatures.responsible_image"
                                             alt="Firma del responsable" width="170" height="72" [preview]="true"
                                             appendTo="body" imageClass="signature-image"></p-image>
                                     } @else {
@@ -174,7 +174,7 @@
                                         <span class="auditing-label">IMÁGENES</span>
                                         <div class="finding-images__grid">
                                             <p-image *ngFor="let image of finding?.images"
-                                                [src]="'https://n8n.telearseg.net' + image" loading="lazy"
+                                                [src]="imagesBaseUrl + image" loading="lazy"
                                                 alt="Evidencia del hallazgo" width="150" height="105"
                                                 [preview]="true" appendTo="body" imageClass="finding-image"></p-image>
                                         </div>

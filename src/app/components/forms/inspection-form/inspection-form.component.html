@@ -12,6 +12,14 @@
                 <form #commercialForm="ngForm" [formGroup]="ticketForm" class="commercial-form">
                     <div class="form-grid">
                         <div class="field">
+                            <label for="type_inspection">Tipo</label>
+                            <p-dropdown inputId="type_inspection" [options]="type"
+                                placeholder="Seleccione" styleClass="w-full" appendTo="body"
+                                formControlName="type">
+                            </p-dropdown>
+                        </div>
+
+                        <div class="field">
                             <label for="client_id">Cliente</label>
                             <p-dropdown inputId="client_id" name="client_id" [options]="clientsOptions" [filter]="true"
                                 filterBy="name" placeholder="Seleccione un cliente" styleClass="w-full" appendTo="body"
