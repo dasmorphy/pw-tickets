@@ -22,18 +22,26 @@ import { DocumentUploadComponent } from '../document-upload/document-upload.comp
  * catalog: material del registro técnico con material_id (solo se edita la cantidad)
  * new:     producto nuevo, del registro técnico o agregado en la proforma (modelo, descripción y precios manuales)
  * added:   ítem agregado desde la proforma eligiendo un material del catálogo
- * bundle:  "Materiales varios": agrupa varios materiales del catálogo en un solo ítem de cantidad 1;
- *          sus precios son la suma de los componentes y solo se editan desde el modal
+ * bundle:  "Materiales varios": agrupa varios materiales en un solo ítem de cantidad 1; cada componente
+ *          es del catálogo ('added') o un producto nuevo ('new', propio o del registro técnico).
+ *          Sus precios son la suma de los componentes y solo se editan desde el modal
  * labor:   "Mano de obra": modelo M/V y cantidad 1 fijos; descripción, precio base y ganancia manuales
  */
 type ProformaItemKind = 'catalog' | 'new' | 'added' | 'bundle' | 'labor';
+
+// Producto nuevo del registro técnico (sin material_id): se puede cotizar como ítem o dentro de materiales varios
+interface TechnicalNewProduct {
+    id_material: number;
+    description: string;
+    quantity: number | null;
+}
 
 interface ProformaItem {
     kind: ProformaItemKind;
     // Solo en 'bundle': materiales que componen el ítem
     components?: ProformaItem[];
     material_id: number | null;
-    // Solo en 'new': material del registro técnico del que proviene (vincula su pendiente de creación)
+    // Solo en 'new' (ítem o componente): material del registro técnico del que proviene (vincula su pendiente)
     material_tech_ticket_id?: number | null;
     model: string;
     description: string;
@@ -95,6 +103,11 @@ export class RegisterTicketCommercialComponent {
     catalogMaterials: any[] = [];
     loadingCatalog = false;
 
+    // Productos nuevos del registro técnico, para poder agregarlos a materiales varios
+    technicalNewProducts: TechnicalNewProduct[] = [];
+    // Los que se pueden agregar al borrador de materiales varios (ver refreshTechnicalOptions)
+    technicalOptions: (TechnicalNewProduct & { inProforma: boolean })[] = [];
+
     // Modal de materiales varios: se edita una copia y se aplica al confirmar
     bundleDialogVisible = false;
     bundleDraft: ProformaItem[] = [];
@@ -147,9 +160,7 @@ export class RegisterTicketCommercialComponent {
             })
             this.fetchInspection(inspectionId);
             // Al editar, los ítems salen de la proforma guardada (ver loadTicket)
-            if (!this.ticketIdEdit) {
-                this.fetchInspectionMaterials(inspectionId);
-            }
+            this.fetchInspectionMaterials(inspectionId, !this.ticketIdEdit);
         }
         this.fetchOrigin();
         this.fetchStatus();
@@ -271,7 +282,14 @@ export class RegisterTicketCommercialComponent {
     private fromSavedItem(saved: any): ProformaItem {
         if (saved.is_bundle) {
             return this.buildBundleItem(
-                (saved.components ?? []).map((component: any) => this.fromSavedPrices('added', component))
+                (saved.components ?? []).map((component: any) => component.is_new
+                    ? {
+                        ...this.fromSavedPrices('new', component),
+                        material_tech_ticket_id: component.material_tech_ticket_id ?? null,
+                        model: component.model ?? '',
+                        description: component.description ?? '',
+                    }
+                    : this.fromSavedPrices('added', component))
             );
         }
         if (saved.is_labor || saved.is_new) {
@@ -357,11 +375,21 @@ export class RegisterTicketCommercialComponent {
         })
     }
 
-    fetchInspectionMaterials(inspectionId: number) {
-        this.loadingMaterials = true;
+    fetchInspectionMaterials(inspectionId: number, buildItems = true) {
+        this.loadingMaterials = buildItems;
         this.glpiService.getInspectionMaterials(inspectionId).subscribe({
             next: (data: any) => {
-                this.proformaItems = (data?.data ?? []).map((material: any) => this.toProformaItem(material));
+                const materials = data?.data ?? [];
+                this.technicalNewProducts = materials
+                    .filter((material: any) => !material?.equipment && material?.id_material)
+                    .map((material: any) => ({
+                        id_material: material.id_material,
+                        description: this.technicalDescription(material),
+                        quantity: material?.quantity ?? null,
+                    }));
+                if (buildItems) {
+                    this.proformaItems = materials.map((material: any) => this.toProformaItem(material));
+                }
                 this.loadingMaterials = false;
             },
             error: (error: any) => {
@@ -399,7 +427,7 @@ export class RegisterTicketCommercialComponent {
                 material_id: null,
                 material_tech_ticket_id: material?.id_material ?? null,
                 model: '',
-                description: [material?.other, material?.material_description].filter(Boolean).join(' - '),
+                description: this.technicalDescription(material),
                 quantity: material?.quantity ?? null,
                 base_price: null,
                 profit_margin: null,
@@ -414,6 +442,10 @@ export class RegisterTicketCommercialComponent {
             ...this.pricesFromEquipment(equipment),
             quantity: material?.quantity ?? null,
         };
+    }
+
+    private technicalDescription(material: any): string {
+        return [material?.other, material?.material_description].filter(Boolean).join(' - ');
     }
 
     private pricesFromEquipment(equipment: any) {
@@ -466,6 +498,7 @@ export class RegisterTicketCommercialComponent {
         this.bundleDraft = components.length
             ? components.map(component => ({ ...component }))
             : [this.emptyItem('added')];
+        this.refreshTechnicalOptions();
         this.bundleDialogVisible = true;
     }
 
@@ -478,12 +511,49 @@ export class RegisterTicketCommercialComponent {
         this.bundleEditIndex = null;
     }
 
-    addBundleMaterial() {
-        this.bundleDraft.push(this.emptyItem('added'));
+    addBundleMaterial(kind: 'added' | 'new' = 'added') {
+        this.bundleDraft.push(this.emptyItem(kind));
+    }
+
+    // Productos del técnico que aún no están en otros materiales varios ni en este borrador.
+    // Los que están como ítem suelto se pueden elegir: al aplicar se mueven al grupo.
+    private refreshTechnicalOptions() {
+        const usedInBundles = new Set<number>();
+        this.proformaItems.forEach((item, index) => {
+            if (item.kind === 'bundle' && index !== this.bundleEditIndex) {
+                item.components?.forEach(component => component.material_tech_ticket_id && usedInBundles.add(component.material_tech_ticket_id));
+            }
+        });
+        this.bundleDraft.forEach(component => component.material_tech_ticket_id && usedInBundles.add(component.material_tech_ticket_id));
+        const standalone = new Set(this.proformaItems
+            .filter(item => item.kind === 'new' && item.material_tech_ticket_id)
+            .map(item => item.material_tech_ticket_id));
+        this.technicalOptions = this.technicalNewProducts
+            .filter(product => !usedInBundles.has(product.id_material))
+            .map(product => ({ ...product, inProforma: standalone.has(product.id_material) }));
+    }
+
+    addTechnicalProductToBundle(idMaterial: number | null) {
+        const product = this.technicalNewProducts.find(candidate => candidate.id_material === idMaterial);
+        if (!product) {
+            return;
+        }
+        // Si ya estaba como ítem suelto se conservan los precios que el comercial ingresó
+        const standalone = this.proformaItems.find(item => item.kind === 'new' && item.material_tech_ticket_id === product.id_material);
+        this.bundleDraft.push(standalone
+            ? { ...standalone, components: undefined }
+            : {
+                ...this.emptyItem('new'),
+                material_tech_ticket_id: product.id_material,
+                description: product.description,
+                quantity: product.quantity ?? 1,
+            });
+        this.refreshTechnicalOptions();
     }
 
     removeBundleMaterial(index: number) {
         this.bundleDraft.splice(index, 1);
+        this.refreshTechnicalOptions();
     }
 
     applyBundle() {
@@ -499,6 +569,10 @@ export class RegisterTicketCommercialComponent {
         } else {
             this.proformaItems.push(bundle);
         }
+        // Un producto del técnico va en una sola línea: si estaba como ítem suelto se mueve al grupo
+        const moved = new Set(bundle.components?.map(component => component.material_tech_ticket_id).filter(Boolean));
+        this.proformaItems = this.proformaItems.filter(item =>
+            !(item.kind === 'new' && item.material_tech_ticket_id && moved.has(item.material_tech_ticket_id)));
         this.closeBundleDialog();
     }
 
@@ -531,7 +605,7 @@ export class RegisterTicketCommercialComponent {
 
     private bundleDescription(components: ProformaItem[]): string {
         return components
-            .filter(component => component.material_id && component.description)
+            .filter(component => (component.material_id || component.kind === 'new') && component.description?.trim())
             .map(component => `${component.quantity ?? 0} ${component.description}`)
             .join(', ');
     }
@@ -544,13 +618,19 @@ export class RegisterTicketCommercialComponent {
         const seen = new Set<number>();
         for (let i = 0; i < this.bundleDraft.length; i++) {
             const component = this.bundleDraft[i];
-            if (!component.material_id) {
-                return `Seleccione el material de la fila ${i + 1}.`;
+            if (component.kind === 'new') {
+                if (!component.description?.trim()) {
+                    return `Ingrese la descripción del producto nuevo de la fila ${i + 1}.`;
+                }
+            } else {
+                if (!component.material_id) {
+                    return `Seleccione el material de la fila ${i + 1}.`;
+                }
+                if (seen.has(component.material_id)) {
+                    return `El material "${component.description}" está repetido; ajuste su cantidad en una sola fila.`;
+                }
+                seen.add(component.material_id);
             }
-            if (seen.has(component.material_id)) {
-                return `El material "${component.description}" está repetido; ajuste su cantidad en una sola fila.`;
-            }
-            seen.add(component.material_id);
             if (!component.quantity || component.quantity <= 0) {
                 return `Ingrese una cantidad mayor a 0 en la fila ${i + 1}.`;
             }
@@ -645,7 +725,15 @@ export class RegisterTicketCommercialComponent {
                         ? { model: item.model?.trim() || null, description: item.description.trim() }
                         : {}),
                     components: item.components?.map(component => ({
-                        material_id: component.material_id,
+                        material_id: component.kind === 'new' ? null : component.material_id,
+                        is_new: component.kind === 'new',
+                        ...(component.kind === 'new'
+                            ? {
+                                model: component.model?.trim() || null,
+                                description: component.description.trim(),
+                                material_tech_ticket_id: component.material_tech_ticket_id ?? null,
+                            }
+                            : {}),
                         quantity: component.quantity,
                         base_price: component.base_price,
                         profit_margin: component.profit_margin,

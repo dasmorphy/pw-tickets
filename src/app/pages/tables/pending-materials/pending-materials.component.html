@@ -107,9 +107,12 @@
               }
             </td>
             <td>{{ pending.origin }}</td>
-            <td>
+            <td class="ticket-cell">
               @if (pending.quote_number) {
                 {{ pending.quote_number }}
+                @if (pending.additional_material_id) {
+                  <small>Materiales varios</small>
+                }
               } @else {
                 <span class="muted-cell">Sin aprobar</span>
               }

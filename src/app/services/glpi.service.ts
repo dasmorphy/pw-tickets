@@ -178,6 +178,10 @@ export class GlpiService {
             params = params.set('ticket_commercial_id', filters.ticket_commercial_id);
         }
 
+        if (filters?.sales_user) {
+            params = params.set('sales_user', filters.sales_user);
+        }
+
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-commercial`, {
             params
         });

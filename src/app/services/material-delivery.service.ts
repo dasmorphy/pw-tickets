@@ -30,6 +30,8 @@ export interface PendingMaterialRow extends PendingMaterialInfo {
     quote_id: number | null;
     quote_number: string | null;
     quotation_item_id: number | null;
+    // Componente de "Materiales varios" al que pertenece (en vez de un ítem)
+    additional_material_id: number | null;
     material_id: number | null;
     created_at: string;
     created_by: string | null;

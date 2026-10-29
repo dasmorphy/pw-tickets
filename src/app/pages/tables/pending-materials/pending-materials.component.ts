@@ -124,7 +124,7 @@ export class PendingMaterialsComponent implements OnInit {
 
     // Con proforma aprobada el stock debe cubrir su cantidad; antes, basta con 0
     minStock(pending: PendingMaterialRow): number {
-        return pending.quotation_item_id != null ? pending.quantity ?? 0 : 0;
+        return pending.quote_id != null ? pending.quantity ?? 0 : 0;
     }
 
     openCreate(pending: PendingMaterialRow): void {

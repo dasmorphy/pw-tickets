@@ -332,8 +332,29 @@
         <div class="bundle-editor">
             <div class="items-header">
                 <h4>Materiales <span class="count-badge">{{ bundleDraft.length }}</span></h4>
-                <p-button type="button" label="Agregar material" icon="pi pi-plus" [outlined]="true"
-                    styleClass="add-button add-existing" (click)="addBundleMaterial()"></p-button>
+                <div class="add-actions" role="group" aria-label="Agregar material">
+                    <span class="add-label">Agregar:</span>
+                    <p-button type="button" label="Material existente" icon="pi pi-box" [outlined]="true"
+                        styleClass="add-button add-existing" pTooltip="Elegir un material del catálogo"
+                        tooltipPosition="top" (click)="addBundleMaterial('added')"></p-button>
+                    @if (technicalOptions.length) {
+                        <p-dropdown #technicalDropdown [options]="technicalOptions" optionLabel="description"
+                            optionValue="id_material" placeholder="Del registro técnico"
+                            (onChange)="addTechnicalProductToBundle($event.value); technicalDropdown.writeValue(null)"
+                            styleClass="technical-dropdown" appendTo="body"
+                            ariaLabel="Agregar un producto nuevo del registro técnico">
+                            <ng-template let-product pTemplate="item">
+                                <div class="catalog-option">
+                                    <strong>{{ product.description || 'Producto sin descripción' }}</strong>
+                                    <small>Cant. {{ product.quantity ?? '—' }}{{ product.inProforma ? ' · Se moverá desde los ítems de la proforma' : '' }}</small>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                    }
+                    <p-button type="button" label="Producto nuevo" icon="pi pi-plus-circle"
+                        styleClass="add-button" pTooltip="Producto que no está en el catálogo"
+                        tooltipPosition="top" (click)="addBundleMaterial('new')"></p-button>
+                </div>
             </div>
 
             <div class="items-scroll">
@@ -355,22 +376,33 @@
                             <tr>
                                 <td class="col-item">{{ j + 1 }}</td>
                                 <td>
-                                    <p-dropdown [options]="catalogMaterials" [ngModel]="component.material_id"
-                                        (ngModelChange)="onSelectCatalogMaterial(component, $event)"
-                                        optionLabel="product" optionValue="id_equipment" [filter]="true"
-                                        filterBy="product,code,model" [loading]="loadingCatalog"
-                                        placeholder="Seleccione un material" emptyMessage="Sin materiales"
-                                        emptyFilterMessage="Sin resultados" styleClass="w-full catalog-dropdown"
-                                        appendTo="body" [ariaLabel]="'Material de la fila ' + (j + 1)">
-                                        <ng-template let-material pTemplate="item">
-                                            <div class="catalog-option">
-                                                <strong>{{ material.product }}</strong>
-                                                <small>{{ material.model || 'Sin modelo' }}{{ material.code ? ' · ' + material.code : '' }} · {{ material.price != null ? (material.price | currency: 'USD') : 'Sin precio' }}</small>
-                                            </div>
-                                        </ng-template>
-                                    </p-dropdown>
-                                    @if (component.model) {
-                                        <small class="component-model">Modelo: {{ component.model }}</small>
+                                    @if (component.kind === 'new') {
+                                        <div class="new-component">
+                                            <input pInputText type="text" class="component-model-input" [(ngModel)]="component.model"
+                                                placeholder="Modelo" [attr.aria-label]="'Modelo de la fila ' + (j + 1)" />
+                                            <textarea pInputTextarea rows="1" [autoResize]="true" class="w-full"
+                                                [(ngModel)]="component.description" placeholder="Descripción"
+                                                [attr.aria-label]="'Descripción de la fila ' + (j + 1)"></textarea>
+                                        </div>
+                                        <span class="new-badge">{{ component.material_tech_ticket_id ? 'Producto nuevo · Registro técnico' : 'Producto nuevo' }}</span>
+                                    } @else {
+                                        <p-dropdown [options]="catalogMaterials" [ngModel]="component.material_id"
+                                            (ngModelChange)="onSelectCatalogMaterial(component, $event)"
+                                            optionLabel="product" optionValue="id_equipment" [filter]="true"
+                                            filterBy="product,code,model" [loading]="loadingCatalog"
+                                            placeholder="Seleccione un material" emptyMessage="Sin materiales"
+                                            emptyFilterMessage="Sin resultados" styleClass="w-full catalog-dropdown"
+                                            appendTo="body" [ariaLabel]="'Material de la fila ' + (j + 1)">
+                                            <ng-template let-material pTemplate="item">
+                                                <div class="catalog-option">
+                                                    <strong>{{ material.product }}</strong>
+                                                    <small>{{ material.model || 'Sin modelo' }}{{ material.code ? ' · ' + material.code : '' }} · {{ material.price != null ? (material.price | currency: 'USD') : 'Sin precio' }}</small>
+                                                </div>
+                                            </ng-template>
+                                        </p-dropdown>
+                                        @if (component.model) {
+                                            <small class="component-model">Modelo: {{ component.model }}</small>
+                                        }
                                     }
                                 </td>
                                 <td class="col-quantity">
@@ -382,7 +414,7 @@
                                         (ngModelChange)="onBasePriceChange(component, $event)"
                                         mode="currency" currency="USD" locale="en-US" [min]="0"
                                         [minFractionDigits]="2" [maxFractionDigits]="2" placeholder="$0.00"
-                                        [styleClass]="component.material_id && component.base_price == null ? 'pending-price' : ''"
+                                        [styleClass]="(component.material_id || component.kind === 'new') && component.base_price == null ? 'pending-price' : ''"
                                         [ariaLabel]="'Precio base de la fila ' + (j + 1)"></p-inputNumber>
                                 </td>
                                 <td class="col-margin">
@@ -410,7 +442,7 @@
                         } @empty {
                             <tr>
                                 <td colspan="8" class="items-empty">
-                                    <i class="pi pi-box"></i>No hay materiales. Use "Agregar material".
+                                    <i class="pi pi-box"></i>No hay materiales. Agregue uno del catálogo o un producto nuevo.
                                 </td>
                             </tr>
                         }

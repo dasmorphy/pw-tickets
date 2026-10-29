@@ -134,7 +134,7 @@ export class TicketsCommercialComponent {
         label: 'Editar',
         icon: 'pi pi-play-circle',
         // Solo una gestión pendiente (status_id 7) se puede editar; el backend también lo valida
-        visible: () => this.selectedTicket?.status_id === 7,
+        visible: () => this.selectedTicket?.status_id === 7 || this.selectedTicket?.status_id === 8,
         command: () => this.routeRegister()
     },
   ];
@@ -276,8 +276,13 @@ export class TicketsCommercialComponent {
 
   fetchCompletedTickets(): void {
     this.completedLoading = true;
+    let filters: any = {};
 
-    this.glpiService.getTicketsCommercial().subscribe({
+    if (this.user_json?.role == 'asesor_ventas') {
+      filters.sales_user = this.user_json?.user
+    }
+
+    this.glpiService.getTicketsCommercial(filters).subscribe({
       next: (response: any) => {
         this.completedTickets = response?.data;
         this.completedLoaded = true;
@@ -341,6 +346,7 @@ export class TicketsCommercialComponent {
   }
 
   optionsTicket(ticket: any) {
+    console.log(ticket)
     this.selectedTicket = ticket
   }
 

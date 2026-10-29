@@ -64,6 +64,7 @@ export class TicketDetailSidebarComponent implements OnChanges {
     auditFields: DetailField[] = [];
     materials: DetailMaterial[] = [];
     documents: InspectionDocument[] = [];
+    inspectionData: any;
     loadingDocuments = false;
     // Proforma de la inspección (GET de inspecciones: sale_quote_id); null si no existe
     saleQuoteId: number | null = null;
@@ -89,6 +90,10 @@ export class TicketDetailSidebarComponent implements OnChanges {
             return this.data?.status_name ?? null;
         }
         return this.data?.status ?? null;
+    }
+
+    ngOnInit() {
+        this.inspectionData = null;
     }
 
     ngOnChanges(): void {
@@ -271,6 +276,7 @@ export class TicketDetailSidebarComponent implements OnChanges {
         this.loadingDocuments = true;
         this.glpiService.getInspectionTechnical({ id_inspection: inspectionId }).subscribe({
             next: (response: any) => {
+                this.inspectionData = response?.data?.[0];
                 // Ignora respuestas de un registro anterior si el usuario ya abrió otro
                 if (this.documentsRequestId !== inspectionId) return;
                 this.documents = response?.data?.[0]?.documents ?? [];

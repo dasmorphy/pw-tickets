@@ -92,7 +92,8 @@
               <td class="subject-cell">{{ request.contact ?? 'N/A' }}</td>
               <td><span>{{ request.priority ?? 'N/A' }}</span></td>
               <td><span>{{ request.status_name ?? request.status ?? 'N/A' }}</span></td>
-              <td><span>{{ request.sales_user ?? 'N/A' }}</span></td>
+              <td><span>{{ request.name_sale_user  ?? 'N/A' }}</span></td>
+              <!-- <td><span>{{ activeIndex === 1 ? request.name_sale_user : request.sales_user ?? 'N/A' }}</span></td> -->
               <td><span>{{ request.created_by ?? 'N/A' }}</span></td>
               <td *ngIf="activeIndex === 1">
                 <span *ngIf="request.last_followup_at; else noFollowup" class="last-followup" [pTooltip]="'Hora ' + (request.last_followup_at | date:'HH:mm':'UTC')" tooltipPosition="top">
