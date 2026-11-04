@@ -47,7 +47,8 @@ export class InspectionFormComponent {
     
     ticketForm: FormGroup;
     
-    type: string[] = ["Inspección", "Soporte", "Asistencia Técnica"];
+    type: string[] = ["Inspección", "Soporte"];
+    readonly SUPPORT_TYPE = 'Soporte';
     clientsOptions: any[] = [];
     ubicationsOptions: any[] = [];
     user_session: any;
@@ -80,6 +81,9 @@ export class InspectionFormComponent {
             management_status: [null, Validators.required],
             // status: [null, Validators.required],
             commitment_date: ['', Validators.required],
+            // Solo para Soporte, en lugar de commitment_date
+            start_date: [null],
+            end_date: [null],
             // requires_material: [false],
             requires_monitoring: [false],
             title_ticket: ['', Validators.required],
@@ -87,6 +91,26 @@ export class InspectionFormComponent {
             responsible_name: [''],
             observations: [''],
         });
+
+        this.ticketForm.get('type')!.valueChanges.subscribe(type => this.applyTypeValidators(type));
+        this.applyTypeValidators(this.ticketForm.get('type')!.value);
+    }
+
+    get isSupport(): boolean {
+        return this.ticketForm.get('type')?.value === this.SUPPORT_TYPE;
+    }
+
+    /** Soporte usa fecha inicio y fin; los demás tipos, la fecha compromiso. */
+    private applyTypeValidators(type: string) {
+        const support = type === this.SUPPORT_TYPE;
+        const required = (name: string, isRequired: boolean) => {
+            const control = this.ticketForm.get(name)!;
+            control.setValidators(isRequired ? Validators.required : null);
+            control.updateValueAndValidity({ emitEvent: false });
+        };
+        required('commitment_date', !support);
+        required('start_date', support);
+        required('end_date', support);
     }
     
     ngOnInit() {
@@ -213,8 +237,17 @@ export class InspectionFormComponent {
 
     saveTicket() {
         if (this.ticketForm.valid) {
+            const { start_date, end_date } = this.ticketForm.value;
+            if (this.isSupport && end_date < start_date) {
+                this.utilsService.onError('La fecha fin no puede ser anterior a la fecha inicio');
+                return;
+            }
             const ticketData = {
                 ...this.ticketForm.value,
+                // Se envía en null la fecha que no corresponde al tipo
+                commitment_date: this.isSupport ? null : this.ticketForm.value.commitment_date,
+                start_date: this.isSupport ? start_date : null,
+                end_date: this.isSupport ? end_date : null,
                 user: this.user_session?.user
             };
 
@@ -267,11 +300,14 @@ export class InspectionFormComponent {
             ubication_name: dataTicket?.ubication_name ?? dataTicket?.location_name,
             contact: dataTicket?.contact,
             title_ticket: dataTicket?.title_ticket,
+            type: dataTicket?.type ?? 'Inspección',
             case_type: dataTicket?.case_type,
             priority: dataTicket?.priority,
             management_status: dataTicket?.management_status,
             // status: dataTicket?.status,
             commitment_date: commitmentDate,
+            start_date: dataTicket?.start_date ? new Date(dataTicket.start_date) : null,
+            end_date: dataTicket?.end_date ? new Date(dataTicket.end_date) : null,
             responsible_id: dataTicket?.responsible_id,
             responsible_name: dataTicket?.responsible_name,
             // requires_material: dataTicket?.requires_material ?? false,

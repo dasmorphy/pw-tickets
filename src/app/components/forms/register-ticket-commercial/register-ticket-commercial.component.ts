@@ -44,6 +44,7 @@ interface ProformaItem {
     // Solo en 'new' (ítem o componente): material del registro técnico del que proviene (vincula su pendiente)
     material_tech_ticket_id?: number | null;
     model: string;
+    checked_item?: boolean;
     description: string;
     quantity: number | null;
     base_price: number | null;
@@ -306,7 +307,7 @@ export class RegisterTicketCommercialComponent {
 
     private fromSavedItem(saved: any): ProformaItem {
         if (saved.is_bundle) {
-            return this.buildBundleItem(
+            const bundle = this.buildBundleItem(
                 (saved.components ?? []).map((component: any) => component.is_new
                     ? {
                         ...this.fromSavedPrices('new', component),
@@ -316,6 +317,7 @@ export class RegisterTicketCommercialComponent {
                     }
                     : this.fromSavedPrices('added', component))
             );
+            return { ...bundle, checked_item: saved.checked_item };
         }
         if (saved.is_labor || saved.is_new) {
             return {
@@ -340,6 +342,7 @@ export class RegisterTicketCommercialComponent {
             quantity: saved.quantity ?? null,
             base_price: basePrice,
             profit_margin: saved.profit_margin ?? null,
+            checked_item: saved.checked_item,
             profit_margin_dollar: profitDollar,
             price: basePrice != null ? this.round(basePrice + (profitDollar ?? 0)) : null,
         };
@@ -593,6 +596,7 @@ export class RegisterTicketCommercialComponent {
 
         const bundle = this.buildBundleItem(this.bundleDraft.map(component => ({ ...component })));
         if (this.bundleEditIndex != null) {
+            bundle.checked_item = this.proformaItems[this.bundleEditIndex].checked_item;
             this.proformaItems[this.bundleEditIndex] = bundle;
         } else {
             this.proformaItems.push(bundle);
@@ -738,6 +742,7 @@ export class RegisterTicketCommercialComponent {
                 items: this.proformaItems.map((item, index) => ({
                     item: index + 1,
                     material_id: item.material_id,
+                    checked_item: item.checked_item ?? false,
                     quantity: item.quantity,
                     base_price: item.base_price,
                     profit_margin: item.profit_margin,
