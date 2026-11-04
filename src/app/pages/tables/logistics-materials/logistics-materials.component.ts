@@ -70,6 +70,7 @@ export class LogisticsMaterialsComponent implements OnInit {
     deleteImageIds: number[] = [];
     isSaving = false;
     providers: Provider[] = [];
+    typeMaterial: string[] = ["Equipo", "Material"];
     loadingProviders = false;
     images: File[] = [];
     imagesError: string | null = null;
@@ -81,6 +82,7 @@ export class LogisticsMaterialsComponent implements OnInit {
         model: [''],
         // provider_id: [null, Validators.required],
         provider_ids: [[] as number[], Validators.required],
+        type: [null, Validators.required],
         unit: ['Unid.'],
         stock: [0, [Validators.required, Validators.min(0)]],
         base_price: [null, [Validators.required, Validators.min(0)]],
@@ -207,6 +209,7 @@ export class LogisticsMaterialsComponent implements OnInit {
             model: material.model ?? '',
             // provider_id: material.provider_id ?? null,
             provider_ids: material.providers?.map(item => item.id_provider) ?? [],
+            type: material.type ?? '',
             unit: material.unit?.trim() ?? '',
             stock: material.stock ?? 0,
             base_price: material.base_price,
@@ -303,6 +306,7 @@ export class LogisticsMaterialsComponent implements OnInit {
             model: values.model?.trim() || null,
             // provider_id: values.provider_id,
             provider_ids: values.provider_ids,
+            type: values.type?.trim() || null,
             unit: values.unit?.trim() || null,
             stock: values.stock ?? 0,
             base_price: values.base_price,

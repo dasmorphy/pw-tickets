@@ -12,6 +12,14 @@
                 <form #commercialForm="ngForm" [formGroup]="ticketForm" class="commercial-form">
                     <div class="form-grid">
                         <div class="field">
+                            <label for="type_inspection">Tipo</label>
+                            <p-dropdown inputId="type_inspection" [options]="type"
+                                placeholder="Seleccione" styleClass="w-full" appendTo="body"
+                                formControlName="type">
+                            </p-dropdown>
+                        </div>
+
+                        <div class="field">
                             <label for="client_id">Cliente</label>
                             <p-dropdown inputId="client_id" name="client_id" [options]="clientsOptions" [filter]="true"
                                 filterBy="name" placeholder="Seleccione un cliente" styleClass="w-full" appendTo="body"
@@ -81,12 +89,29 @@
                               appendTo="body"></p-dropdown>
                       </div> -->
 
-                        <div class="field">
+                        <div class="field" *ngIf="!isSupport">
                             <label for="commitment_date">Fecha compromiso</label>
                             <p-calendar inputId="commitment_date" name="commitment_date" [minDate]="minDate"
                                 formControlName="commitment_date" dateFormat="dd/mm/yy" [showIcon]="true"
                                 [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
                         </div>
+
+                        <ng-container *ngIf="isSupport">
+                            <div class="field">
+                                <label for="start_date">Fecha inicio</label>
+                                <p-calendar inputId="start_date" name="start_date"
+                                    formControlName="start_date" dateFormat="dd/mm/yy" [showIcon]="true"
+                                    [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+                            </div>
+
+                            <div class="field">
+                                <label for="end_date">Fecha fin</label>
+                                <p-calendar inputId="end_date" name="end_date"
+                                    [minDate]="ticketForm.get('start_date')?.value"
+                                    formControlName="end_date" dateFormat="dd/mm/yy" [showIcon]="true"
+                                    [readonlyInput]="true" styleClass="w-full" appendTo="body"></p-calendar>
+                            </div>
+                        </ng-container>
 
                         <!-- <div class="field">
                             <label for="status">Estado</label>

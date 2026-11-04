@@ -241,7 +241,7 @@ export class RegisterTicketTechnicalComponent {
     }
 
     updateTicket(data: any) {
-        this.glpiService.updateTicketTechnical(data).subscribe({
+        this.glpiService.updateTicketTechnical(data, this.documents).subscribe({
             next: () => {
                 this.utilsService.onSuccess('Ticket actualizado exitosamente.');
                 this.router.navigate(['/tickets-tecnicos'])

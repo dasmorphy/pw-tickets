@@ -108,7 +108,6 @@ export class RequestDetailComponent {
   getDetailTicket(inspectionId: number): void {
     this.glpiService.getInspectionTechnical({id_inspection: inspectionId}).subscribe({
       next: (response: any) => {
-        console.log('dadasdsa')
         this.ticketDetails = response?.data[0] || {};
         this.ticket = this.ticketDetails?.code ?? 'N/A';
         console.log('Ticket details:', this.ticketDetails);

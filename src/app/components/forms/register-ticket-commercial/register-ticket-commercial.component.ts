@@ -44,6 +44,7 @@ interface ProformaItem {
     // Solo en 'new' (ítem o componente): material del registro técnico del que proviene (vincula su pendiente)
     material_tech_ticket_id?: number | null;
     model: string;
+    checked_item?: boolean;
     description: string;
     quantity: number | null;
     base_price: number | null;
@@ -86,6 +87,7 @@ export class RegisterTicketCommercialComponent {
 
     ticketForm: FormGroup;
 
+    usersCommercial: any[] = []
     origins: any = [];
     solutionTypes: any = [];
     status: any = [];
@@ -138,6 +140,7 @@ export class RegisterTicketCommercialComponent {
                 client: [''],
                 requested_by: [''],
                 project: [''],
+                salesCodeSelected: [null]
             }),
             // Condiciones comerciales de la proforma; se envían dentro de sale_quotation
             quotation_terms: this.fb.group({
@@ -227,6 +230,29 @@ export class RegisterTicketCommercialComponent {
         return Math.round((value + Number.EPSILON) * factor) / factor;
     }
 
+    getUsersCommercial(sales_user?: string): void {
+        this.userService.getUsers({
+            roles: ['asesor_ventas']
+        }).subscribe({
+            next: (data: any) => {
+                if (sales_user) {
+                    const user_commercial = data?.data?.find((user: any) => user.user == sales_user)
+                    const code_seller = user_commercial?.attributes?.sales_consultant_code
+                    this.proformaForm.patchValue({salesCodeSelected: code_seller })
+                }else{
+                    this.usersCommercial = (data?.data ?? []).map((user: any) => ({
+                        label: `${user.attributes?.fullname ?? ''} - ${user.attributes?.sales_consultant_code ?? ''}`,
+                        value: user.attributes?.sales_consultant_code
+                    }));
+                }
+            },
+            error: (error: any) => {
+                console.log(error)
+            }
+        })
+    }
+
+
     loadTicket(): void {
         this.glpiService.getTicketsCommercial({'ticket_commercial_id': this.ticketIdEdit}).subscribe({
             next: (data: any) => {
@@ -281,7 +307,7 @@ export class RegisterTicketCommercialComponent {
 
     private fromSavedItem(saved: any): ProformaItem {
         if (saved.is_bundle) {
-            return this.buildBundleItem(
+            const bundle = this.buildBundleItem(
                 (saved.components ?? []).map((component: any) => component.is_new
                     ? {
                         ...this.fromSavedPrices('new', component),
@@ -291,6 +317,7 @@ export class RegisterTicketCommercialComponent {
                     }
                     : this.fromSavedPrices('added', component))
             );
+            return { ...bundle, checked_item: saved.checked_item };
         }
         if (saved.is_labor || saved.is_new) {
             return {
@@ -315,6 +342,7 @@ export class RegisterTicketCommercialComponent {
             quantity: saved.quantity ?? null,
             base_price: basePrice,
             profit_margin: saved.profit_margin ?? null,
+            checked_item: saved.checked_item,
             profit_margin_dollar: profitDollar,
             price: basePrice != null ? this.round(basePrice + (profitDollar ?? 0)) : null,
         };
@@ -367,6 +395,9 @@ export class RegisterTicketCommercialComponent {
                     requested_by: inspection?.contact ?? '',
                     ruc: inspection?.identity ?? '',
                 });
+                if (!this.user_session?.attributes?.sales_consultant_code) {
+                    this.getUsersCommercial(inspection?.sales_user);
+                }
             },
             error: (error: any) => {
                 console.log(error);
@@ -565,6 +596,7 @@ export class RegisterTicketCommercialComponent {
 
         const bundle = this.buildBundleItem(this.bundleDraft.map(component => ({ ...component })));
         if (this.bundleEditIndex != null) {
+            bundle.checked_item = this.proformaItems[this.bundleEditIndex].checked_item;
             this.proformaItems[this.bundleEditIndex] = bundle;
         } else {
             this.proformaItems.push(bundle);
@@ -703,13 +735,14 @@ export class RegisterTicketCommercialComponent {
         const { proforma, quotation_terms, ...ticketValues } = this.ticketForm.value;
         const ticketData = {
             ...ticketValues,
-            sales_code: this.user_session?.attributes?.sales_consultant_code ?? null,
+            sales_code: this.user_session?.attributes?.sales_consultant_code ?? proforma.salesCodeSelected ?? null,
             quoted_amount: this.total,
             sale_quotation: {
                 client_company: this.clientCompanyId,
                 items: this.proformaItems.map((item, index) => ({
                     item: index + 1,
                     material_id: item.material_id,
+                    checked_item: item.checked_item ?? false,
                     quantity: item.quantity,
                     base_price: item.base_price,
                     profit_margin: item.profit_margin,
@@ -752,6 +785,10 @@ export class RegisterTicketCommercialComponent {
             user: this.user_session?.user
         };
 
+        if (!ticketData?.sales_code && this.usersCommercial.length > 0) {
+            this.utilsService.onWarn('Seleccione un asesor para poder continuar');
+            return;
+        }
 
         if (this.ticketIdEdit) {
             this.updateTicket(ticketData);
@@ -770,7 +807,7 @@ export class RegisterTicketCommercialComponent {
     }
 
     updateTicket(data: any) {
-        this.glpiService.updateTicketCommercial(data).subscribe({
+        this.glpiService.updateTicketCommercial(data, this.documents).subscribe({
             next: (data: any) => {
                 this.utilsService.onSuccess('Ticket actualizado exitosamente.');
                 this.router.navigate(['/tickets-comercial'])

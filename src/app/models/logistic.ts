@@ -11,6 +11,7 @@ export interface Material {
     code: string | null;
     product: string | null;
     model: string | null;
+    type: string | null;
     provider: string | null;
     description: string | null;
     unit: string | null;

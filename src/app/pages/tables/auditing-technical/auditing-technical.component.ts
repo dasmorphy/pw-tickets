@@ -21,6 +21,8 @@ import { TagModule } from "primeng/tag";
 import { CalendarModule } from "primeng/calendar";
 import { ImageModule } from "primeng/image";
 import { Router } from "@angular/router";
+import { environment } from "src/environments/environment.development";
+
 
 
 
@@ -56,6 +58,8 @@ export class AuditingTechnicalComponent {
     public readonly userService = inject(UserService);
     private readonly projectTechnicalService = inject(ProjectTechnicalService);
     private readonly router = inject(Router);
+    
+    readonly imagesBaseUrl = environment.apiTicket;
 
     showModal: boolean = false;
     showModalRecord: boolean = false;

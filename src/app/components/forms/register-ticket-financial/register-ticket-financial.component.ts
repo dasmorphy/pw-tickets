@@ -238,7 +238,7 @@ export class RegisterTicketFinancialComponent {
     }
 
     updateTicket(data: any) {
-        this.glpiService.updateTicketFinancial(data).subscribe({
+        this.glpiService.updateTicketFinancial(data, this.documents).subscribe({
             next: () => {
                 this.utilsService.onSuccess('Gestión financiera actualizada exitosamente.');
                 this.router.navigate(['/tickets-financieros'])

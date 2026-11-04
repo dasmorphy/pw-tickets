@@ -97,8 +97,9 @@ export class GlpiService {
         return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-technical`, this.buildMultipart(data, files))
     }
 
-    updateTicketTechnical(data: any) {
-        return this.http.put(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-technical`, {data})
+    // Los documentos se agregan a los de la inspección
+    updateTicketTechnical(data: any, files: File[] = []) {
+        return this.http.put(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-technical`, this.buildMultipart(data, files))
     }
 
     updateInspectionTechnical(id_inspection: number, data: any) {
@@ -109,16 +110,18 @@ export class GlpiService {
         return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-commercial`, this.buildMultipart(data, files))
     }
 
-    updateTicketCommercial(data: any) {
-        return this.http.put(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-commercial`, {data})
+    // Los documentos se agregan a los de la inspección
+    updateTicketCommercial(data: any, files: File[] = []) {
+        return this.http.put(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-commercial`, this.buildMultipart(data, files))
     }
 
     saveTicketFinancial(data: any, files: File[] = []) {
         return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-financial`, this.buildMultipart(data, files))
     }
 
-    updateTicketFinancial(data: any) {
-        return this.http.put(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-financial`, {data})
+    // Los documentos se agregan a los de la inspección
+    updateTicketFinancial(data: any, files: File[] = []) {
+        return this.http.put(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-financial`, this.buildMultipart(data, files))
     }
 
     getTicketsTechnical(filters?: any) {
