@@ -8,6 +8,7 @@ import { FileUpload, FileUploadModule } from 'primeng/fileupload';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { SidebarModule } from 'primeng/sidebar';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
@@ -37,6 +38,7 @@ type StockFilter = 'all' | 'available' | 'low' | 'out';
         InputNumberModule,
         InputTextModule,
         InputTextareaModule,
+        MultiSelectModule,
         SidebarModule,
         TableModule,
         ToastModule,
@@ -77,7 +79,8 @@ export class LogisticsMaterialsComponent implements OnInit {
         product: ['', [Validators.required, Validators.maxLength(250)]],
         code: [''],
         model: [''],
-        provider_id: [null, Validators.required],
+        // provider_id: [null, Validators.required],
+        provider_ids: [[] as number[], Validators.required],
         unit: ['Unid.'],
         stock: [0, [Validators.required, Validators.min(0)]],
         base_price: [null, [Validators.required, Validators.min(0)]],
@@ -122,7 +125,10 @@ export class LogisticsMaterialsComponent implements OnInit {
             next: (response: any) => {
                 this.materials = response?.data ?? [];
                 this.providerOptions = [...new Set(
-                    this.materials.map(material => material.provider?.trim()).filter((provider): provider is string => !!provider)
+                    this.materials
+                        .flatMap(material => material.providers ?? [])
+                        .map(item => item.provider?.trim())
+                        .filter((provider): provider is string => !!provider)
                 )].sort((a, b) => a.localeCompare(b));
                 this.computeSummary();
                 this.applyFilters();
@@ -150,7 +156,9 @@ export class LogisticsMaterialsComponent implements OnInit {
                 }
             }
 
-            if (this.selectedProvider && material.provider?.trim() !== this.selectedProvider) {
+            if (this.selectedProvider && !material.providers?.some(
+                item => item.provider?.trim() === this.selectedProvider
+            )) {
                 return false;
             }
 
@@ -197,7 +205,8 @@ export class LogisticsMaterialsComponent implements OnInit {
             product: material.product ?? '',
             code: material.code ?? '',
             model: material.model ?? '',
-            provider_id: material.provider_id ?? null,
+            // provider_id: material.provider_id ?? null,
+            provider_ids: material.providers?.map(item => item.id_provider) ?? [],
             unit: material.unit?.trim() ?? '',
             stock: material.stock ?? 0,
             base_price: material.base_price,
@@ -272,6 +281,7 @@ export class LogisticsMaterialsComponent implements OnInit {
     }
 
     saveMaterial(): void {
+        console.log('Saving material with form values:', this.materialForm.value);
         if (this.materialForm.invalid) {
             this.materialForm.markAllAsTouched();
             this.utilsService.onWarn('Por favor, complete todos los campos requeridos.');
@@ -291,7 +301,8 @@ export class LogisticsMaterialsComponent implements OnInit {
             product: values.product.trim(),
             code: values.code?.trim() || null,
             model: values.model?.trim() || null,
-            provider_id: values.provider_id,
+            // provider_id: values.provider_id,
+            provider_ids: values.provider_ids,
             unit: values.unit?.trim() || null,
             stock: values.stock ?? 0,
             base_price: values.base_price,

@@ -20,6 +20,8 @@ export interface Material {
     profit_margin_dollar: number | null;
     price: number | null;
     provider_id: number | null;
+    providers?: MaterialProvider[];
+
     images?: MaterialImage[];
     created_at: string | null;
     created_by: string | null;
@@ -30,4 +32,10 @@ export interface Material {
 export interface MaterialImage {
     id_image: number;
     image_path: string;
+}
+
+
+export interface MaterialProvider {
+    id_provider: number;
+    provider: string | null;
 }
