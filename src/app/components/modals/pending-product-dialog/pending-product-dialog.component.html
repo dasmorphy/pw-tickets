@@ -6,8 +6,12 @@
             <span class="header-icon"><i class="pi pi-box"></i></span>
             <div class="header-text">
                 <span class="eyebrow">Bodega · {{ source }}</span>
-                <h2>Crear en catálogo</h2>
-                <p>Los datos vienen sugeridos desde el pendiente; puede editarlos.</p>
+                <h2>{{ mode === 'new' ? 'Crear en catálogo' : 'Vincular a producto existente' }}</h2>
+                <p>
+                    {{ mode === 'new'
+                        ? 'Los datos vienen sugeridos desde el pendiente; puede editarlos.'
+                        : 'No se crea otro producto: se usa uno del catálogo y se suma lo recibido a su stock.' }}
+                </p>
             </div>
             <button type="button" class="close-button" aria-label="Cerrar" (click)="close()">
                 <i class="pi pi-times"></i>
@@ -16,6 +20,64 @@
     </ng-template>
 
     @if (pending) {
+        <p-selectButton [options]="modeOptions" [(ngModel)]="mode" optionLabel="label" optionValue="value"
+            [allowEmpty]="false" (onChange)="onModeChange()" styleClass="mode-selector"></p-selectButton>
+    }
+
+    @if (pending && mode === 'existing') {
+        <div class="pending-form">
+            <div class="field span-2">
+                <label for="existingProduct">Producto del catálogo <span class="required">*</span></label>
+                <p-dropdown inputId="existingProduct" [options]="catalog" [(ngModel)]="existingId"
+                    optionValue="id_equipment" optionLabel="product" [filter]="true" filterBy="product,model,code"
+                    [loading]="loadingCatalog" placeholder="Busque por nombre, modelo o código" styleClass="w-full"
+                    appendTo="body" (onChange)="onExistingChange()">
+                    <ng-template let-material pTemplate="item">
+                        <div class="catalog-option">
+                            <span class="catalog-name">{{ material.product }}</span>
+                            <span class="catalog-meta">
+                                {{ material.model || 'Sin modelo' }}{{ material.code ? ' · ' + material.code : '' }}
+                                · Stock {{ material.stock ?? 0 }}
+                            </span>
+                        </div>
+                    </ng-template>
+                </p-dropdown>
+                <small class="field-hint">
+                    Pendiente: <strong>{{ pending.name_material }}</strong>{{ pending.model ? ' (' + pending.model + ')' : '' }}.
+                    Los productos parecidos aparecen primero.
+                </small>
+            </div>
+            @if (selectedExisting) {
+                <div class="field">
+                    <label>Stock actual</label>
+                    <input pInputText type="text" [value]="selectedExisting.stock ?? 0" disabled />
+                </div>
+                <div class="field">
+                    <label for="existingReceived">Unidades recibidas <span class="required">*</span></label>
+                    <p-inputNumber inputId="existingReceived" [(ngModel)]="received" [min]="minReceived"
+                        [maxFractionDigits]="0" [useGrouping]="false" styleClass="w-full"></p-inputNumber>
+                    <small class="field-hint">
+                        @if (minReceived) {
+                            Mínimo {{ minReceived }} para cubrir la proforma ({{ minStock }}).
+                        } @else {
+                            Puede ser 0 si el stock actual alcanza.
+                        }
+                    </small>
+                </div>
+                <p class="stock-result span-2">
+                    <i class="pi pi-calculator"></i>
+                    <span>
+                        @if (delivered != null && delivered > 0) {
+                            Ya se entregaron <strong>{{ delivered }}</strong> con este pendiente.
+                        }
+                        El producto quedará con <strong>{{ resultingExistingStock }}</strong> en stock.
+                    </span>
+                </p>
+            }
+        </div>
+    }
+
+    @if (pending && mode === 'new') {
         <div class="pending-form">
             <div class="field span-2">
                 <label for="pendingProduct">Producto <span class="required">*</span></label>
@@ -92,7 +154,8 @@
         <div class="footer-actions">
             <p-button type="button" label="Cancelar" [outlined]="true" styleClass="cancel-button"
                 (click)="close()"></p-button>
-            <p-button type="button" label="Crear producto" icon="pi pi-check" styleClass="save-button"
+            <p-button type="button" [label]="mode === 'new' ? 'Crear producto' : 'Vincular producto'"
+                icon="pi pi-check" styleClass="save-button"
                 [loading]="resolving" (click)="resolve()"></p-button>
         </div>
     </ng-template>

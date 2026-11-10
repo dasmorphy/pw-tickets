@@ -74,9 +74,21 @@ export const routes: Routes = [
                 path: "inspecciones",
                 loadComponent: () => InspectionsTechnicalComponent,
                 canActivate: [AuthGuard],
-                // data: {
-                //     permission: 'VER_INSPECCION'
-                // }
+                data: {
+                    types: ['Inspección'],
+                    title: 'Inspecciones técnicas',
+                    // permission: 'VER_INSPECCION'
+                }
+            },
+            {
+                // Mismo componente que inspecciones, filtrando por tipo
+                path: "soportes-asistencias",
+                loadComponent: () => InspectionsTechnicalComponent,
+                canActivate: [AuthGuard],
+                data: {
+                    types: ['Soporte', 'Asistencia'],
+                    title: 'Soportes / Asistencias',
+                }
             },
             {
                 path: "editar-inspeccion/:id_inspection",

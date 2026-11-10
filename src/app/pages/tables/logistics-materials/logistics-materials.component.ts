@@ -21,6 +21,7 @@ import { UtilsService } from 'src/app/services/utils.service';
 import { environment } from 'src/environments/environment.development';
 import { Material, MaterialImage, Provider } from 'src/app/models/logistic';
 import { AuthService } from 'src/app/services/auth.service';
+import { ProviderFormDialogComponent } from 'src/app/components/modals/provider-form-dialog/provider-form-dialog.component';
 
 type StockFilter = 'all' | 'available' | 'low' | 'out';
 
@@ -43,6 +44,7 @@ type StockFilter = 'all' | 'available' | 'low' | 'out';
         TableModule,
         ToastModule,
         TooltipModule,
+        ProviderFormDialogComponent,
     ],
     templateUrl: './logistics-materials.component.html',
     styleUrls: ['./logistics-materials.component.sass']
@@ -65,6 +67,7 @@ export class LogisticsMaterialsComponent implements OnInit {
     readonly imagesBaseUrl = environment.apiTicket;
 
     showCreate = false;
+    showProviderForm = false;
     editingMaterial: Material | null = null;
     existingImages: MaterialImage[] = [];
     deleteImageIds: number[] = [];
@@ -257,6 +260,12 @@ export class LogisticsMaterialsComponent implements OnInit {
                 this.utilsService.onError('Error al obtener los proveedores. Por favor, inténtelo de nuevo más tarde.');
             }
         });
+    }
+
+    // Recarga el catálogo para que el nuevo proveedor aparezca al crear/editar materiales
+    onProviderCreated(): void {
+        this.showProviderForm = false;
+        this.fetchProviders();
     }
 
     onSelectImages(event: any): void {

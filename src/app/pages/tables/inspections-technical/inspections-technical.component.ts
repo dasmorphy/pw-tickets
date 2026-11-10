@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ViewChild, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -86,6 +86,7 @@ export class InspectionsTechnicalComponent {
   private readonly glpiService = inject(GlpiService);
   private readonly utilsService = inject(UtilsService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
   private readonly projectTechnicalService = inject(ProjectTechnicalService);
@@ -93,6 +94,9 @@ export class InspectionsTechnicalComponent {
   user_permissions_signal = computed(() => this.authService.user_permissions_signal());
   
   inspections: TechnicalInspection[] = [];
+  // Tipos a consultar según la ruta (inspecciones | soportes-asistencias)
+  types: string[] = ['Inspección'];
+  pageTitle = 'Inspecciones técnicas';
   isLoading = false;
   inspectionView: InspectionView = 'all';
 
@@ -146,7 +150,13 @@ export class InspectionsTechnicalComponent {
 
   ngOnInit(): void {
     this.user_session = this.userService.getDataSession();
-    this.fetchInspections();
+    // La ruta define los tipos; se re-suscribe por si se navega entre rutas del mismo componente
+    this.route.data.subscribe(data => {
+      this.types = data?.['types'] ?? ['Inspección'];
+      this.pageTitle = data?.['title'] ?? 'Inspecciones técnicas';
+      this.inspectionView = 'all';
+      this.fetchInspections();
+    });
     this.fetchUsers();
   }
 
@@ -285,7 +295,7 @@ export class InspectionsTechnicalComponent {
   fetchInspections(): void {
     this.isLoading = true;
 
-    this.glpiService.getInspectionTechnical().subscribe({
+    this.glpiService.getInspectionTechnical({ type: this.types }).subscribe({
       next: (response: any) => {
         this.inspections = Array.isArray(response?.data) ? response.data : [];
         this.isLoading = false;
@@ -295,6 +305,11 @@ export class InspectionsTechnicalComponent {
         this.utilsService.onError('No se pudieron obtener las inspecciones técnicas.');
       }
     });
+  }
+
+  // Ruta soportes-asistencias: solo consulta tipos Soporte / Asistencia
+  get isSupportList(): boolean {
+    return this.types.every(type => type === 'Soporte' || type === 'Asistencia');
   }
 
   get canCreateProject(): boolean {

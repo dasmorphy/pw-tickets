@@ -346,7 +346,6 @@ export class TicketsCommercialComponent {
   }
 
   optionsTicket(ticket: any) {
-    console.log(ticket)
     this.selectedTicket = ticket
   }
 

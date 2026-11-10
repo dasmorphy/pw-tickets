@@ -59,16 +59,23 @@ export class MenuComponent implements OnInit {
         command: () => { this.clickHiddenToggle(true) },
       },
       {
-        label: 'Inspecciones',
+        label: 'Casos',
         icon: 'pi pi-list-check',
         visible: this.user_permissions_signal()?.includes('VER_INSPECCION'),
         command: () => { this.clickHiddenToggle(true) },
         items: [
           {
-            label: 'Todos',
+            label: 'Inspecciones',
             icon: 'pi pi-list-check',
             visible: this.user_permissions_signal()?.includes('VER_INSPECCION'),
             routerLink: ['inspecciones'],
+            command: () => { this.clickHiddenToggle() }
+          },
+          {
+            label: 'Soportes / Asistencias',
+            icon: 'pi pi-list-check',
+            visible: this.user_permissions_signal()?.includes('VER_INSPECCION'),
+            routerLink: ['soportes-asistencias'],
             command: () => { this.clickHiddenToggle() }
           },
           {

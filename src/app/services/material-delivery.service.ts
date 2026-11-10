@@ -125,6 +125,14 @@ export interface ResolvePendingPayload {
     user: string;
 }
 
+// Vincula el pendiente a un producto que ya está en el catálogo, sin crear otro
+export interface LinkPendingPayload {
+    material_id: number;
+    // Unidades recibidas: se suman al stock actual del producto (puede ser 0)
+    stock: number;
+    user: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -154,7 +162,7 @@ export class MaterialDeliveryService {
         return this.http.get<{ data: PendingMaterialRow[] }>(`${this.baseUrl}/pending-material`, { params });
     }
 
-    resolvePendingMaterial(idPendingMaterial: number, data: ResolvePendingPayload): Observable<{ message: string; data: { id_equipment: number } }> {
+    resolvePendingMaterial(idPendingMaterial: number, data: ResolvePendingPayload | LinkPendingPayload): Observable<{ message: string; data: { id_equipment: number } }> {
         return this.http.post<{ message: string; data: { id_equipment: number } }>(
             `${this.baseUrl}/pending-material/${idPendingMaterial}/resolve`,
             { data }

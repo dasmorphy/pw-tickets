@@ -12,6 +12,10 @@ import { UserService } from 'src/app/services/user.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { TicketDetailSidebarComponent } from 'src/app/components/modals/ticket-detail-sidebar/ticket-detail-sidebar.component';
 
+// inspections: registros técnicos pendientes de aprobación (/register-technical)
+// supports: Soportes / Asistencias sin aprobar (/inspection?pending_approve_support=true)
+type ApprovalView = 'inspections' | 'supports';
+
 @Component({
   selector: 'app-inspections-approval',
   standalone: true,
@@ -25,13 +29,24 @@ export class InspectionsApprovalComponent {
   readonly utilsService = inject(UtilsService);
   readonly userService = inject(UserService);
 
+  readonly SUPPORT_TYPES = ['Soporte', 'Asistencia'];
+
   filters: any = {
     status: 'Pendiente aprobación',
   };
+  supportFilters: any = {
+    type: this.SUPPORT_TYPES,
+    pending_approve_support: true,
+  };
   user_session: any;
   selectedTicket: any;
+  approvalView: ApprovalView = 'inspections';
+
   registeredTickets: any[] = [];
   registeredLoading = false;
+  supportTickets: any[] = [];
+  supportLoading = false;
+
   showConfirm = false;
   isApproving = false;
   showDetail = false;
@@ -45,7 +60,7 @@ export class InspectionsApprovalComponent {
     {
         label: 'Editar',
         icon: 'pi pi-play-circle',
-        visible: () => this.selectedTicket?.status != 'Listo para cotizar',
+        visible: () => this.isSupportView || this.selectedTicket?.status != 'Listo para cotizar',
         command: () => this.routeRegister()
     },
     {
@@ -60,16 +75,39 @@ export class InspectionsApprovalComponent {
     if (this.user_session?.role == 'tecnico') {
       this.filters.responsible_id = this.user_session?.id_user
       this.filters.user = this.user_session?.user
+      this.supportFilters.responsible_id = this.user_session?.id_user
     }
 
+    // Se cargan ambas listas para mostrar los contadores de los botones
     this.fetchTicketsTechnical();
+    this.fetchSupports();
+  }
+
+  get isSupportView(): boolean {
+    return this.approvalView === 'supports';
+  }
+
+  get visibleTickets(): any[] {
+    return this.isSupportView ? this.supportTickets : this.registeredTickets;
+  }
+
+  get isLoading(): boolean {
+    return this.isSupportView ? this.supportLoading : this.registeredLoading;
+  }
+
+  setApprovalView(view: ApprovalView): void {
+    this.approvalView = view;
+    this.selectedTicket = null;
+  }
+
+  refresh(): void {
+    this.isSupportView ? this.fetchSupports() : this.fetchTicketsTechnical();
   }
 
   fetchTicketsTechnical() {
     this.registeredLoading = true;
     this.glpiService.getTicketsTechnical(this.filters).subscribe({
       next: (response: any) => {
-        console.log(response);
         this.registeredTickets = response?.data ?? [];
         this.registeredLoading = false;
       },
@@ -81,14 +119,35 @@ export class InspectionsApprovalComponent {
     });
   }
 
+  fetchSupports() {
+    this.supportLoading = true;
+    this.glpiService.getInspectionTechnical(this.supportFilters).subscribe({
+      next: (response: any) => {
+        this.supportTickets = response?.data ?? [];
+        this.supportLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Error fetching supports:', error);
+        this.supportLoading = false;
+        this.utilsService.onError('Error al obtener los soportes / asistencias, por favor inténtelo de nuevo más tarde.');
+      }
+    });
+  }
+
   optionsTicket(ticket: any) {
     this.selectedTicket = ticket
   }
 
   routeRegister() {
-    this.router.navigate([
-      `/registro-inspeccion-tecnica/${this.selectedTicket?.id_inspection}`
-    ]);
+    // Soportes / Asistencias se editan en el formulario de la inspección
+    const route = this.isSupportView
+      ? `/editar-inspeccion/${this.selectedTicket?.id_inspection}`
+      : `/registro-inspeccion-tecnica/${this.selectedTicket?.id_inspection}`;
+    this.router.navigate([route]);
+  }
+
+  approve() {
+    this.isSupportView ? this.approveSupport() : this.approveInspection();
   }
 
   approveInspection() {
@@ -110,6 +169,30 @@ export class InspectionsApprovalComponent {
         this.isApproving = false;
         this.showConfirm = false;
         this.utilsService.onError(error?.error?.message ?? 'No se pudo aprobar la inspección, por favor intente nuevamente')
+      }
+    })
+  }
+
+  approveSupport() {
+    this.isApproving = true;
+    const type = this.selectedTicket?.type ?? 'Soporte';
+    const data = {
+      id_inspection: this.selectedTicket?.id_inspection,
+      user: this.user_session?.user
+    }
+
+    this.glpiService.approveSupport(data).subscribe({
+      next: () => {
+        this.isApproving = false;
+        this.showConfirm = false;
+        this.utilsService.onSuccess(`${type} aprobado correctamente`);
+        this.fetchSupports();
+      },
+      error: (error: any) => {
+        console.log(error)
+        this.isApproving = false;
+        this.showConfirm = false;
+        this.utilsService.onError(error?.error?.message ?? `No se pudo aprobar el ${type.toLowerCase()}, por favor intente nuevamente`)
       }
     })
   }

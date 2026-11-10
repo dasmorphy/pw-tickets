@@ -1,5 +1,8 @@
 <p-toast></p-toast>
 
+<app-provider-form-dialog [visible]="showProviderForm" (closed)="showProviderForm = false"
+  (created)="onProviderCreated()"></app-provider-form-dialog>
+
 <p-dialog [(visible)]="showCreate" [modal]="true" [draggable]="false" [resizable]="false" [closable]="false"
   [closeOnEscape]="!isSaving" styleClass="material-dialog" [style]="{ width: 'min(48rem, calc(100vw - 2rem))' }">
   <ng-template pTemplate="header">
@@ -202,6 +205,8 @@
       <div class="heading-actions">
         <span class="request-count"><strong>{{ filteredMaterials.length }}</strong> materiales</span>
         @if (user_permissions_signal().includes('NUEVO_PRODUCTO')) {
+        <p-button label="Nuevo proveedor" icon="pi pi-truck" styleClass="create-button"
+          (onClick)="showProviderForm = true"></p-button>
         <p-button label="Nuevo material" icon="pi pi-plus" styleClass="create-button"
           (onClick)="openCreate()"></p-button>
         }

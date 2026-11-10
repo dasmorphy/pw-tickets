@@ -138,7 +138,7 @@ export class TicketDetailSidebarComponent implements OnChanges {
             { label: 'Tipo de caso', value: d.case_type },
             { label: 'Prioridad', value: d.priority },
             { label: 'Responsable', value: d.responsible_name },
-            ...(d.type === 'Soporte'
+            ...(['Soporte', 'Asistencia'].includes(d.type)
                 ? [
                     { label: 'Fecha inicio', value: d.start_date, format: 'date' },
                     { label: 'Fecha fin', value: d.end_date, format: 'date' },

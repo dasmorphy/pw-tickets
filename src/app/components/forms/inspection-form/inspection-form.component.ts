@@ -47,8 +47,9 @@ export class InspectionFormComponent {
     
     ticketForm: FormGroup;
     
-    type: string[] = ["Inspección", "Soporte"];
-    readonly SUPPORT_TYPE = 'Soporte';
+    type: string[] = ["Inspección", "Soporte", "Asistencia"];
+    // Tipos que no continúan el flujo y usan fecha inicio/fin
+    readonly SUPPORT_TYPES = ['Soporte', 'Asistencia'];
     clientsOptions: any[] = [];
     ubicationsOptions: any[] = [];
     user_session: any;
@@ -97,12 +98,12 @@ export class InspectionFormComponent {
     }
 
     get isSupport(): boolean {
-        return this.ticketForm.get('type')?.value === this.SUPPORT_TYPE;
+        return this.SUPPORT_TYPES.includes(this.ticketForm.get('type')?.value);
     }
 
-    /** Soporte usa fecha inicio y fin; los demás tipos, la fecha compromiso. */
+    /** Soporte y Asistencia usan fecha inicio y fin; Inspección, la fecha compromiso. */
     private applyTypeValidators(type: string) {
-        const support = type === this.SUPPORT_TYPE;
+        const support = this.SUPPORT_TYPES.includes(type);
         const required = (name: string, isRequired: boolean) => {
             const control = this.ticketForm.get(name)!;
             control.setValidators(isRequired ? Validators.required : null);
@@ -129,7 +130,12 @@ export class InspectionFormComponent {
             roles: ['jefe_tecnico', 'tecnico',
                 'coordinador_tecnico'
             ],
-            users: ['e814c1bf-6626-43da-ac32-b0369a6e9c06', 'f7f14541-935b-4132-a98d-4fcbda71f2a8', 'fce8fe78-169b-4e9b-bc07-030345265e1d']
+            users: [
+                'e814c1bf-6626-43da-ac32-b0369a6e9c06',
+                'f7f14541-935b-4132-a98d-4fcbda71f2a8',
+                'fce8fe78-169b-4e9b-bc07-030345265e1d',
+                '05a0caad-4eb7-4a5a-bcd9-89d497564345'
+            ]
         }
         this.userService.getUsers(filters).subscribe({
             next: (data: any) => {
@@ -259,8 +265,8 @@ export class InspectionFormComponent {
                 this.glpiService.saveInspectionTechnical(ticketData, this.documents).subscribe({
                     next: (data: any) => {
                         console.log(data)
-                        this.utilsService.onSuccess('Inspección registrado exitosamente.');
-                        this.router.navigate(['/inspecciones'])
+                        this.utilsService.onSuccess(`${ticketData.type} registrado exitosamente.`);
+                        this.router.navigate([this.isSupport ? '/soportes-asistencias' : '/inspecciones'])
                     },
                     error: (error: any) => {
                         console.log(error)

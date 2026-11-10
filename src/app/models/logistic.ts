@@ -6,6 +6,18 @@ export interface Provider {
     status: string | null;
 }
 
+// Body del POST /providers
+export interface NewProvider {
+    provider: string;
+    ruc: string | null;
+    address: string | null;
+    seller: string | null;
+    number_contact: string | null;
+    email: string | null;
+    status: string | null;
+    user: string | null;
+}
+
 export interface Material {
     id_equipment: number;
     code: string | null;

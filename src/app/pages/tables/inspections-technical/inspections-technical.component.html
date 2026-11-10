@@ -144,7 +144,7 @@
     <header class="page-heading">
       <div>
         <span class="eyebrow">Gestión técnica</span>
-        <h1 id="inspections-title">Inspecciones técnicas</h1>
+        <h1 id="inspections-title">{{ pageTitle }}</h1>
         <p>Consulta las inspecciones registradas y su ruta de gestión.</p>
       </div>
       <span class="inspection-count"><strong>{{ visibleInspections.length }}</strong> inspecciones</span>
@@ -207,7 +207,13 @@
             <td><span class="priority">{{ inspection.priority ?? 'N/A' }}</span></td>
             <td><p-tag [value]="inspection.management_area ?? 'N/A'" [severity]="getAreaSeverity(inspection.management_area)"></p-tag></td>
             <td><p-tag [value]="inspection.next_area ?? 'N/A'" [severity]="getAreaSeverity(inspection.next_area)"></p-tag></td>
-            <td>{{ inspection.status != 'Finalizado' ? 'Pendiente' : 'Finalizado' }}</td>
+            <td>
+              @if (isSupportList) {
+                {{ inspection.approve_support ? 'Aprobado' : 'Pendiente' }}
+              } @else {
+                {{ inspection.status != 'Finalizado' ? 'Pendiente' : 'Finalizado' }}
+              }
+            </td>
             <td>{{ inspection.responsible_name ?? 'N/A' }}</td>
             <td class="row-actions">
               <p-splitButton id="option-table" appendTo="body" (click)="optionsTicket(inspection)" [model]="items">

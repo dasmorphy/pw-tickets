@@ -114,6 +114,21 @@
                     <p-button type="button" label="Materiales varios" icon="pi pi-th-large" [outlined]="true"
                         styleClass="add-button add-existing" pTooltip="Varios materiales del catálogo agrupados en un solo ítem"
                         tooltipPosition="top" (click)="openBundleDialog()"></p-button>
+                    @if (itemTechnicalOptions.length) {
+                        <p-dropdown #itemTechnicalDropdown [options]="itemTechnicalOptions" optionLabel="description"
+                            optionValue="id_material" placeholder="Del registro técnico"
+                            (onChange)="addTechnicalProductToItems($event.value); itemTechnicalDropdown.writeValue(null)"
+                            styleClass="technical-dropdown" appendTo="body"
+                            pTooltip="Producto nuevo que reportó el técnico: se usa su pendiente y no se crea otro"
+                            tooltipPosition="top" ariaLabel="Agregar como ítem un producto nuevo del registro técnico">
+                            <ng-template let-product pTemplate="item">
+                                <div class="catalog-option">
+                                    <strong>{{ product.description || 'Producto sin descripción' }}</strong>
+                                    <small>Cant. {{ product.quantity ?? '—' }}</small>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                    }
                     <p-button type="button" label="Producto nuevo" icon="pi pi-plus-circle"
                         styleClass="add-button" pTooltip="Producto que no está en el catálogo" tooltipPosition="top"
                         (click)="addProformaItem('new')"></p-button>
@@ -166,7 +181,7 @@
                                                 [(ngModel)]="item.description" [ngModelOptions]="{standalone: true}"
                                                 placeholder="Descripción"
                                                 [attr.aria-label]="'Descripción del ítem ' + (i + 1)"></textarea>
-                                            <span class="new-badge">Producto nuevo</span>
+                                            <span class="new-badge">{{ item.material_tech_ticket_id ? 'Producto nuevo · Registro técnico' : 'Producto nuevo' }}</span>
                                         }
                                         @case ('labor') {
                                             <textarea pInputTextarea rows="2" [autoResize]="true" class="w-full"

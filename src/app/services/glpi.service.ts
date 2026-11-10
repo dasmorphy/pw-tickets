@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from "src/environments/environment.development";
 import { NewClient } from "../models/client";
+import { NewProvider } from "../models/logistic";
 
 @Injectable({
     providedIn: 'root'
@@ -152,6 +153,15 @@ export class GlpiService {
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/providers`);
     }
 
+    // Solo provider es obligatorio; user se guarda en created_by
+    saveProvider(data: NewProvider) {
+        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/providers`, {
+            data,
+            channel: 'TLSG_WEB',
+            externalTransactionId: uuidv4(),
+        });
+    }
+
     getInspectionMaterials(inspection_id: number) {
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/inspection-materials`, {
             params: new HttpParams().set('inspection_id', inspection_id)
@@ -225,6 +235,17 @@ export class GlpiService {
             params = params.set('sales_user', filters.sales_user);
         }
 
+        // Soportes / Asistencias con approve_support en false o null
+        if (filters?.pending_approve_support) {
+            params = params.set('pending_approve_support', filters.pending_approve_support);
+        }
+
+        // type admite varios valores, se envía repetido (ej: type=Soporte&type=Asistencia)
+        if (filters?.type?.length) {
+            const types: string[] = Array.isArray(filters.type) ? filters.type : [filters.type];
+            types.forEach(type => params = params.append('type', type));
+        }
+
         // client_id admite varios ids, se envían separados por coma (ej: client_id=1,2,3)
         if (filters?.client_id?.length) {
             params = params.set('client_id', filters.client_id.join(','));
@@ -267,6 +288,15 @@ export class GlpiService {
 
     approveTechnicalInspection(data: any) {
         return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/approve-technical-inspection`, {data});
+    }
+
+    // data: { id_inspection, user } -> approve_support = true
+    approveSupport(data: { id_inspection: number; user: string }) {
+        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/approve-support`, {
+            data,
+            channel: 'TLSG_WEB',
+            externalTransactionId: uuidv4(),
+        });
     }
 
     saveFollowup(data: any) {
