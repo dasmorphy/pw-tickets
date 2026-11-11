@@ -14,6 +14,7 @@ import { PanelMenuModule } from "primeng/panelmenu";
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TabViewModule } from 'primeng/tabview';
 import { TooltipModule } from 'primeng/tooltip';
+import { DialogModule } from 'primeng/dialog';
 import { UserService } from 'src/app/services/user.service';
 import { TicketDetailSidebarComponent, TicketDetailType } from 'src/app/components/modals/ticket-detail-sidebar/ticket-detail-sidebar.component';
 
@@ -36,7 +37,7 @@ interface ServiceRequest {
   selector: 'app-tickets-technical',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, ButtonModule, CalendarModule, DropdownModule, MultiSelectModule, TableModule,
-    TagModule, PanelMenuModule, SplitButtonModule, TabViewModule, TooltipModule, TicketDetailSidebarComponent],
+    TagModule, PanelMenuModule, SplitButtonModule, TabViewModule, TooltipModule, DialogModule, TicketDetailSidebarComponent],
   templateUrl: './tickets-technical.component.html',
   styleUrls: ['./tickets-technical.component.sass']
 })
@@ -67,6 +68,11 @@ export class TicketsTechnicalComponent {
   showDetail = false;
   detailType: TicketDetailType = 'inspection';
 
+  returnReasonVisible = false;
+  returnReasonLoading = false;
+  returnReasonTicket: any = null;
+  returnReason: { reason?: string; created_by?: string; created_at?: string } | null = null;
+
   itemsPending: any = [
     {
         label: 'Ver detalles',
@@ -76,6 +82,15 @@ export class TicketsTechnicalComponent {
     {
         label: 'Registro',
         icon: 'pi pi-play-circle',
+        visible: () => this.selectedTicket?.status !== 'Devuelto a Técnica',
+        command: () => this.routeNewRegister()
+    },
+    {
+        // Devuelto desde Comercial: el formulario carga el registro técnico existente
+        // y al guardarlo pasa a "Pendiente aprobación"
+        label: 'Corregir registro',
+        icon: 'pi pi-replay',
+        visible: () => this.selectedTicket?.status === 'Devuelto a Técnica',
         command: () => this.routeNewRegister()
     },
   ];
@@ -227,5 +242,30 @@ export class TicketsTechnicalComponent {
   viewDetails(type: TicketDetailType) {
     this.detailType = type;
     this.showDetail = true;
+  }
+
+  // El motivo se guarda en el historial de áreas (reason) en el paso Comercial -> Técnica
+  openReturnReason(ticket: any): void {
+    this.returnReasonTicket = ticket;
+    this.returnReason = null;
+    this.returnReasonVisible = true;
+    this.returnReasonLoading = true;
+
+    this.glpiService.getAreaTicketHistory(ticket?.id_inspection).subscribe({
+      next: (response: any) => {
+        const history: any[] = response?.data ?? [];
+        // El historial viene del más reciente al más antiguo
+        this.returnReason = history.find(
+          entry => entry.previous_area === 'Comercial' && entry.current_area === 'Técnica'
+        ) ?? null;
+        this.returnReasonLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Error fetching area history:', error);
+        this.returnReasonLoading = false;
+        this.returnReasonVisible = false;
+        this.utilsService.onError(error?.error?.message ?? 'No se pudo obtener el motivo de la devolución.');
+      }
+    });
   }
 }

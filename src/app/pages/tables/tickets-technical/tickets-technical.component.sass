@@ -589,3 +589,187 @@ tbody tr
   .completed-heading
     align-items: flex-start
     flex-direction: column
+
+// Estado "Devuelto" clicable y modal con el motivo de la devolución
+.returned-status
+  display: inline-flex
+  align-items: center
+  gap: .35rem
+  padding: .2rem .55rem
+  border: 1px solid #fed7aa
+  border-radius: 999px
+  background: #fff7ed
+  color: #c2410c
+  font-size: .75rem
+  font-weight: 700
+  cursor: pointer
+  transition: background .15s ease, border-color .15s ease
+
+  i
+    font-size: .7rem
+
+  &:hover,
+  &:focus-visible
+    border-color: #fb923c
+    background: #ffedd5
+    outline: none
+
+:host::ng-deep
+  .return-reason-dialog
+    .p-dialog-header
+      padding: 1.2rem 1.35rem 0
+      border: 0
+
+    .p-dialog-content
+      padding: 1rem 1.35rem 1.1rem
+
+    .p-dialog-footer
+      padding: 0 1.35rem 1.35rem
+      border: 0
+
+  .close-reason-button
+    border-color: #0b326b
+    background: #0b326b
+
+    &:enabled:hover
+      border-color: #123f80
+      background: #123f80
+
+.return-dialog-title
+  display: flex
+  align-items: center
+  gap: .75rem
+
+  h2
+    margin: 0
+    color: #10254b
+    font-size: 1.05rem
+
+  p
+    margin: .2rem 0 0
+    color: #718098
+    font-size: .77rem
+
+.return-dialog-icon
+  display: grid
+  flex-shrink: 0
+  width: 2.4rem
+  height: 2.4rem
+  place-items: center
+  border-radius: .7rem
+  background: #fff1e6
+  color: #c2410c
+
+.return-reason-body
+  display: grid
+  gap: .85rem
+
+.return-context
+  display: flex
+  align-items: center
+  gap: .65rem
+  padding: .75rem .85rem
+  border: 1px solid #e4eaf2
+  border-radius: .65rem
+  background: #f8fafc
+
+  > i
+    color: #527294
+
+  div
+    display: grid
+    gap: .1rem
+    min-width: 0
+
+  span
+    color: #77859a
+    font-size: .69rem
+
+  strong
+    overflow: hidden
+    color: #223c63
+    font-size: .82rem
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.return-reason-card
+  padding: .85rem .95rem
+  border: 1px solid #e2e9f2
+  border-left: 3px solid #fb923c
+  border-radius: .7rem
+  background: #fff
+
+  > span
+    color: #9a3412
+    font-size: .69rem
+    font-weight: 700
+    letter-spacing: .04em
+    text-transform: uppercase
+
+  p
+    margin: .45rem 0 0
+    color: #3f4f68
+    font-size: .85rem
+    line-height: 1.5
+    white-space: pre-line
+    overflow-wrap: anywhere
+
+    &.no-reason
+      color: #8793a7
+      font-style: italic
+
+.return-meta
+  display: flex
+  flex-wrap: wrap
+  gap: .5rem 1.1rem
+  color: #77859a
+  font-size: .74rem
+
+  span
+    display: inline-flex
+    align-items: center
+    gap: .35rem
+
+  i
+    color: #9aa7ba
+    font-size: .72rem
+
+.return-loading
+  display: grid
+  justify-items: center
+  gap: .6rem
+  padding: 2rem 1rem
+  color: #77859a
+  font-size: .78rem
+
+  i
+    color: #4b82bd
+    font-size: 1.4rem
+
+.return-empty
+  display: grid
+  justify-items: center
+  padding: 1.8rem 1.25rem
+  text-align: center
+
+  > span
+    display: grid
+    width: 3.2rem
+    height: 3.2rem
+    margin-bottom: .8rem
+    place-items: center
+    border-radius: 50%
+    background: #eef4fb
+    color: #4b82bd
+    font-size: 1.2rem
+
+  strong
+    color: #264269
+    font-size: .9rem
+
+  p
+    max-width: 19rem
+    margin: .4rem 0 0
+    color: #78869b
+    font-size: .78rem
+    line-height: 1.4

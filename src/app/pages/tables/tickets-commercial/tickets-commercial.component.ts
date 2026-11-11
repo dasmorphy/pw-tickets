@@ -137,7 +137,19 @@ export class TicketsCommercialComponent {
         visible: () => this.selectedTicket?.status_id === 7 || this.selectedTicket?.status_id === 8,
         command: () => this.routeRegister()
     },
+    {
+        label: 'Devolver a Técnica',
+        icon: 'pi pi-replay',
+        // Aprobada (5) o ya devuelta (9) no se devuelven; el backend valida el resto
+        visible: () => ![this.STATUS_APPROVED, this.STATUS_RETURNED_TECHNICAL].includes(this.selectedTicket?.status_id) && this.user_permissions_signal().includes('DEVOLVER_A_TECNICO'),
+        command: () => this.openReturnTechnicalDialog()
+    },
   ];
+
+  readonly STATUS_APPROVED = 5;
+  readonly STATUS_RETURNED_TECHNICAL = 9;
+  returnTechnicalVisible = false;
+  returnReason = '';
 
   itemsTechnical: any = [
     {
@@ -395,5 +407,41 @@ export class TicketsCommercialComponent {
   closeNewFollowup() {
     this.registerFollowupVisible = false;
     this.followupObservation = '';
+  }
+
+  openReturnTechnicalDialog(): void {
+    this.returnReason = '';
+    this.returnTechnicalVisible = true;
+  }
+
+  closeReturnTechnicalDialog(): void {
+    this.returnTechnicalVisible = false;
+    this.returnReason = '';
+  }
+
+  returnToTechnical(): void {
+    const reason = this.returnReason.trim();
+    if (!reason) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.glpiService.returnToTechnical({
+      inspection_id: this.selectedTicket?.id_inspection,
+      reason,
+      user: this.user_json?.user
+    }).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.closeReturnTechnicalDialog();
+        this.utilsService.onSuccess('Registro devuelto a Técnica');
+        this.fetchCompletedTickets();
+      },
+      error: (error: any) => {
+        this.isLoading = false;
+        console.log(error);
+        this.utilsService.onError(error?.error?.message ?? 'No se pudo devolver el registro a Técnica, por favor intente nuevamente');
+      }
+    });
   }
 }

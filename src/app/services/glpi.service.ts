@@ -286,6 +286,16 @@ export class GlpiService {
         return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/approve-commercial-ticket`, {data});
     }
 
+    // Devuelve a Técnica un registro de Comercial cuya gestión no está aprobada;
+    // la gestión comercial queda en "Devuelto a Técnica" (status_id 9)
+    returnToTechnical(data: { inspection_id: number; reason: string; user: string }) {
+        return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/return-to-technical`, {
+            data,
+            channel: 'TLSG_WEB',
+            externalTransactionId: uuidv4(),
+        });
+    }
+
     approveTechnicalInspection(data: any) {
         return this.http.post(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/approve-technical-inspection`, {data});
     }

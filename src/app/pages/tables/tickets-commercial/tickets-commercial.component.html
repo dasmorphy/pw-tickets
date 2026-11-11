@@ -137,7 +137,7 @@
       <i class="pi pi-briefcase"></i>
       <div>
         <span>N. caso</span>
-        <strong>{{ selectedTicket?.ticket_glpi ?? 'N/A' }}</strong>
+        <strong>{{ selectedTicket?.code ?? 'N/A' }}</strong>
       </div>
     </div>
 
@@ -226,6 +226,41 @@
       <p-button label="Cancelar" [text]="true" styleClass="cancel-followup-button" (onClick)="closeAssignDialog()"></p-button>
       <p-button label="Asignar" icon="pi pi-check" styleClass="save-followup-button"
         [disabled]="!selectedSalesUser || selectedSalesUser === selectedTicket?.sales_user" (onClick)="saveAssignment()"></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="returnTechnicalVisible" [modal]="true" [draggable]="false" [resizable]="false" [closable]="false"
+  [style]="{ width: 'min(32rem, calc(100vw - 2rem))' }" styleClass="followup-dialog">
+  <ng-template pTemplate="header">
+    <div class="dialog-title">
+      <div>
+        <h2>Devolver a Técnica</h2>
+        <p class="text-center">{{ selectedTicket?.code_management ?? 'Registro comercial' }}</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="followup-form mt-3">
+    <div class="followup-context">
+      <i class="pi pi-replay"></i>
+      <div>
+        <span>Qué pasa al devolver</span>
+        <strong>El registro técnico queda Devuelto para corregirlo</strong>
+      </div>
+    </div>
+
+    <label for="return-reason">Motivo</label>
+    <textarea id="return-reason" pInputTextarea [(ngModel)]="returnReason" rows="5"
+      placeholder="Indica qué debe corregir el área técnica..."></textarea>
+    <small class="mb-3">La gestión comercial y la proforma se conservan, pero no se podrán editar hasta que Técnica apruebe nuevamente el registro.</small>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-actions">
+      <p-button label="Cancelar" [text]="true" styleClass="cancel-followup-button" (onClick)="closeReturnTechnicalDialog()"></p-button>
+      <p-button label="Devolver" icon="pi pi-replay" styleClass="save-followup-button"
+        [disabled]="!returnReason.trim()" (onClick)="returnToTechnical()"></p-button>
     </div>
   </ng-template>
 </p-dialog>
