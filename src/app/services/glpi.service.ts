@@ -144,7 +144,19 @@ export class GlpiService {
             params = params.set('status', filters.status);
         }
 
-        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-technical`, 
+        // Rol técnico: registros de los que es responsable (las Asistencias en
+        // management_status Completado no se devuelven)
+        if (filters?.responsible) {
+            params = params.set('responsible', filters.responsible);
+        }
+
+        // type admite varios valores, se envía repetido (ej: type=Inspección&type=Asistencia)
+        if (filters?.type?.length) {
+            const types: string[] = Array.isArray(filters.type) ? filters.type : [filters.type];
+            types.forEach(type => params = params.append('type', type));
+        }
+
+        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/register-technical`,
             {params}
         );
     }
@@ -235,7 +247,7 @@ export class GlpiService {
             params = params.set('sales_user', filters.sales_user);
         }
 
-        // Soportes / Asistencias con approve_support en false o null
+        // Soportes con approve_support en false o null (la Asistencia se aprueba con su registro técnico)
         if (filters?.pending_approve_support) {
             params = params.set('pending_approve_support', filters.pending_approve_support);
         }

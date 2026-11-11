@@ -7,14 +7,19 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { forkJoin } from 'rxjs';
 import { GlpiService } from 'src/app/services/glpi.service';
 import { UserService } from 'src/app/services/user.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { TicketDetailSidebarComponent } from 'src/app/components/modals/ticket-detail-sidebar/ticket-detail-sidebar.component';
 
-// inspections: registros técnicos pendientes de aprobación (/register-technical)
-// supports: Soportes / Asistencias sin aprobar (/inspection?pending_approve_support=true)
+// inspections: registros técnicos de Inspecciones pendientes de aprobación (/register-technical)
+// supports: Soportes sin aprobar (/inspection?pending_approve_support=true) +
+//           registros técnicos de Asistencias pendientes de aprobación (/register-technical)
 type ApprovalView = 'inspections' | 'supports';
+
+const ASSISTANCE_TYPE = 'Asistencia';
+const PENDING_APPROVAL = 'Pendiente aprobación';
 
 @Component({
   selector: 'app-inspections-approval',
@@ -29,14 +34,20 @@ export class InspectionsApprovalComponent {
   readonly utilsService = inject(UtilsService);
   readonly userService = inject(UserService);
 
-  readonly SUPPORT_TYPES = ['Soporte', 'Asistencia'];
-
+  // Inspección incluye las antiguas sin tipo
   filters: any = {
-    status: 'Pendiente aprobación',
+    status: PENDING_APPROVAL,
+    type: ['Inspección'],
   };
+  // El Soporte se aprueba con approve-support
   supportFilters: any = {
-    type: this.SUPPORT_TYPES,
+    type: ['Soporte'],
     pending_approve_support: true,
+  };
+  // La Asistencia sigue el flujo normal: se aprueba con su registro técnico
+  assistanceFilters: any = {
+    status: PENDING_APPROVAL,
+    type: [ASSISTANCE_TYPE],
   };
   user_session: any;
   selectedTicket: any;
@@ -73,8 +84,10 @@ export class InspectionsApprovalComponent {
   ngOnInit() {
     this.user_session = this.userService.getDataSession();
     if (this.user_session?.role == 'tecnico') {
-      this.filters.responsible_id = this.user_session?.id_user
-      this.filters.user = this.user_session?.user
+      // /register-technical filtra por responsible (oculta las Asistencias en
+      // management_status Completado); /inspection, por responsible_id
+      this.filters.responsible = this.user_session?.id_user
+      this.assistanceFilters.responsible = this.user_session?.id_user
       this.supportFilters.responsible_id = this.user_session?.id_user
     }
 
@@ -119,11 +132,24 @@ export class InspectionsApprovalComponent {
     });
   }
 
+  get isAssistance(): boolean {
+    return this.selectedTicket?.type === ASSISTANCE_TYPE;
+  }
+
+  // La Asistencia viene de /register-technical: se muestra como registro técnico
+  get detailType(): 'inspection' | 'technical' {
+    return this.isSupportView && !this.isAssistance ? 'inspection' : 'technical';
+  }
+
   fetchSupports() {
     this.supportLoading = true;
-    this.glpiService.getInspectionTechnical(this.supportFilters).subscribe({
-      next: (response: any) => {
-        this.supportTickets = response?.data ?? [];
+    forkJoin({
+      supports: this.glpiService.getInspectionTechnical(this.supportFilters),
+      assistances: this.glpiService.getTicketsTechnical(this.assistanceFilters),
+    }).subscribe({
+      next: ({ supports, assistances }: any) => {
+        this.supportTickets = [...(supports?.data ?? []), ...(assistances?.data ?? [])]
+          .sort((a, b) => String(b.created_at ?? '').localeCompare(String(a.created_at ?? '')));
         this.supportLoading = false;
       },
       error: (error: any) => {
@@ -139,15 +165,17 @@ export class InspectionsApprovalComponent {
   }
 
   routeRegister() {
-    // Soportes / Asistencias se editan en el formulario de la inspección
-    const route = this.isSupportView
+    // El Soporte se edita en el formulario de la inspección; Inspecciones y
+    // Asistencias, en el registro técnico con sus materiales
+    const route = this.isSupportView && !this.isAssistance
       ? `/editar-inspeccion/${this.selectedTicket?.id_inspection}`
       : `/registro-inspeccion-tecnica/${this.selectedTicket?.id_inspection}`;
     this.router.navigate([route]);
   }
 
   approve() {
-    this.isSupportView ? this.approveSupport() : this.approveInspection();
+    // La Asistencia se aprueba igual que una inspección (approve-technical-inspection)
+    this.isSupportView && !this.isAssistance ? this.approveSupport() : this.approveInspection();
   }
 
   approveInspection() {
@@ -157,18 +185,20 @@ export class InspectionsApprovalComponent {
       user: this.user_session?.user
     }
 
+    const label = this.isAssistance ? 'Asistencia' : 'Inspección';
+
     this.glpiService.approveTechnicalInspection(data).subscribe({
       next: () => {
         this.isApproving = false;
         this.showConfirm = false;
-        this.utilsService.onSuccess('Inspección aprobada correctamente');
-        this.fetchTicketsTechnical();
+        this.utilsService.onSuccess(`${label} aprobada correctamente`);
+        this.isSupportView ? this.fetchSupports() : this.fetchTicketsTechnical();
       },
       error: (error: any) => {
         console.log(error)
         this.isApproving = false;
         this.showConfirm = false;
-        this.utilsService.onError(error?.error?.message ?? 'No se pudo aprobar la inspección, por favor intente nuevamente')
+        this.utilsService.onError(error?.error?.message ?? `No se pudo aprobar la ${label.toLowerCase()}, por favor intente nuevamente`)
       }
     })
   }

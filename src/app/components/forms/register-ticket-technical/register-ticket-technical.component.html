@@ -93,7 +93,7 @@
                             [ngModelOptions]="{standalone: true}" optionLabel="product" [filter]="true"
                             filterBy="product,provider,code" [showClear]="true" placeholder="Buscar material"
                             emptyMessage="Sin materiales" emptyFilterMessage="Sin resultados" styleClass="w-full"
-                            appendTo="body">
+                            appendTo="body" [panelStyle]="{ maxWidth: 'min(36rem, 92vw)' }">
                             <ng-template let-material pTemplate="item">
                                 <div class="material-option">
                                     <strong>{{ material.product }}</strong>

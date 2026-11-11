@@ -530,6 +530,8 @@
   min-width: 0
   flex-direction: column
   gap: .15rem
+  white-space: normal
+  overflow-wrap: anywhere
 
   strong
     color: #24344f
@@ -656,7 +658,13 @@
   .commercial-form
     .p-dropdown, .p-inputnumber, .p-calendar
       width: 100%
+      max-width: 100%
       box-shadow: none
+
+    .p-dropdown-label
+      overflow: hidden
+      text-overflow: ellipsis
+      white-space: nowrap
 
     .p-dropdown, .p-inputtext
       height: 2.45rem

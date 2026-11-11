@@ -48,7 +48,7 @@ export class InspectionFormComponent {
     ticketForm: FormGroup;
     
     type: string[] = ["Inspección", "Soporte", "Asistencia"];
-    // Tipos que no continúan el flujo y usan fecha inicio/fin
+    // Tipos que usan fecha inicio/fin (el Soporte no continúa el flujo; la Asistencia sí)
     readonly SUPPORT_TYPES = ['Soporte', 'Asistencia'];
     clientsOptions: any[] = [];
     ubicationsOptions: any[] = [];

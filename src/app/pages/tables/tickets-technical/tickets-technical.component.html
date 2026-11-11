@@ -102,7 +102,7 @@
                     <i class="pi pi-replay"></i>{{ request.status }}
                   </span>
                 } @else {
-                  <span>{{ request.status ?? request.management_area ?? 'N/A' }}</span>
+                  <span>{{ request.status ?? request.management_status ?? 'N/A' }}</span>
                 }
               </td>
               <td><span>{{ request.created_by ?? request.responsible_name ?? 'N/A' }}</span></td>

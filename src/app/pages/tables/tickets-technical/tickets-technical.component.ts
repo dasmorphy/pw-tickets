@@ -98,8 +98,10 @@ export class TicketsTechnicalComponent {
   ngOnInit() {
     this.user_session = this.userService.getDataSession();
     if (this.user_session?.role == 'tecnico') {
+      // responsible_id: /inspection; responsible: /register-technical (oculta las
+      // Asistencias en management_status Completado)
       this.filters.responsible_id = this.user_session?.id_user
-      this.filters.user = this.user_session?.user
+      this.filters.responsible = this.user_session?.id_user
     }
     
     this.fetchInspection();
