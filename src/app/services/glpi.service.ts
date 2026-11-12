@@ -56,6 +56,12 @@ export class GlpiService {
         });
     }
 
+    downloadSaleQuoteExcel(idQuote: number): Observable<Blob> {
+        return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/sale-quotation/${idQuote}/excel`, {
+            responseType: 'blob'
+        });
+    }
+
     getClients() {
         return this.http.get(`${environment.apiTicket}/rest/technical-control-api/v1.0/clients`);
     }

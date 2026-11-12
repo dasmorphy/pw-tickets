@@ -145,6 +145,10 @@
                                 (click)="downloadSaleQuote(data?.sale_quotation?.id_quote)">
                                 <i class="pi pi-download"></i>
                             </button>
+                            <button type="button" class="icon-button" title="Descargar Excel" aria-label="Descargar proforma en Excel"
+                                [disabled]="loadingSaleQuoteExcel" (click)="downloadSaleQuoteExcel(data?.sale_quotation?.id_quote)">
+                                <i class="pi" [ngClass]="loadingSaleQuoteExcel ? 'pi-spin pi-spinner' : 'pi-file-excel'"></i>
+                            </button>
                         </div>
                     </li>
                 </ul>
@@ -224,6 +228,10 @@
                                     <button type="button" class="icon-button" title="Descargar" aria-label="Descargar proforma"
                                         [disabled]="loadingSaleQuote" (click)="downloadSaleQuote(saleQuoteId)">
                                         <i class="pi" [ngClass]="loadingSaleQuote ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+                                    </button>
+                                    <button type="button" class="icon-button" title="Descargar Excel" aria-label="Descargar proforma en Excel"
+                                        [disabled]="loadingSaleQuoteExcel" (click)="downloadSaleQuoteExcel(saleQuoteId)">
+                                        <i class="pi" [ngClass]="loadingSaleQuoteExcel ? 'pi-spin pi-spinner' : 'pi-file-excel'"></i>
                                     </button>
                                 </div>
                             </li>

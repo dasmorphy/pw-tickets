@@ -101,6 +101,12 @@ export class RegisterTicketCommercialComponent {
     proformaItems: ProformaItem[] = [];
     // Proforma del ticket en edición, pendiente de aplicar hasta que cargue el catálogo
     private savedQuotation: any = null;
+    // Al editar: materiales del registro técnico y último guardado de la proforma, para
+    // agregar lo que el técnico registró después (ver mergeTechnicalMaterials)
+    private technicalMaterials: any[] | null = null;
+    private savedQuotationUpdatedAt: string | null = null;
+    private savedQuotationApplied = false;
+    private technicalMerged = false;
     loadingMaterials = false;
     catalogMaterials: any[] = [];
     loadingCatalog = false;
@@ -263,6 +269,7 @@ export class RegisterTicketCommercialComponent {
                 this.setTicketEdit(dataTicket)
                 if (dataTicket?.sale_quotation) {
                     this.savedQuotation = dataTicket.sale_quotation;
+                    this.savedQuotationUpdatedAt = dataTicket.sale_quotation.updated_at ?? null;
                     this.quotationTermsForm.patchValue({
                         delivery_time: dataTicket.sale_quotation.delivery_time ?? null,
                         payment_terms: dataTicket.sale_quotation.payment_terms ?? null,
@@ -307,6 +314,65 @@ export class RegisterTicketCommercialComponent {
         this.proformaItems = (this.savedQuotation.items ?? []).map((item: any) => this.fromSavedItem(item));
         this.refreshItemTechnicalOptions();
         this.savedQuotation = null;
+        this.savedQuotationApplied = true;
+        this.mergeTechnicalMaterials();
+    }
+
+    /**
+     * Al editar una proforma guardada: agrega los materiales que el técnico registró
+     * después de su último guardado (p. ej. tras devolver el registro a Técnica) y avisa
+     * los que quitó o cuya cantidad cambió, sin modificar esas líneas. Corre una sola vez,
+     * cuando ya cargaron la proforma y los materiales (llegan en paralelo).
+     */
+    private mergeTechnicalMaterials(): void {
+        if (this.technicalMerged || !this.savedQuotationApplied || !this.technicalMaterials) {
+            return;
+        }
+        this.technicalMerged = true;
+
+        const lines = this.proformaItems.flatMap(item => item.kind === 'bundle' ? (item.components ?? []) : [item]);
+        const technicalLine = (idMaterial: number) => lines.find(line => line.material_tech_ticket_id === idMaterial);
+        const catalogLines = (materialId: number) => lines.filter(line =>
+            line.kind !== 'new' && line.kind !== 'labor' && line.material_id === materialId);
+        const savedAt = this.savedQuotationUpdatedAt ? new Date(this.savedQuotationUpdatedAt).getTime() : null;
+        const isAfterSave = (material: any) => savedAt === null
+            || (material?.created_at != null && new Date(material.created_at).getTime() > savedAt);
+
+        const added: ProformaItem[] = [];
+        const warnings: string[] = [];
+        for (const material of this.technicalMaterials) {
+            const name = material?.equipment?.product || this.technicalDescription(material) || 'Material';
+            const quantity = material?.quantity ?? null;
+            const matches = material?.equipment
+                ? catalogLines(material.material_id)
+                : [technicalLine(material.id_material)].filter((line): line is ProformaItem => !!line);
+
+            if (!matches.length) {
+                if (isAfterSave(material)) {
+                    added.push(this.toProformaItem(material));
+                }
+            } else if (matches.length === 1 && quantity != null && matches[0].quantity !== quantity) {
+                warnings.push(`"${name}": el técnico registró ${quantity} y la proforma tiene ${matches[0].quantity}`);
+            }
+        }
+
+        // Productos nuevos de la proforma vinculados a un material que el técnico ya no tiene
+        const technicalIds = new Set(this.technicalMaterials.map(material => material.id_material));
+        lines
+            .filter(line => line.material_tech_ticket_id && !technicalIds.has(line.material_tech_ticket_id))
+            .forEach(line => warnings.push(`"${line.description || 'Material'}" ya no está en el registro técnico`));
+
+        if (added.length) {
+            this.proformaItems.push(...added);
+            this.refreshItemTechnicalOptions();
+            this.utilsService.onWarn(
+                `Se agregaron ${added.length} material(es) del registro técnico a la proforma; revise cantidades y precios antes de guardar.`,
+                10000
+            );
+        }
+        if (warnings.length) {
+            this.utilsService.onWarn(`Diferencias con el registro técnico: ${warnings.join('; ')}.`, 15000);
+        }
     }
 
     private fromSavedItem(saved: any): ProformaItem {
@@ -415,6 +481,7 @@ export class RegisterTicketCommercialComponent {
         this.glpiService.getInspectionMaterials(inspectionId).subscribe({
             next: (data: any) => {
                 const materials = data?.data ?? [];
+                this.technicalMaterials = materials;
                 this.technicalNewProducts = materials
                     .filter((material: any) => !material?.equipment && material?.id_material)
                     .map((material: any) => ({
@@ -427,6 +494,9 @@ export class RegisterTicketCommercialComponent {
                 }
                 this.refreshItemTechnicalOptions();
                 this.loadingMaterials = false;
+                if (!buildItems) {
+                    this.mergeTechnicalMaterials();
+                }
             },
             error: (error: any) => {
                 console.log(error);

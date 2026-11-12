@@ -69,6 +69,7 @@ export class TicketDetailSidebarComponent implements OnChanges {
     // Proforma de la inspección (GET de inspecciones: sale_quote_id); null si no existe
     saleQuoteId: number | null = null;
     loadingSaleQuote = false;
+    loadingSaleQuoteExcel = false;
     // id_document en descarga/visualización, para deshabilitar sus botones
     busyDocumentId: number | null = null;
     private documentsRequestId: number | null = null;
@@ -372,6 +373,26 @@ export class TicketDetailSidebarComponent implements OnChanges {
                 this.loadingSaleQuote = false;
                 console.error('Error al descargar documento:', error);
                 this.utilsService.onError('No se pudo descargar el documento.');
+            }
+        });
+    }
+
+    downloadSaleQuoteExcel(id_quote: number): void {
+        this.loadingSaleQuoteExcel = true;
+        this.glpiService.downloadSaleQuoteExcel(id_quote).subscribe({
+            next: (blob: Blob) => {
+                this.loadingSaleQuoteExcel = false;
+                const url = window.URL.createObjectURL(blob);
+                const link = window.document.createElement('a');
+                link.href = url;
+                link.download = `proforma-${id_quote}.xlsx`;
+                link.click();
+                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+            },
+            error: (error: any) => {
+                this.loadingSaleQuoteExcel = false;
+                console.error('Error al descargar el Excel de la proforma:', error);
+                this.utilsService.onError('No se pudo descargar el Excel de la proforma.');
             }
         });
     }
