@@ -14,6 +14,7 @@ import { MaterialDeliveryService, PendingMaterialInfo } from 'src/app/services/m
 import { ProjectTechnicalService } from 'src/app/services/project-technical.service';
 import { UserService } from 'src/app/services/user.service';
 import { UtilsService } from 'src/app/services/utils.service';
+import { MAX_MARGIN_PERCENT, priceFromMargin } from 'src/app/utils/pricing';
 
 // Datos para crear en el catálogo el producto de un pendiente (sugeridos desde el pendiente)
 interface PendingProductForm {
@@ -139,13 +140,19 @@ export class PendingProductDialogComponent implements OnChanges {
         return Math.max(0, current + (this.received ?? 0) - (this.delivered ?? 0));
     }
 
+    readonly maxMarginPercent = MAX_MARGIN_PERCENT;
+
+    // Margen sobre la venta: PVP = costo / (1 - %); ganancia = PVP - costo
+    private get prices() {
+        return priceFromMargin(this.form.base_price ?? 0, (this.form.profit_margin_percent ?? 0) / 100);
+    }
+
     get profitDollar(): number {
-        const basePrice = this.form.base_price ?? 0;
-        return this.round(basePrice * ((this.form.profit_margin_percent ?? 0) / 100));
+        return this.prices.profit_margin_dollar;
     }
 
     get finalPrice(): number {
-        return this.round((this.form.base_price ?? 0) + this.profitDollar);
+        return this.prices.price;
     }
 
     // Stock con el que quedará el catálogo: lo recibido menos lo ya entregado con el pendiente
@@ -169,6 +176,10 @@ export class PendingProductDialogComponent implements OnChanges {
         const form = this.form;
         if (!form.product.trim() || form.provider_id == null || form.base_price == null || form.profit_margin_percent == null) {
             this.utilsService.onWarn('Complete el nombre, proveedor, precio base y margen del producto.');
+            return;
+        }
+        if (form.profit_margin_percent >= 100) {
+            this.utilsService.onWarn('El margen debe ser menor a 100 %.');
             return;
         }
         if (form.stock == null || form.stock < this.minStock) {

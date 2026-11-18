@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
 import { Component, EventEmitter, inject, Input, OnChanges, Output } from '@angular/core';
 import { SidebarModule } from 'primeng/sidebar';
 import { GlpiService } from 'src/app/services/glpi.service';
@@ -360,12 +361,12 @@ export class TicketDetailSidebarComponent implements OnChanges {
     downloadSaleQuote(id_quote: number): void {
         this.loadingSaleQuote = true;
         this.glpiService.downloadSaleQuote(id_quote).subscribe({
-            next: (blob: Blob) => {
+            next: (response: HttpResponse<Blob>) => {
                 this.loadingSaleQuote = false;
-                const url = window.URL.createObjectURL(blob);
+                const url = window.URL.createObjectURL(response.body!);
                 const link = window.document.createElement('a');
                 link.href = url;
-                link.download = `cotizacion-${id_quote}.pdf`;
+                link.download = this.utilsService.fileNameFromHeaders(response.headers, `cotizacion-${id_quote}.pdf`);
                 link.click();
                 setTimeout(() => window.URL.revokeObjectURL(url), 1000);
             },
@@ -380,12 +381,12 @@ export class TicketDetailSidebarComponent implements OnChanges {
     downloadSaleQuoteExcel(id_quote: number): void {
         this.loadingSaleQuoteExcel = true;
         this.glpiService.downloadSaleQuoteExcel(id_quote).subscribe({
-            next: (blob: Blob) => {
+            next: (response: HttpResponse<Blob>) => {
                 this.loadingSaleQuoteExcel = false;
-                const url = window.URL.createObjectURL(blob);
+                const url = window.URL.createObjectURL(response.body!);
                 const link = window.document.createElement('a');
                 link.href = url;
-                link.download = `proforma-${id_quote}.xlsx`;
+                link.download = this.utilsService.fileNameFromHeaders(response.headers, `proforma-${id_quote}.xlsx`);
                 link.click();
                 setTimeout(() => window.URL.revokeObjectURL(url), 1000);
             },
@@ -401,8 +402,8 @@ export class TicketDetailSidebarComponent implements OnChanges {
         // La pestaña se abre antes de la petición para que el navegador no la bloquee como popup
         const tab = window.open('', '_blank');
         this.glpiService.downloadSaleQuote(id_quote, true).subscribe({
-            next: (blob: Blob) => {
-                const url = window.URL.createObjectURL(blob);
+            next: (response: HttpResponse<Blob>) => {
+                const url = window.URL.createObjectURL(response.body!);
                 if (tab) {
                     tab.location.href = url;
                 } else {

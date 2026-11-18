@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpParams, HttpResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { v4 as uuidv4 } from 'uuid';
@@ -49,16 +49,19 @@ export class GlpiService {
         });
     }
 
-    downloadSaleQuote(idDocument: number, inline = false): Observable<Blob> {
+    // Respuesta completa: el nombre del archivo ("<código> - <proyecto>.pdf") viene en Content-Disposition
+    downloadSaleQuote(idDocument: number, inline = false): Observable<HttpResponse<Blob>> {
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/sale-quotation/${idDocument}/pdf`, {
             params: new HttpParams().set('inline', inline),
-            responseType: 'blob'
+            responseType: 'blob',
+            observe: 'response'
         });
     }
 
-    downloadSaleQuoteExcel(idQuote: number): Observable<Blob> {
+    downloadSaleQuoteExcel(idQuote: number): Observable<HttpResponse<Blob>> {
         return this.http.get(`${environment.apiTicket}/rest/proxy-glpi-api/v1.0/sale-quotation/${idQuote}/excel`, {
-            responseType: 'blob'
+            responseType: 'blob',
+            observe: 'response'
         });
     }
 

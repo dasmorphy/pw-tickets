@@ -110,7 +110,7 @@
             <div class="field">
                 <label for="pendingMargin">Margen (%) <span class="required">*</span></label>
                 <p-inputNumber inputId="pendingMargin" [(ngModel)]="form.profit_margin_percent" suffix=" %"
-                    [min]="0" [maxFractionDigits]="2" styleClass="w-full"></p-inputNumber>
+                    [min]="0" [max]="maxMarginPercent" [maxFractionDigits]="2" styleClass="w-full"></p-inputNumber>
             </div>
             <div class="field">
                 <label for="pendingStock">Stock recibido <span class="required">*</span></label>

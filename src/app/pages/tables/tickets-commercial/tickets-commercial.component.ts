@@ -241,7 +241,7 @@ export class TicketsCommercialComponent {
   fetchUsers() {
     this.loadingUsers = true;
     const filters = {
-      roles: ['asesor_ventas']
+      roles: ['asesor_ventas', 'jefe_comercial']
     }
     this.userService.getUsers(filters).subscribe({
       next: (data: any) => {

@@ -108,10 +108,10 @@
 
         <div class="field">
           <label for="mat-margin">Margen de ganancia <span class="required">*</span></label>
-          <p-inputNumber inputId="mat-margin" formControlName="profit_margin_percent" suffix=" %" [min]="0"
+          <p-inputNumber inputId="mat-margin" formControlName="profit_margin_percent" suffix=" %" [min]="0" [max]="maxMarginPercent"
             [maxFractionDigits]="2" placeholder="0 %" styleClass="w-full"></p-inputNumber>
           @if (isInvalid('profit_margin_percent')) {
-          <small class="field-error">Ingrese el margen.</small>
+          <small class="field-error">Ingrese un margen menor a 100 %.</small>
           }
         </div>
       </div>

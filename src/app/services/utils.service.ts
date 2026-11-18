@@ -62,6 +62,23 @@ export class UtilsService {
         this.firstControlForms = '';
     }
 
+    /** Nombre del archivo según Content-Disposition: prioriza filename* (UTF-8, con tildes) sobre filename. */
+    fileNameFromHeaders(headers: { get(name: string): string | null }, defaultName: string): string {
+        const disposition = headers.get('content-disposition') || '';
+
+        const encoded = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+        if (encoded?.[1]) {
+            try {
+                return decodeURIComponent(encoded[1].trim());
+            } catch {
+                // Valor mal codificado: se usa filename
+            }
+        }
+
+        const plain = disposition.match(/filename\s*=\s*"([^"]+)"|filename\s*=\s*([^;]+)/i);
+        return (plain?.[1] || plain?.[2] || '').trim() || defaultName;
+    }
+
     downloadFile(response: any, defaultName: string) {
         const blob = response.body as Blob;
 

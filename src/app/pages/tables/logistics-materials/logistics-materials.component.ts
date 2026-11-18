@@ -22,6 +22,7 @@ import { environment } from 'src/environments/environment.development';
 import { Material, MaterialImage, Provider } from 'src/app/models/logistic';
 import { AuthService } from 'src/app/services/auth.service';
 import { ProviderFormDialogComponent } from 'src/app/components/modals/provider-form-dialog/provider-form-dialog.component';
+import { MAX_MARGIN_PERCENT, priceFromMargin } from 'src/app/utils/pricing';
 
 type StockFilter = 'all' | 'available' | 'low' | 'out';
 
@@ -89,9 +90,11 @@ export class LogisticsMaterialsComponent implements OnInit {
         unit: ['Unid.'],
         stock: [0, [Validators.required, Validators.min(0)]],
         base_price: [null, [Validators.required, Validators.min(0)]],
-        profit_margin_percent: [null, [Validators.required, Validators.min(0)]],
+        profit_margin_percent: [null, [Validators.required, Validators.min(0), Validators.max(MAX_MARGIN_PERCENT)]],
         description: [''],
     });
+
+    readonly maxMarginPercent = MAX_MARGIN_PERCENT;
 
     // Stock igual o menor a este valor se considera bajo
     readonly lowStockLimit = 5;
@@ -178,14 +181,20 @@ export class LogisticsMaterialsComponent implements OnInit {
         this.applyFilters();
     }
 
+    // Margen sobre la venta: PVP = costo / (1 - %); ganancia = PVP - costo
+    private get prices() {
+        return priceFromMargin(
+            this.materialForm.value.base_price ?? 0,
+            (this.materialForm.value.profit_margin_percent ?? 0) / 100,
+        );
+    }
+
     get profitDollar(): number {
-        const basePrice = this.materialForm.value.base_price ?? 0;
-        const margin = (this.materialForm.value.profit_margin_percent ?? 0) / 100;
-        return this.round(basePrice * margin);
+        return this.prices.profit_margin_dollar;
     }
 
     get finalPrice(): number {
-        return this.round((this.materialForm.value.base_price ?? 0) + this.profitDollar);
+        return this.prices.price;
     }
 
     // Cupo de imágenes nuevas: máximo total menos las existentes que se conservan

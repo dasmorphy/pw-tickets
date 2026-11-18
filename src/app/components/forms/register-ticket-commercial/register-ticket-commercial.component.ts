@@ -17,6 +17,7 @@ import { ProjectTechnicalService } from 'src/app/services/project-technical.serv
 import { UserService } from 'src/app/services/user.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { DocumentUploadComponent } from '../document-upload/document-upload.component';
+import { MAX_MARGIN_PERCENT, priceFromMargin } from 'src/app/utils/pricing';
 
 /**
  * catalog: material del registro técnico con material_id (solo se edita la cantidad)
@@ -208,6 +209,8 @@ export class RegisterTicketCommercialComponent {
         return this.round((item.quantity ?? 0) * (item.price ?? 0));
     }
 
+    readonly maxMarginPercent = MAX_MARGIN_PERCENT;
+
     marginPercent(item: ProformaItem): number | null {
         return item.profit_margin != null ? this.round(item.profit_margin * 100) : null;
     }
@@ -230,8 +233,10 @@ export class RegisterTicketCommercialComponent {
             item.price = null;
             return;
         }
-        item.profit_margin_dollar = this.round(item.base_price * (item.profit_margin ?? 0));
-        item.price = this.round(item.base_price + item.profit_margin_dollar);
+        // Margen sobre la venta: PVP = costo / (1 - %)
+        const { price, profit_margin_dollar } = priceFromMargin(item.base_price, item.profit_margin);
+        item.profit_margin_dollar = profit_margin_dollar;
+        item.price = price;
     }
 
     private round(value: number, decimals = 2): number {
@@ -556,15 +561,16 @@ export class RegisterTicketCommercialComponent {
 
     private pricesFromEquipment(equipment: any) {
         const basePrice = equipment?.base_price ?? null;
-        const profitDollar = equipment?.profit_margin_dollar ?? null;
+        const margin = equipment?.profit_margin ?? null;
+        // Se recalcula con el costo y el margen (PVP = costo / (1 - %))
+        const prices = basePrice != null ? priceFromMargin(basePrice, margin) : null;
         return {
             model: equipment?.model ?? '',
             description: equipment?.product ?? '',
             base_price: basePrice,
-            profit_margin: equipment?.profit_margin ?? null,
-            profit_margin_dollar: profitDollar,
-            // Si el catálogo no trae price se calcula como precio base + ganancia
-            price: (basePrice != null ? this.round(basePrice + (profitDollar ?? 0)) : null),
+            profit_margin: margin,
+            profit_margin_dollar: prices?.profit_margin_dollar ?? null,
+            price: prices?.price ?? null,
         };
     }
 
@@ -723,7 +729,8 @@ export class RegisterTicketCommercialComponent {
             description: this.bundleDescription(components),
             quantity: 1,
             base_price: totals.base,
-            profit_margin: totals.base ? this.round(totals.margin / totals.base, 4) : 0,
+            // Margen ponderado sobre la venta: ganancia / PVP
+            profit_margin: totals.price ? this.round(totals.margin / totals.price, 4) : 0,
             profit_margin_dollar: totals.margin,
             price: totals.price,
         };
